@@ -10,8 +10,12 @@ exit $?
 import random
 
 from character_sheet import CharacterSheet
+from equipment import Item
+from mana import MageSpell
+from mana import MageSpellList
 from skills import CharacterSkill
 from skills import CharacterSkillsList
+from talents import TalentList
 
 
 def main() -> None:
@@ -53,12 +57,141 @@ def main() -> None:
             sheet.skills.append(skill)
     sheet.skills.sort()
 
+    sheet.talents.append(TalentList().matching_random_talent(sheet.warrior, sheet.rogue, sheet.mage))
+
+    mana: int = sheet.mana // 2 + 1
+    while mana > 0 and len(sheet.spells) < 2:
+        spell: MageSpell = MageSpellList().random_spell(mana)
+        if spell in sheet.spells:
+            continue
+        mana -= spell.mana_cost
+        sheet.spells.append(spell)
+    sheet.spells.sort()
+
+    money_sp: int = 200
+
+    item: Item
+
+    item = Item("Adventurer's Kit", 5)
+    sheet.equipment.append(item)
+    money_sp -= item.cost_sp
+
+    item = Item("Backpack", 4)
+    sheet.equipment.append(item)
+    money_sp -= item.cost_sp
+
+    if sheet.mage:
+        item = Item("Spellbook", 20)
+        sheet.equipment.append(item)
+        money_sp -= item.cost_sp
+
+    item = Item("Iron Rations (1 week)", 14)
+    sheet.equipment.append(item)
+    money_sp -= item.cost_sp
+
+    item = Item("Rations (1 week)", 7)
+    sheet.equipment.append(item)
+    money_sp -= item.cost_sp
+
+    item = Item("Torches (3)", 3)
+    sheet.equipment.append(item)
+    money_sp -= item.cost_sp
+
+    if ("Thievery" in sheet.skill_names()  #
+            or (sheet.rogue > sheet.warrior and sheet.rogue > sheet.mana)):
+        item = Item("Lock Pick", 2)
+        sheet.equipment.append(item)
+        money_sp -= item.cost_sp
+
+    item = Item("Rope (10 yards)", 2)
+    sheet.equipment.append(item)
+    money_sp -= item.cost_sp
+
+    item = Item("Common Clothing", 3)
+    sheet.equipment.append(item)
+    money_sp -= item.cost_sp
+
+    item = Item("Travel Clothing", 3)
+    sheet.equipment.append(item)
+    money_sp -= item.cost_sp
+
+    if sheet.mage > sheet.warrior and sheet.mage > sheet.rogue:
+        item = Item("Noble's Clothing", 12)
+        sheet.equipment.append(item)
+        money_sp -= item.cost_sp
+
+    item_name = "Cask of Beer"
+    item_cost = 6
+    if money_sp >= item_cost and random.randint(1, 6) == 1:
+        item = Item(item_name, item_cost)
+        sheet.equipment.append(item)
+        money_sp -= item.cost_sp
+
+    item_name = "Cask of Wine"
+    item_cost = 9
+    if money_sp >= item_cost and random.randint(1, 6) == 1:
+        item = Item(item_name, item_cost)
+        sheet.equipment.append(item)
+        money_sp -= item.cost_sp
+
+    item_name = "Lantern"
+    item_cost = 5
+    if money_sp >= item_cost and random.randint(1, 6) == 1:
+        item = Item(item_name, item_cost)
+        sheet.equipment.append(item)
+        money_sp -= item.cost_sp
+
+    item_name = "Pickaxe"
+    item_cost = 3
+    if money_sp >= item_cost and random.randint(1, 6) == 1:
+        item = Item(item_name, item_cost)
+        sheet.equipment.append(item)
+        money_sp -= item.cost_sp
+
+    if sheet.mage > sheet.warrior and sheet.mage > sheet.rogue:
+        if money_sp >= 35 and random.randint(1, 6) < 3:
+            item = Item("Magic Staff - 1st Circle", 35)
+            sheet.equipment.append(item)
+            money_sp -= item.cost_sp
+        elif money_sp >= 70 and random.randint(1, 6) < 3:
+            item = Item("Magic Staff - 2nd Circle", 70)
+            sheet.equipment.append(item)
+            money_sp -= item.cost_sp
+        elif money_sp >= 140 and random.randint(1, 6) < 3:
+            item = Item("Magic Staff - 3rd Circle", 35)
+            sheet.equipment.append(item)
+            money_sp -= item.cost_sp
+        elif money_sp >= 250 and random.randint(1, 6) < 3:
+            item = Item("Magic Staff - 4th Circle", 250)
+            sheet.equipment.append(item)
+            money_sp -= item.cost_sp
+
+    if sheet.mage > sheet.warrior or sheet.mage > sheet.rogue:
+        if money_sp >= 35 and random.randint(1, 6) < 2:
+            item = Item("Magic Ring - 1st Circle", 35)
+            sheet.equipment.append(item)
+            money_sp -= item.cost_sp
+        elif money_sp >= 70 and random.randint(1, 6) < 2:
+            item = Item("Magic Ring - 2nd Circle", 70)
+            sheet.equipment.append(item)
+            money_sp -= item.cost_sp
+        elif money_sp >= 140 and random.randint(1, 6) < 2:
+            item = Item("Magic Ring - 3rd Circle", 35)
+            sheet.equipment.append(item)
+            money_sp -= item.cost_sp
+        elif money_sp >= 250 and random.randint(1, 6) < 2:
+            item = Item("Magic Ring - 4th Circle", 250)
+            sheet.equipment.append(item)
+            money_sp -= item.cost_sp
+
     print()
     print("===")
     print()
     sheet.print()
     print("---")
     print()
+
+    print(f"Remaining Money: {money_sp}")
 
 
 if __name__ == "__main__":

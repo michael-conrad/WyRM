@@ -34,12 +34,20 @@ class MageSpell:
             self.mana_cost = 2 ** circle
             self.difficulty = Difficulty.Extreme
 
+    def __lt__(self, other):
+        # if self.circle != other.circle:
+        #     return self.circle < other.circle
+        return self.name < other.name
+
+    def __str__(self):
+        return f"{self.name}, Mana: {self.mana_cost}, Difficulty: {self.difficulty}, {self.description}"
+
 
 @dataclass(slots=True)
 class MageSpellList:
     mage_spells: list[MageSpell] = field(default_factory=list)
 
-    def __init__(self):
+    def __post_init__(self):
         self.mage_spells.append(MageSpell(1, "Frost Burn", "Touch. 1d6-2 damage. Mana burn raises damage by +1."))
         self.mage_spells.append(MageSpell(1, "Healing Hand", "Touch. 1d6 HP healed. Mana burn raises heal by +1."))
         self.mage_spells.append(MageSpell(1, "Magic Light", "Create a magic light on the tip of a staff or other "
@@ -89,6 +97,13 @@ class MageSpellList:
         self.mage_spells.append(MageSpell(4, "Summon Phantom Steed", "Summons. Raises a phantom steed. Duration: 24 "
                                                                      "hours or until dispelled or HP is exhausted. "
                                                                      "Mana burn: Not available."))
+
+    def random_spell(self, mana: int = 1) -> MageSpell:
+        while True:
+            spell: MageSpell = random.choice(self.mage_spells)
+            if spell.mana_cost <= mana and random.randint(1, 10) > spell.mana_cost:
+                return spell
+
 
 
 

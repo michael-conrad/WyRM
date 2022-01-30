@@ -1,6 +1,8 @@
 import random
 from dataclasses import dataclass
 from dataclasses import field
+
+from equipment import Item
 from mana import MageSpell
 from skills import CharacterSkill
 from skills import SkillAttribute
@@ -14,6 +16,7 @@ class CharacterSheet:
     skills: list[CharacterSkill] = field(default_factory=list)
     talents: list[CharacterTalent] = field(default_factory=list)
     spells: list[MageSpell] = field(default_factory=list)
+    equipment: list[Item] = field(default_factory=list)
 
     warrior: int = 0
     rogue: int = 0
@@ -45,17 +48,37 @@ class CharacterSheet:
         self.base_defense = 4 + (self.warrior + self.rogue) // 2
 
     def print(self) -> None:
-        print(f"W: {self.warrior}, Adv. Taken: {self.adv_taken}")
-        print(f"R: {self.rogue}, Fate: {self.fate}")
-        print(f"M: {self.mage}, Armor Penalty: {self.armor_penalty}")
+        print(f"Warrior: {self.warrior}, Adv. Taken: {self.adv_taken}")
+        print(f"Rogue: {self.rogue}, Fate: {self.fate}")
+        print(f"Mage: {self.mage}, Armor Penalty: {self.armor_penalty}")
         print()
         print(f"HP: {self.hit_points} ({self.hit_points_max})")
         print(f"Mana: {self.mana} ({self.mana_max})")
         print(f"Defense: {self.defense} = {self.base_defense=} | {self.armor=}")
         print()
+
         print("=== SKILLS ===")
         for skill in self.skills:
             print(f" - {skill}")
+        print()
+
+        print("=== TALENTS ===")
+        for talent in self.talents:
+            print(f" - {talent}")
+        print()
+
+        print("=== SPELLS ===")
+        if not self.spells:
+            print("None")
+        for spell in self.spells:
+            print(f" - {spell}")
+        print()
+
+        print("=== EQUIPMENT ===")
+        if not self.equipment:
+            print("None")
+        for item in self.equipment:
+            print(f" - {item}")
         print()
 
     def attribute_level(self, skill: SkillAttribute) -> int:
@@ -67,4 +90,10 @@ class CharacterSheet:
             return self.warrior
 
         return 0
+
+    def skill_names(self) -> list[str]:
+        skills: list[str] = list()
+        for skill in self.skills:
+            skills.append(skill.skill_name)
+        return skills
 

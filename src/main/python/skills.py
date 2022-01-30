@@ -57,18 +57,19 @@ class CharacterSkillsList:
     def __post_init__(self):
         self.skills_list.append(CharacterSkill("Acrobatics", SkillAttribute.Rogue))
         self.skills_list.append(CharacterSkill("Alchemy", SkillAttribute.Mage))
-        self.skills_list.append(CharacterSkill("Athletics", SkillAttribute.Rogue))
+        self.skills_list.append(CharacterSkill("Athletics", SkillAttribute.Warrior))
         self.skills_list.append(CharacterSkill("Awareness", SkillAttribute.Mage))
         self.skills_list.append(CharacterSkill("Axes", SkillAttribute.Warrior))
-        self.skills_list.append(CharacterSkill("Blunt", SkillAttribute.Warrior))
+        self.skills_list.append(CharacterSkill("Blunt Weapons", SkillAttribute.Warrior))
         self.skills_list.append(CharacterSkill("Bows", SkillAttribute.Rogue))
         self.skills_list.append(CharacterSkill("Driving", SkillAttribute.Warrior))
         self.skills_list.append(CharacterSkill("Daggers", SkillAttribute.Rogue))
         self.skills_list.append(CharacterSkill("Firearms", SkillAttribute.Rogue))
         self.skills_list.append(CharacterSkill("Herbalism", SkillAttribute.Mage))
+        self.skills_list.append(CharacterSkill("Hermeticism", SkillAttribute.Mage))
         self.skills_list.append(CharacterSkill("Lore", SkillAttribute.Mage))
-        self.skills_list.append(CharacterSkill("Polearms", SkillAttribute.Warrior))
         self.skills_list.append(CharacterSkill("Riding", SkillAttribute.Warrior))
+        self.skills_list.append(CharacterSkill("Spears", SkillAttribute.Warrior))
         self.skills_list.append(CharacterSkill("Swords", SkillAttribute.Warrior))
         self.skills_list.append(CharacterSkill("Thaumaturgy", SkillAttribute.Mage))
         self.skills_list.append(CharacterSkill("Thievery", SkillAttribute.Rogue))
@@ -77,3 +78,10 @@ class CharacterSkillsList:
 
     def random_skill(self) -> CharacterSkill:
         return random.choice(self.skills_list)
+
+    def skill_by_name(self, skill_name: str) -> CharacterSkill | None:
+        for skill in self.skills_list:
+            if skill.skill_name == skill_name:
+                return skill
+        return None
+

@@ -2,11 +2,12 @@ Title: Slash'n Up! Book 1
 Subtitle: Dungeons of the Forsaken Abbey
 Author: Michael Conrad
 License: CC-BY-SA
-
 Note: A Hack'n Slash Game Book
 Note: Gabriel P (urudnd@gmail.com)
-
 [start|start]
+
+
+
 
 :Start the Game|906d2fff
 :About this Book|f2ac53cd
@@ -14,6 +15,7 @@ Note: Gabriel P (urudnd@gmail.com)
 
 [Start the Game|906d2fff]
 # start|start
+
 
 Atop of the hill stand the ruins of what was once an abbey.
 Legend has it that long ago the studious monks became corrupted by some evil
@@ -23,15 +25,28 @@ You walk up the hill to the ruins.
 
 Digging around you find a flight of stairs leading down underground.
 
-:Go down the stairs
+
+
+:Go down the stairs|59833c15
 
 [About this Book|f2ac53cd]
 # start|start
 
 
 
+
+
+
 [Show Your Support|ef5c4487]
 # start|start
+
+
+
+
+
+
+[Go down the stairs|59833c15]
+# Start the Game|906d2fff
 
 
 

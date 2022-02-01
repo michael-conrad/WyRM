@@ -6,7 +6,6 @@ Note: A Hack'n Slash Game Book
 Note: Gabriel P (urudnd@gmail.com)
 [start|start]
 
-
 :Start the Game|906d2fff
 :About this Book|f2ac53cd
 :Show Your Support|ef5c4487
@@ -22,21 +21,14 @@ You walk up the hill to the ruins.
 
 Digging around you find a flight of stairs leading down underground.
 
-
 :Go down the stairs|d70ae699
 
 [About this Book|f2ac53cd]
 # start|start
 
-
-
 [Show Your Support|ef5c4487]
 # start|start
 
-
-
 [Go down the stairs|d70ae699]
 # Start the Game|906d2fff
-
-
 

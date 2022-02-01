@@ -188,7 +188,7 @@ You come to a bend
 [Go right|33092c7d]
 // Climb out of the Pit|4f35e379
 
-1d6 // Wandering Monster Check
+!1d6 // Wandering Monster Check
 
 [Go straight ahead|81df850c]
 // Climb out of the Pit|4f35e379

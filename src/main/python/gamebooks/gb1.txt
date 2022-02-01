@@ -87,6 +87,17 @@ My husband is also a writer, so please look for "Forgiving Judas" by Spencer Con
 [Go down the stairs|d70ae699]
 // Start the Game|906d2fff
 
+You walk down one flight of stairs, then another and come to a bend in passageway.
+
+!1d6
+
+As you step on the first step, you feel a click, and hear a snap from down below.
+
+Looking down the stairwell you see that a pit trap has opened up at the bottom
+of this flight stairs.
+
+Beyond the pit trap you see another flight of stairs leading downwards.
+
 [Continue|d91ac75b]
 // Start the Game|906d2fff
 
@@ -95,12 +106,11 @@ Legend has it that long ago the studious monks became corrupted by some evil
 and were destroyed by a band of wizards.
 
 As a new adventurer you have come seeking loot. Hopefully stuff that will
-help with future adventures, or at least enough money to get a room at
-a decent inn.
+help with future adventures, or at least enough money to get a meal and
+room at a decent inn.
 
 You walk up the hill to the ruins.
 
-Digging around the rumble you find a flight of stairs leading down underground.
+Digging through the rumble you happen upon a flight of stairs leading down underground.
 
 :Go down the stairs|d70ae699
-

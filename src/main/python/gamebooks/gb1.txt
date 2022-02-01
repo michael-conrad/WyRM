@@ -13,7 +13,7 @@ Note: Gabriel P (urudnd@gmail.com)
 :Show Your Support|ef5c4487
 
 [Start the Game|906d2fff]
-# start|start
+// start|start
 
 YOUR STATS
 
@@ -78,16 +78,16 @@ Torches 3 each
 :Continue|d91ac75b
 
 [About this Book|f2ac53cd]
-# start|start
+// start|start
 
 [Show Your Support|ef5c4487]
-# start|start
+// start|start
 
 [Go down the stairs|d70ae699]
-# Start the Game|906d2fff
+// Start the Game|906d2fff
 
 [Continue|d91ac75b]
-# Start the Game|906d2fff
+// Start the Game|906d2fff
 
 Atop of the hill stand the ruins of what was once an abbey.
 Legend has it that long ago the studious monks became corrupted by some evil

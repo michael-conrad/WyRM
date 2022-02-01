@@ -15,7 +15,7 @@ Note: Gabriel P (urudnd@gmail.com)
 [Start the Game|906d2fff]
 // start|start
 
-# YOUR STATS
+# Your Starting Stats
 
 * Warrior: 5 - Determines proficency with strength and fighting related skills.
 * Rogue: 2 - Determines proficency with agility and stealth related skills.
@@ -62,20 +62,21 @@ Note: Gabriel P (urudnd@gmail.com)
 [About this Book|f2ac53cd]
 // start|start
 
-This is a WyRM rules based gamebook.
+This is a Warrior, Rogue, Mage rules based gamebook.
 
 You are playing:
 
 * "Dungeons of the Forsaken Abbey"
 * By Gabriel P. (urudnd@gmail.com)
-* Copyright 2010
+* Copyright 2010, CC-BY-SA
 
-The original one page dungeon is from "One Page Dungeon Compendium 2010 Edition".
+The original one page dungeon is from "One Page Dungeon Compendium", 2010 Edition.
 
 :Back|start
 
 [Show Your Support|ef5c4487]
 // start|start
+
 
 [Go down the stairs|d70ae699]
 // Start the Game|906d2fff
@@ -86,6 +87,10 @@ The original one page dungeon is from "One Page Dungeon Compendium 2010 Edition"
 Atop of the hill stand the ruins of what was once an abbey.
 Legend has it that long ago the studious monks became corrupted by some evil
 and were destroyed by a band of wizards.
+
+As a new adventurer you have come seeking loot. Hopefully stuff that will
+help with future adventures, or at least enough money to get a room at
+a decent inn.
 
 You walk up the hill to the ruins.
 

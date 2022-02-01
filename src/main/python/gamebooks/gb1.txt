@@ -140,6 +140,24 @@ Next to you lies the pierced remains of a previous adventurer who was not so luc
 [Loot the Body|e5886c24]
 // Continue Downwards|85aacc47
 
+You dig through the belongings of the corpse to see what you can find.
+
+You find:
+
+* Spellbook
+* Torches: 1
+* Lock Pick
+* Rope: 10 yards
+* Tore up clothing
+
+Upon examining the spellbook you find one spell:
+
+* Food and Water, Mana: 2, Difficulty: Routine, 1 Daily ration of food and water.
+
+Discarding the clothing, you place everything into your backpack.
+
+:Climb out of the Pit
+
 [Climb out of the Pit|b84febcf]
 // Continue Downwards|85aacc47
 

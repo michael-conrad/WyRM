@@ -122,10 +122,17 @@ The floor disappears out from under you and you fall.
 
 !2d10 = 16
 
-Looking down the stairwell you see that a pit trap has opened up at the bottom
-of this flight stairs.
+You crash into a bed of spikes.
 
-Beyond the pit trap you see another flight of stairs leading downwards.
+Fate saves you from a gruesome death!
+Miracously you land between all the spikes!
+
+FATE - 1. FATE REMAINING: 1.
+
+Next to you lies the pierced remains of a previous adventurer who was not so lucky.
+
+:Loot the Body
+:Climb out of the Pit
 
 [Light a torch|2e3f2197]
 // Go down the stairs|d70ae699

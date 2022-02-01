@@ -88,6 +88,7 @@ Equipment
 
 [Continue|d91ac75b]
 # Start the Game|906d2fff
+
 Atop of the hill stand the ruins of what was once an abbey.
 Legend has it that long ago the studious monks became corrupted by some evil
 and were destroyed by a band of wizards.
@@ -95,5 +96,6 @@ and were destroyed by a band of wizards.
 You walk up the hill to the ruins.
 
 Digging around the rumble you find a flight of stairs leading down underground.
+
 :Go down the stairs|d70ae699
 

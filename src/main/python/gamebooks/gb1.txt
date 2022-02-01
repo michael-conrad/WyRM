@@ -120,7 +120,7 @@ As you step into the bend in the passage, you feel a click, and hear a snap from
 
 The floor disappears out from under you and you fall.
 
-!2d10
+!2d10 = 16
 
 Looking down the stairwell you see that a pit trap has opened up at the bottom
 of this flight stairs.

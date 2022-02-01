@@ -175,7 +175,13 @@ top of the next flight of stairs heading down.
 You go down the stairs and follow a passage 3 meters before it comes to
 a bend turning to your right.
 
-!1d6 = 5
+!1d6 = 5 // wandering monster check
+
+You follow the passage 300 meters and come to a four way junction.
+
+:Go right
+:Go straight ahead
+:Go left
 
 You come to a bend
 

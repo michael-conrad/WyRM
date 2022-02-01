@@ -154,7 +154,7 @@ Upon examining the spellbook you find one spell:
 
 * Food and Water, Mana: 2, Difficulty: Routine, 1 Daily ration of food and water.
 
-Discarding the clothing, you place everything into your backpack.
+Discarding the clothing, you place everything else into your backpack.
 
 :Climb out of the Pit|4f35e379
 
@@ -163,4 +163,19 @@ Discarding the clothing, you place everything into your backpack.
 
 [Climb out of the Pit|4f35e379]
 // Loot the Body|e5886c24
+
+To see the sides of the pit better you light a torch.
+
+TORCHES - 1, TORCHES REMAINING: 3
+
+After carefully examining the sides of the pit in the torch light
+you discover a set of handholds that allow you to climb out to the
+top of the next flight of stairs heading down.
+
+You go down the stairs and follow a passage 3 meters before it comes to
+a bend turning to your right.
+
+!1d6
+
+You come to a bend
 

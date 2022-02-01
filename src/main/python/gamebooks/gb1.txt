@@ -11,12 +11,16 @@ Note: Gabriel P (urudnd@gmail.com)
 
 
 
+
+
+
 :Start the Game|906d2fff
 :About this Book|f2ac53cd
 :Show Your Support|ef5c4487
 
 [Start the Game|906d2fff]
 # start|start
+
 
 
 Atop of the hill stand the ruins of what was once an abbey.
@@ -29,10 +33,15 @@ Digging around you find a flight of stairs leading down underground.
 
 
 
+
+
 :Go down the stairs|23da3f7d
 
 [About this Book|f2ac53cd]
 # start|start
+
+
+
 
 
 
@@ -47,8 +56,14 @@ Digging around you find a flight of stairs leading down underground.
 
 
 
+
+
+
 [Go down the stairs|23da3f7d]
 # Start the Game|906d2fff
+
+
+
 
 
 

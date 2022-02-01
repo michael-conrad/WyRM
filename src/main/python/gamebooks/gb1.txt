@@ -82,6 +82,8 @@ Adding a brief description of your adventure to the review would be appreciated.
 
 My husband is also a writer, so please look for "Forgiving Judas" by Spencer Conrad.
 
+:Back|start
+
 [Go down the stairs|d70ae699]
 // Start the Game|906d2fff
 

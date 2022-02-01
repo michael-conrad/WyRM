@@ -116,6 +116,17 @@ Digging through the rumble you happen upon a flight of stairs leading down under
 
 !1d6 = 1
 
+As you step into the bend in the passage, you feel a click, and hear a snap from beneath your feet.
+
+The floor disappears out from under you and you fall.
+
+!2d10
+
+Looking down the stairwell you see that a pit trap has opened up at the bottom
+of this flight stairs.
+
+Beyond the pit trap you see another flight of stairs leading downwards.
+
 [Light a torch|2e3f2197]
 // Go down the stairs|d70ae699
 

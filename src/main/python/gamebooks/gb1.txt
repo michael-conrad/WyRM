@@ -179,9 +179,18 @@ a bend turning to your right.
 
 You follow the passage 300 meters and come to a four way junction.
 
-:Go right
-:Go straight ahead
-:Go left
-
 You come to a bend
+
+:Go right|33092c7d
+:Go straight ahead|81df850c
+:Go left|04ffe3bd
+
+[Go right|33092c7d]
+// Climb out of the Pit|4f35e379
+
+[Go straight ahead|81df850c]
+// Climb out of the Pit|4f35e379
+
+[Go left|04ffe3bd]
+// Climb out of the Pit|4f35e379
 

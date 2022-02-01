@@ -91,12 +91,11 @@ You walk down one flight of stairs, then another and come to a bend in passagewa
 
 !1d6 = 3
 
-As you step on the first step, you feel a click, and hear a snap from down below.
+You see another flight of stairs disappearing into darkness.
 
-Looking down the stairwell you see that a pit trap has opened up at the bottom
-of this flight stairs.
+:Continue Downwards
+:Light a torch
 
-Beyond the pit trap you see another flight of stairs leading downwards.
 
 [Continue|d91ac75b]
 // Start the Game|906d2fff

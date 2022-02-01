@@ -8,16 +8,12 @@ Note: Gabriel P (urudnd@gmail.com)
 
 [start|start]
 
-
-
-
 :Start the Game|906d2fff
 :About this Book|f2ac53cd
 :Show Your Support|ef5c4487
 
 [Start the Game|906d2fff]
 # start|start
-
 
 Atop of the hill stand the ruins of what was once an abbey.
 Legend has it that long ago the studious monks became corrupted by some evil
@@ -27,28 +23,15 @@ You walk up the hill to the ruins.
 
 Digging around you find a flight of stairs leading down underground.
 
-
-
-:Go down the stairs|74c85dbf
+:Go down the stairs
 
 [About this Book|f2ac53cd]
 # start|start
 
 
 
-
-
-
 [Show Your Support|ef5c4487]
 # start|start
-
-
-
-
-
-
-[Go down the stairs|74c85dbf]
-# Start the Game|906d2fff
 
 
 

@@ -75,8 +75,7 @@ Equipment
 
 00.00.0000 Torches 3 each
 
-:Continue
-
+:Continue|d91ac75b
 :Go down the stairs|d70ae699
 
 [About this Book|f2ac53cd]
@@ -86,5 +85,8 @@ Equipment
 # start|start
 
 [Go down the stairs|d70ae699]
+# Start the Game|906d2fff
+
+[Continue|d91ac75b]
 # Start the Game|906d2fff
 

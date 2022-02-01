@@ -89,7 +89,7 @@ My husband is also a writer, so please look for "Forgiving Judas" by Spencer Con
 
 You walk down one flight of stairs, then another and come to a bend in passageway.
 
-!1d6
+!1d6 = 3
 
 As you step on the first step, you feel a click, and hear a snap from down below.
 
@@ -114,3 +114,4 @@ You walk up the hill to the ruins.
 Digging through the rumble you happen upon a flight of stairs leading down underground.
 
 :Go down the stairs|d70ae699
+

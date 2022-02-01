@@ -77,6 +77,11 @@ The original one page dungeon is from "One Page Dungeon Compendium", 2010 Editio
 [Show Your Support|ef5c4487]
 // start|start
 
+Don't forget to leave a five star review with comments.
+Adding a brief description of your adventure to the review would be appreciated.
+
+My husband is also a writer, so please look for "Forgiving Judas" by Spencer Conrad.
+
 [Go down the stairs|d70ae699]
 // Start the Game|906d2fff
 

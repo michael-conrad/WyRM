@@ -175,7 +175,7 @@ top of the next flight of stairs heading down.
 You go down the stairs and follow a passage 3 meters before it comes to
 a bend turning to your right.
 
-!1d6
+!1d6 = 5
 
 You come to a bend
 

@@ -114,7 +114,7 @@ Digging through the rumble you happen upon a flight of stairs leading down under
 [Continue Downwards|85aacc47]
 // Go down the stairs|d70ae699
 
-!1d6
+!1d6 = 1
 
 [Light a torch|2e3f2197]
 // Go down the stairs|d70ae699

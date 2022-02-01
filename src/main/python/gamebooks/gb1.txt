@@ -17,31 +17,31 @@ Note: Gabriel P (urudnd@gmail.com)
 
 YOUR STATS
 
-00.00.0000 Warrior: 5 - Determines proficency with strength and fighting related skills.
+Warrior: 5 - Determines proficency with strength and fighting related skills.
 
-00.00.0000 Rogue: 2 - Determines proficency with agility and stealth related skills.
+Rogue: 2 - Determines proficency with agility and stealth related skills.
 
-00.00.0000 Mage: 3 - Determines proficency with mana and mental related skills.
+Mage: 3 - Determines proficency with mana and mental related skills.
 
 Pools
 
-00.00.0000 Fate: 2 - Divine intervention used to avoid otherwise nasty death or circumstances. Use is automatic. Does not refill.
+Fate: 2 - Divine intervention used to avoid otherwise nasty death or circumstances. Use is automatic. Does not refill.
 
-00.00.0000 Armor_Penalty: 0 - Penalty against mana pool based on armor worn.
+Armor_Penalty: 0 - Penalty against mana pool based on armor worn.
 
-00.00.0000 Hit Points: 11 (11 base + 0 armor) - Life points. When it falls to < ½ skill penalties are assessed. If it falls to 0 death occurs.
+Hit Points: 11 (11 base + 0 armor) - Life points. When it falls to < ½ skill penalties are assessed. If it falls to 0 death occurs.
 
-00.00.0000 Mana: 6 (6 base - 0 armor penalty) - Used by spell casting. Only refills during sleep or meditation.
+Mana: 6 (6 base - 0 armor penalty) - Used by spell casting. Only refills during sleep or meditation.
 
-00.00.0000 Defense: 7 (7 base + 0 armor) - Proficiency enemies need to achieve to damage you.
+Defense: 7 (7 base + 0 armor) - Proficiency enemies need to achieve to damage you.
 
 Skills
 
-00.00.0000 Acrobatics (Rogue) Training in activities like dancing, contortion, climbing, tightrope walking, tumbling.
+Acrobatics (Rogue) Training in activities like dancing, contortion, climbing, tightrope walking, tumbling.
 
-00.00.0000 Axes (Warrior) Training with axes and polearms
+Axes (Warrior) Training with axes and polearms
 
-00.00.0000 Daggers (Rogue) Training with daggers and knives.
+Daggers (Rogue) Training with daggers and knives.
 
 Talents
 
@@ -49,31 +49,31 @@ Massive Attack: You can add your Warrior level to your melee attack damage once 
 
 Spells
 
-00.00.0000 Frost Burn, Mana: 1, Difficulty: Easy, Touch. 1d6-2 damage. Mana burn raises damage by +1.
+Frost Burn, Mana: 1, Difficulty: Easy, Touch. 1d6-2 damage. Mana burn raises damage by +1.
 
-00.00.0000 Healing Hand, Mana: 1, Difficulty: Easy, Touch. 1d6 HP healed. Mana burn raises heal by +1.
+Healing Hand, Mana: 1, Difficulty: Easy, Touch. 1d6 HP healed. Mana burn raises heal by +1.
 
 Equipment
 
-00.00.0000 Adventurer's Kit Flint and tinder. Water flask. Blanket. Bed roll. Small tent.
+Adventurer's Kit Flint and tinder. Water flask. Blanket. Bed roll. Small tent.
 
-00.00.0000 Backpack
+Backpack
 
-00.00.0000 Clothing Common
+Clothing Common
 
-00.00.0000 Clothing Travel
+Clothing Travel
 
-00.00.0000 Iron Rations 1 week
+Iron Rations 1 week
 
-00.00.0000 Pickaxe
+Pickaxe
 
-00.00.0000 Rations 1 week
+Rations 1 week
 
-00.00.0000 Rope 30 feet
+Rope 30 feet
 
-00.00.0000 Spellbook Lose this and you can't cast spells until you locate another.
+Spellbook Lose this and you can't cast spells until you locate another.
 
-00.00.0000 Torches 3 each
+Torches 3 each
 
 :Continue|d91ac75b
 

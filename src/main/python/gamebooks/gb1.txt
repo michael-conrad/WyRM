@@ -89,8 +89,6 @@ My husband is also a writer, so please look for "Forgiving Judas" by Spencer Con
 
 You walk down one flight of stairs, then another and come to a bend in passageway.
 
-!1d6 = 3
-
 You see another flight of stairs disappearing into darkness.
 
 :Continue Downwards|85aacc47
@@ -115,6 +113,8 @@ Digging through the rumble you happen upon a flight of stairs leading down under
 
 [Continue Downwards|85aacc47]
 // Go down the stairs|d70ae699
+
+!1d6
 
 [Light a torch|2e3f2197]
 // Go down the stairs|d70ae699

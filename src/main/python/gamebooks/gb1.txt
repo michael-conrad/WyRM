@@ -156,8 +156,11 @@ Upon examining the spellbook you find one spell:
 
 Discarding the clothing, you place everything into your backpack.
 
-:Climb out of the Pit
+:Climb out of the Pit|4f35e379
 
 [Climb out of the Pit|b84febcf]
 // Continue Downwards|85aacc47
+
+[Climb out of the Pit|4f35e379]
+// Loot the Body|e5886c24
 

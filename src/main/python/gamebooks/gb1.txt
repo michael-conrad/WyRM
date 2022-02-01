@@ -131,9 +131,15 @@ FATE - 1. FATE REMAINING: 1.
 
 Next to you lies the pierced remains of a previous adventurer who was not so lucky.
 
-:Loot the Body
-:Climb out of the Pit
+:Loot the Body|e5886c24
+:Climb out of the Pit|b84febcf
 
 [Light a torch|2e3f2197]
 // Go down the stairs|d70ae699
+
+[Loot the Body|e5886c24]
+// Continue Downwards|85aacc47
+
+[Climb out of the Pit|b84febcf]
+// Continue Downwards|85aacc47
 

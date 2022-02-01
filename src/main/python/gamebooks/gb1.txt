@@ -2,8 +2,10 @@ Title: Slash'n Up! Book 1
 Subtitle: Dungeons of the Forsaken Abbey
 Author: Michael Conrad
 License: CC-BY-SA
+
 Note: A Hack'n Slash Game Book
 Note: Gabriel P (urudnd@gmail.com)
+
 [start|start]
 
 :Start the Game|906d2fff

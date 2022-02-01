@@ -15,70 +15,64 @@ Note: Gabriel P (urudnd@gmail.com)
 [Start the Game|906d2fff]
 // start|start
 
-YOUR STATS
+# YOUR STATS
 
-Warrior: 5 - Determines proficency with strength and fighting related skills.
+* Warrior: 5 - Determines proficency with strength and fighting related skills.
+* Rogue: 2 - Determines proficency with agility and stealth related skills.
+* Mage: 3 - Determines proficency with mana and mental related skills.
 
-Rogue: 2 - Determines proficency with agility and stealth related skills.
+## Pools
 
-Mage: 3 - Determines proficency with mana and mental related skills.
+* Fate: 2 - Divine intervention used to avoid otherwise nasty death or circumstances. Use is automatic. Does not refill.
+* Armor_Penalty: 0 - Penalty against mana pool based on armor worn.
+* Hit Points: 11 (11 base + 0 armor) - Life points. When it falls to < ½ skill penalties are assessed. If it falls to 0 death occurs.
+* Mana: 6 (6 base - 0 armor penalty) - Used by spell casting. Only refills during sleep or meditation.
+* Defense: 7 (7 base + 0 armor) - Proficiency enemies need to achieve to damage you.
 
-Pools
+## Skills
 
-Fate: 2 - Divine intervention used to avoid otherwise nasty death or circumstances. Use is automatic. Does not refill.
+* Acrobatics (Rogue) Training in activities like dancing, contortion, climbing, tightrope walking, tumbling.
+* Axes (Warrior) Training with axes and polearms
+* Daggers (Rogue) Training with daggers and knives.
 
-Armor_Penalty: 0 - Penalty against mana pool based on armor worn.
+## Talents
 
-Hit Points: 11 (11 base + 0 armor) - Life points. When it falls to < ½ skill penalties are assessed. If it falls to 0 death occurs.
+* Massive Attack: You can add your Warrior level to your melee attack damage once per combat.
 
-Mana: 6 (6 base - 0 armor penalty) - Used by spell casting. Only refills during sleep or meditation.
+## Spells
 
-Defense: 7 (7 base + 0 armor) - Proficiency enemies need to achieve to damage you.
+* Frost Burn, Mana: 1, Difficulty: Easy, Touch. 1d6-2 damage. Mana burn raises damage by +1.
+* Healing Hand, Mana: 1, Difficulty: Easy, Touch. 1d6 HP healed. Mana burn raises heal by +1.
 
-Skills
+## Equipment
 
-Acrobatics (Rogue) Training in activities like dancing, contortion, climbing, tightrope walking, tumbling.
-
-Axes (Warrior) Training with axes and polearms
-
-Daggers (Rogue) Training with daggers and knives.
-
-Talents
-
-Massive Attack: You can add your Warrior level to your melee attack damage once per combat.
-
-Spells
-
-Frost Burn, Mana: 1, Difficulty: Easy, Touch. 1d6-2 damage. Mana burn raises damage by +1.
-
-Healing Hand, Mana: 1, Difficulty: Easy, Touch. 1d6 HP healed. Mana burn raises heal by +1.
-
-Equipment
-
-Adventurer's Kit Flint and tinder. Water flask. Blanket. Bed roll. Small tent.
-
-Backpack
-
-Clothing Common
-
-Clothing Travel
-
-Iron Rations 1 week
-
-Pickaxe
-
-Rations 1 week
-
-Rope 30 feet
-
-Spellbook Lose this and you can't cast spells until you locate another.
-
-Torches 3 each
+* Adventurer's Kit: Flint and tinder. Water flask. Blanket. Bed roll. Small tent.
+* Backpack
+* Clothing Common
+* Clothing Travel
+* Iron Rations 1 week
+* Pickaxe
+* Rations 1 week
+* Rope 30 feet
+* Spellbook: Lose this and you can't cast spells until you locate another.
+* Torches: 3 each
 
 :Continue|d91ac75b
 
 [About this Book|f2ac53cd]
 // start|start
+
+This is a WyRM rules based gamebook.
+
+You are playing:
+
+* "Dungeons of the Forsaken Abbey"
+* By Gabriel P. (urudnd@gmail.com)
+* Copyright 2010
+
+The original one page dungeon is from "One Page Dungeon Compendium 2010 Edition".
+
+:Back|start
 
 [Show Your Support|ef5c4487]
 // start|start

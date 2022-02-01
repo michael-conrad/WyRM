@@ -93,9 +93,8 @@ You walk down one flight of stairs, then another and come to a bend in passagewa
 
 You see another flight of stairs disappearing into darkness.
 
-:Continue Downwards
-:Light a torch
-
+:Continue Downwards|85aacc47
+:Light a torch|2e3f2197
 
 [Continue|d91ac75b]
 // Start the Game|906d2fff
@@ -113,4 +112,10 @@ You walk up the hill to the ruins.
 Digging through the rumble you happen upon a flight of stairs leading down underground.
 
 :Go down the stairs|d70ae699
+
+[Continue Downwards|85aacc47]
+// Go down the stairs|d70ae699
+
+[Light a torch|2e3f2197]
+// Go down the stairs|d70ae699
 

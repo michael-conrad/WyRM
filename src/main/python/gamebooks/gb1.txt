@@ -77,7 +77,6 @@ The original one page dungeon is from "One Page Dungeon Compendium", 2010 Editio
 [Show Your Support|ef5c4487]
 // start|start
 
-
 [Go down the stairs|d70ae699]
 // Start the Game|906d2fff
 

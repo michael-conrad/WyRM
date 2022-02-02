@@ -76,11 +76,14 @@ class CharacterSkillsList:
         self.skills_list.append(CharacterSkill("Thrown", SkillAttribute.Rogue))
         self.skills_list.append(CharacterSkill("Unarmed", SkillAttribute.Warrior))
 
-    def random_skill(self) -> CharacterSkill:
-        return random.choice(self.skills_list)
 
-    def skill_by_name(self, skill_name: str) -> CharacterSkill | None:
-        for skill in self.skills_list:
+    @classmethod
+    def random_skill(cls) -> CharacterSkill:
+        return random.choice(CharacterSkillsList().skills_list)
+
+    @classmethod
+    def skill_by_name(cls, skill_name: str) -> CharacterSkill | None:
+        for skill in CharacterSkillsList().skills_list:
             if skill.skill_name == skill_name:
                 return skill
         return None

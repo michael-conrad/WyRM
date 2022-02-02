@@ -2,7 +2,9 @@ import random
 from dataclasses import dataclass
 from dataclasses import field
 
+from equipment import Armor
 from equipment import Item
+from equipment import Weapon
 from mana import MageSpell
 from skills import CharacterSkill
 from skills import SkillAttribute
@@ -11,8 +13,8 @@ from talents import CharacterTalent
 
 @dataclass(slots=True)
 class CharacterSheet:
-    weapon: list[str] = field(default_factory=list)
-    armor_worn: list[str] = field(default_factory=list)
+    weapons: list[Weapon] = field(default_factory=list)
+    armor_worn: list[Armor] = field(default_factory=list)
     skills: list[CharacterSkill] = field(default_factory=list)
     talents: list[CharacterTalent] = field(default_factory=list)
     spells: list[MageSpell] = field(default_factory=list)
@@ -78,6 +80,20 @@ class CharacterSheet:
         if not self.equipment:
             print("None")
         for item in self.equipment:
+            print(f" - {item}")
+        print()
+
+        print("=== WEAPONS ===")
+        if not self.weapons:
+            print("None")
+        for item in self.weapons:
+            print(f" - {item}")
+        print()
+
+        print("=== ARMOR ===")
+        if not self.armor_worn:
+            print("None")
+        for item in self.armor_worn:
             print(f" - {item}")
         print()
 

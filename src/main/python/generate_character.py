@@ -10,7 +10,9 @@ exit $?
 import random
 
 from character_sheet import CharacterSheet
+from equipment import Armor
 from equipment import Item
+from equipment import Weapon
 from mana import MageSpell
 from mana import MageSpellList
 from skills import CharacterSkill
@@ -148,6 +150,33 @@ def main() -> None:
         sheet.equipment.append(item)
         money_sp -= item.cost_sp
 
+    # Weapons
+    weapons: list[Weapon] = Weapon.list()
+    random.shuffle(weapons)
+    for weapon in weapons:
+        if weapon.cost_sp > money_sp:
+            continue
+        skill: CharacterSkill = random.choice(sheet.skills)
+        if weapon.skill == skill:
+            money_sp -= weapon.cost_sp
+            sheet.weapons.append(weapon)
+            break
+    # Armor
+    armors: list[Armor] = Armor.list()
+    random.shuffle(armors)
+    for armor in armors:
+        if armor.cost_sp > money_sp:
+            continue
+        if not sheet.mana_max:
+            money_sp -= armor.cost_sp
+            sheet.armor_worn.append(armor)
+            break
+        if armor.armor_penalty < sheet.mana_max // 2:
+            money_sp -= armor.cost_sp
+            sheet.armor_worn.append(armor)
+            break
+
+    # Special Magi stuff
     if sheet.mage > sheet.warrior and sheet.mage > sheet.rogue:
         if money_sp >= 35 and random.randint(1, 6) < 3:
             item = Item("Magic Staff - 1st Circle", 35)

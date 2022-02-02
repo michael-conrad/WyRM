@@ -235,16 +235,14 @@ def main() -> None:
                 result: str = dice.roll(f"({cmd}) t")
                 section.text[_] = f"!{cmd} = {result} // {cmt}"
 
-    subprocess.run(["git", "commit", "-m", "autosave [before]", gb_file],  #
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     with open(gb_file, "w") as w:
         w.write(str(meta_header))
         for section in sections:
             w.write(str(section))
         for section in new_sections:
             w.write(str(section))
-    subprocess.run(["git", "commit", "-m", "autosave [after]", gb_file],  #
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    #  subprocess.run(["git", "commit", "-m", "autosave [after]", gb_file],  #
+    #               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 if __name__ == "__main__":

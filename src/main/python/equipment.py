@@ -80,6 +80,9 @@ class Armor:
         self.armor_penalty = armor_penalty
         self.cost_sp = cost_sp
 
+    def __str__(self) -> str:
+        return f"{self.name}, Defense: +{self.defense}, Mana: -{self.armor_penalty}"
+
     @classmethod
     def list(cls) -> list["Armor"]:
         armors: list["Armor"] = list()
@@ -106,6 +109,9 @@ class Weapon:
         self.skill = skill
         self.damage = damage
         self.cost_sp = cost_sp
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.skill.skill_name}) [{self.damage}]"
 
     @classmethod
     def list(cls) -> list["Weapon"]:

@@ -24,10 +24,10 @@ Note: Gabriel P (urudnd@gmail.com)
 ## Pools
 
 * Fate: 2 - Divine intervention used to avoid otherwise nasty death or circumstances. Use is automatic. Does not refill.
-* Armor_Penalty: 0 - Penalty against mana pool based on armor worn.
-* Hit Points: 11 (11 base + 0 armor) - Life points. When it falls to < ½ skill penalties are assessed. If it falls to 0 death occurs.
-* Mana: 6 (6 base - 0 armor penalty) - Used by spell casting. Only refills during sleep or meditation.
-* Defense: 7 (7 base + 0 armor) - Proficiency enemies need to achieve to damage you.
+* Armor_Penalty: -1 - Penalty against mana pool based on armor worn.
+* Hit Points: 21 (11 base + 10 armor) - Life points. When it falls to < ½ skill penalties are assessed. If it falls to 0 death occurs.
+* Mana: 5 (6 base - 1 armor penalty) - Used by spell casting. Only refills during sleep or meditation.
+* Defense: 7 - Proficiency enemies need to achieve to damage you.
 
 ## Skills
 
@@ -57,12 +57,24 @@ Note: Gabriel P (urudnd@gmail.com)
 * Spellbook: Lose this and you can't cast spells until you locate another.
 * Torches: 3 each
 
+## Weapons
+
+Axe (Axes) [1d6]
+
+## Armor
+
+Leather, Defense: +2, Mana: -1
+
 :Continue|d91ac75b
 
 [About this Book|f2ac53cd]
 // start|start
 
 This is a Warrior, Rogue, Mage rules based gamebook.
+
+Variant rules:
+
+* Armor with Hitpoints
 
 You are playing:
 
@@ -179,8 +191,6 @@ a bend turning to your right.
 
 You follow the passage 300 meters and come to a four way junction.
 
-You come to a bend
-
 :Go right|33092c7d
 :Go straight ahead|81df850c
 :Go left|04ffe3bd
@@ -190,9 +200,254 @@ You come to a bend
 
 !1d6 = 4 // wandering monster check
 
+You follow the passage 210 meters and come to a rusting iron porticullis
+blocking your way into the room beyond. From floor to ceiling you see a series of alcoves
+covering every wall. In the alcoves rest the bones of long dead monks.
+
+:Open the porticullis|7356d612
+:Follow the passage back|4d61512b
+
 [Go straight ahead|81df850c]
 // Climb out of the Pit|4f35e379
 
 [Go left|04ffe3bd]
 // Climb out of the Pit|4f35e379
+
+[Open the porticullis|7356d612]
+// Go right|33092c7d
+
+Putting your weight behind it, you manage to open the porticullus
+with the screeching sound of long rusted metal.
+
+!1d6 = 4 // wandering monster check
+
+:Enter the room|cc060ada
+:Follow the passage back|1603f137
+
+[Follow the passage back|4d61512b]
+// Go right|33092c7d
+
+[Enter the room|cc060ada]
+// Open the porticullis|7356d612
+
+!1d6 = 5 // wandering monster check
+
+You enter the room. The ceiling is 3 meters above you.
+
+You see that the alcoves go all the way around the room.
+Each alcove is about 3 meters x 3 meters in size.
+
+:Search the alcoves|e8a86cc6
+:Search the room|04da0905
+
+[Follow the passage back|1603f137]
+// Open the porticullis|7356d612
+
+[Search the alcoves|e8a86cc6]
+// Enter the room|cc060ada
+
+!1d6 = 3 // wandering monster check
+
+You begin rifling through the alcoves starting on your right looking for loot.
+
+Suddenly, across the room you hear a clattering sound.
+
+Quickly turning to take a look, you see two skeletons and two zombies standing before you
+with empty alcoves behind them.
+
+!1d4 = 2 // count of skeletons
+!1d3 = 2 // count of zombies
+
+:Flee down the passage|d390e2a8
+:Fight|c22133b7
+
+[Search the room|04da0905]
+// Enter the room|cc060ada
+
+!1d6 = 4 // wandering monster check
+
+[Flee down the passage|d390e2a8]
+// Search the alcoves|e8a86cc6
+
+!1d6 = 6 // wandering monster check
+
+[Fight|c22133b7]
+// Search the alcoves|e8a86cc6
+
+You have chosen to stand your ground. How dare this undead filth attack you without warning!
+
+!1d6 = 2 // initiative undead
+!1d6 = 1 // initiative player
+
+And they are upon you, attacking first!
+
+!1d4 = 2 // how many?
+!1d4 = 4 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+!1d4 = 3 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+
+!1d6 + 6 = 12 // attack against defense 7
+!1d6 = 3 // claw and bite damage
+@HP = 11
+@HP_ARMOR = 10
+@HP_ARMOR - 3 = 7
+
+!1d6 + 6 = 10 // attack against defense 7
+!1d6x = 2 // claw and bite damage
+@HP = 11
+@HP_ARMOR = 7
+@HP_ARMOR - 2 = 5
+
+A groaning zombie reaches out to you with clawed hands and gnashing teeth.
+His claws leaving gouges in your armor. He is followed up by a second
+zombie attacking which adds to the number of gouges in your armor.
+
+!1d6 + 5 = 9 // axe attack against zombie 7
+!1d6x = 4 // axe damage
+@zombie_3.HP = 12
+@zombie_3.HP_ARMOR = 0
+@zombie_3.HP - 4 = 8
+
+You swing your axe around and hit the second zombie with a mighty wet thwack sinking into the
+creatures chest and pull it away with a messy sounding squelch.
+
+!1d4 = 2 // how many?
+
+!1d4 = 2 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+!1d6 + 3 = 6 // attack against defense 7
+
+!1d4 = 3 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+!1d6 + 6 = 9 // zombie attack against defense 7
+!1d6x = 5 // claw and bite damage
+@HP_ARMOR = 5
+
+A skeleton swings a short sword at you and barely misses. It is followed up by
+another zombie strike which rips the ragged remains of your armor off your person.
+
+!1d6 + 5 = 11 // axe attack against zombie 7
+!1d6x = 1 // axe damage
+@zombie_3.HP = 8
+@zombie_3.HP_ARMOR = 0
+@zombie_3.HP - 1 = 7
+
+You attack again with your axe and only do a glancing blow against the zombie.
+
+!1d4 = 3 // how many?
+!1d4 = 3 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+!1d6 + 6 = 8 // zombie attack against defense 7
+!1d6x = 21 // claw and bite damage
+
+FATE - 1. FATE REMAINING: 0.
+
+!1d4 = 1 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+!1d4 = 1 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+
+The zombie attacking leaps forward trying to land on you. At the last moment,
+a pebble under the zombie's foot causes it to completely lose its footing.
+It falls prone and knocks down both skeletons as they were preparing to shove
+their short swords into your chest. Only the second zombie is currently standing.
+
+!1d6 + 5 = 6 // axe attack against zombie 7
+!1d6x = 1 // axe damage
+@zombie_4.HP = 12
+@zombie_4.HP_ARMOR = 0
+@zombie_4.HP - 1 = 11
+
+The second zombie attacks and leaves long burning gouges across your chest.
+
+!1d6 + 6 = 11 // zombie attack against defense 7
+!1d6x = 4 // claw and bite damage
+
+@HP - 4 = 7
+
+:Continue Fighting|c4918f4f
+:Heal Self|7cf288e9
+
+[data:bestiary|7fd133a7]
+
+## Skeleton Warrior
+Warrior: 3
+Rogue: 3
+Mage: 0
+HP: 9, 5
+Mana: 0
+Defense: 6
+
+Rusted armor. Broken shield. Short sword.
+
+## Skeleton Archer
+Warrior: 3
+Rogue: 3
+Mage: 0
+HP: 9, 5
+Mana: 0
+Defense: 6
+
+Rusted armor. Bow. 10 Arrows.
+
+## Zombie
+Warrior: 6
+Rogue: 0
+Mage: 0
+HP: 12, 0
+Mana: 0
+Defense: 7
+Attacks: Infected bite (warrior) 1d6
+Those bitten and killed by a zombie arise as zombies in 1d6 minutes each.
+
+[Continue Attacking|c4918f4f]
+// Fight|c22133b7
+
+@HP = 7
+
+The remaining undead have recovered and attack once more.
+
+!1d4 = 3 // how many?
+!1d4 = 1 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+!1d4 = 3 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+!1d4 = 3 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+
+!1d6 + 3 = 7 // skeleton attack against defense 7
+!1d6x = 2 // sword damage
+@HP - 2 = 5
+
+The first skeleton stabs out with his short sword and leaves a horrible gouge in your left thigh.
+
+!1d6 + 6 = 12 // zombie attack against defense 7
+!1d6x = 3 // claw and bite damage
+@HP - 3 = 2
+
+The first zombie claws your left arm and bites tearing into your flesh.
+
+!1d6 = 6 // axe attack against zombie 7
+@zombie_4.HP = 11
+@zombie_4.HP_ARMOR = 0
+
+You swing mightely with your axe at a second approaching zombie but miss.
+
+!1d4 = 4 // how many?
+!1d4 = 3 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+!1d4 = 1 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+!1d4 = 1 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+
+!1d6 + 6 = 7 // zombie attack against defense 7
+!1d6x = 4 // claw and bite damage
+@HP - 4 = -2
+
+It grapples with you pulling you down where the rest of the undead pile upon you and quickly
+take your life.
+
+:Continue|Death by Zombie
+
+[Heal Self|7cf288e9]
+// Fight|c22133b7
+
+@HP = 7
+
+[Continue|Death by Zombie]
+// Continue Attacking|c4918f4f
+
+You were struck down by a zombie. You are cursed to wander about attacking the living
+until you are destroyed by some powerful adventurer.
+
+:Start Over|start
 

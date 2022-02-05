@@ -1,3 +1,4 @@
+import random
 from dataclasses import dataclass
 from enum import Enum
 
@@ -96,22 +97,87 @@ class Armor:
         armors.append(Armor("Heavy Plate", 7, 5, 120))
         return armors
 
+    @classmethod
+    def by_name(cls, name: str) -> "Armor":
+        armor: Armor
+        for armor in cls.list():
+            if name.lower() == armor.name.lower():
+                return armor
+        return cls.list()[0]
+
 
 @dataclass(slots=True)
 class Weapon:
     name: str = ""
     skill: CharacterSkill = None
-    damage: str = "1d6"
+    _damage: str = "1d6"
     cost_sp: int = 1
+    _description: str = ""
+    _attack_bonus: int = 0
+    _damage_bonus: int = 0
+    _two_handed: bool = False
 
-    def __init__(self, name: str, skill: CharacterSkill, damage: str, cost_sp: int):
+    @property
+    def damage(self) -> str:
+        if not hasattr(self, "_damage_bonus"):
+            setattr(self, "_damage_bonus", 0)
+        return f"{self._damage} + {self._damage_bonus}"
+
+    @property
+    def two_handed(self) -> bool:
+        return self._two_handed
+
+    @two_handed.setter
+    def two_handed(self, two_handed: bool = True):
+        self._two_handed = two_handed
+
+    @property
+    def damage_bonus(self) -> int:
+        return self._damage_bonus
+
+    @damage_bonus.setter
+    def damage_bonus(self, bonus: int) -> None:
+        self._damage_bonus = bonus
+
+    @property
+    def attack_bonus(self) -> int:
+        if not hasattr(self, "_attack_bonus"):
+            setattr(self, "_attack_bonus", 0)
+        return self._attack_bonus
+
+    @attack_bonus.setter
+    def attack_bonus(self, bonus: int) -> None:
+        if not hasattr(self, "_attack_bonus"):
+            setattr(self, "_attack_bonus", 0)
+
+        self._attack_bonus = bonus
+
+    def __init__(self, name: str,  #
+                 skill: CharacterSkill = CharacterSkillsList.skill_by_name("Unarmed"),  #
+                 base_damage: str = "1d4",  #
+                 cost_sp: int = 0,  #
+                 two_handed: bool = False):
         self.name = name
         self.skill = skill
-        self.damage = damage
+        self._damage = base_damage
         self.cost_sp = cost_sp
+        self.two_handed = two_handed
 
     def __str__(self) -> str:
         return f"{self.name} ({self.skill.skill_name}) [{self.damage}]"
+
+    def __repr__(self) -> str:
+        return f"Weapon(\"{self.name}\"," \
+               f" {self.skill}," \
+               f" \"{self.damage}\"," \
+               f" {self.cost_sp}) "
+
+    @classmethod
+    def by_name(cls, name: str):
+        for weapon in Weapon.list():
+            if weapon.name.lower() == name.lower():
+                return weapon
+        return random.choice(Weapon.list())
 
     @classmethod
     def list(cls) -> list["Weapon"]:
@@ -130,5 +196,13 @@ class Weapon:
         weapons.append(Weapon("Sword", CharacterSkillsList.skill_by_name("Swords"), "1d6", 5))
         weapons.append(Weapon("Throwing Star", CharacterSkillsList.skill_by_name("Thrown"), "1d6-2", 2))
         weapons.append(Weapon("Warhammer", CharacterSkillsList.skill_by_name("Blunt"), "1d6", 5))
+        two_handed_flame_axe: Weapon = Weapon("Axe (Flame Enchanted)",  #
+                                              skill=CharacterSkillsList.skill_by_name("Axes"),  #
+                                              base_damage="2d6",  #
+                                              cost_sp=5,  #
+                                              two_handed=True)
+        two_handed_flame_axe.attack_bonus = 1
+        two_handed_flame_axe.damage_bonus = 1
+        weapons.append(two_handed_flame_axe)
 
         return weapons

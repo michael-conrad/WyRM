@@ -43,8 +43,8 @@ class CharacterSkill:
         self.skill_name = skill_name
         self.skill_attribute = skill_attribute
 
-    def __str__(self) -> str:
-        return f"{self.skill_name} | {self.skill_attribute}"
+    def __repr__(self) -> str:
+        return f"CharacterSkill(\"{self.skill_name}\", SkillAttribute.{self.skill_attribute})"
 
     def __lt__(self, other) -> bool:
         return self.skill_name < other.skill_name
@@ -76,7 +76,6 @@ class CharacterSkillsList:
         self.skills_list.append(CharacterSkill("Thrown", SkillAttribute.Rogue))
         self.skills_list.append(CharacterSkill("Unarmed", SkillAttribute.Warrior))
 
-
     @classmethod
     def random_skill(cls) -> CharacterSkill:
         return random.choice(CharacterSkillsList().skills_list)
@@ -87,4 +86,3 @@ class CharacterSkillsList:
             if skill.skill_name == skill_name:
                 return skill
         return None
-

@@ -98,12 +98,19 @@ class MageSpellList:
                                                                      "hours or until dispelled or HP is exhausted. "
                                                                      "Mana burn: Not available."))
 
-    def random_spell(self, mana: int = 1) -> MageSpell:
+    @classmethod
+    def random_spell(cls, mana: int = 1) -> MageSpell:
         while True:
-            spell: MageSpell = random.choice(self.mage_spells)
+            spell: MageSpell = random.choice(MageSpellList().mage_spells)
             if spell.mana_cost <= mana and random.randint(1, 10) > spell.mana_cost:
                 return spell
 
+    @classmethod
+    def spell_by_name(cls, name: str) -> MageSpell | None:
+        for spell in MageSpellList().mage_spells:
+            if name.lower() == spell.name.lower():
+                return spell
+        return None
 
 
 

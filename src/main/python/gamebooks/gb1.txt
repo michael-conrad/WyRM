@@ -6,14 +6,48 @@ License: CC-BY-SA
 Note: A Hack'n Slash Game Book
 Note: Gabriel P (urudnd@gmail.com)
 
-[start|start]
+Library: character_sheet
+Library: equipment
+Library: mana
+Library: skills
+Library: talents
+Library: gb_utils
+Library: npcs
+Library: pcs
+
+[start|start] !!! (ORPHANED)
 
 :Start the Game|906d2fff
 :About this Book|f2ac53cd
 :Show Your Support|ef5c4487
 
-[Start the Game|906d2fff]
-// start|start
+[Show Your Support|ef5c4487] (start)
+Don't forget to leave a five star review with comments.
+Adding a brief description of your adventure to the review would be appreciated.
+
+My husband is also a writer, so please look for "Forgiving Judas" by Spencer Conrad.
+
+:Continue|start
+
+[About this Book|f2ac53cd] (start)
+This is a Warrior, Rogue, Mage rules based gamebook.
+
+Variant rules:
+
+* Armor with Hitpoints
+
+You are playing:
+
+* "Dungeons of the Forsaken Abbey"
+* By Gabriel P. (urudnd@gmail.com)
+* Copyright 2010, CC-BY-SA
+
+The original one page dungeon is from "One Page Dungeon Compendium", 2010 Edition.
+
+:Back|start
+
+[Start the Game|906d2fff] (start)
+!player = PCs.player_forsaken_alley()
 
 # Your Starting Stats
 
@@ -56,6 +90,11 @@ Note: Gabriel P (urudnd@gmail.com)
 * Rope 30 feet
 * Spellbook: Lose this and you can't cast spells until you locate another.
 * Torches: 3 each
+!torches= 3  #- @torches: 3 -#
+
+## Money
+
+* SP: 122
 
 ## Weapons
 
@@ -67,48 +106,7 @@ Leather, Defense: +2, Mana: -1
 
 :Continue|d91ac75b
 
-[About this Book|f2ac53cd]
-// start|start
-
-This is a Warrior, Rogue, Mage rules based gamebook.
-
-Variant rules:
-
-* Armor with Hitpoints
-
-You are playing:
-
-* "Dungeons of the Forsaken Abbey"
-* By Gabriel P. (urudnd@gmail.com)
-* Copyright 2010, CC-BY-SA
-
-The original one page dungeon is from "One Page Dungeon Compendium", 2010 Edition.
-
-:Back|start
-
-[Show Your Support|ef5c4487]
-// start|start
-
-Don't forget to leave a five star review with comments.
-Adding a brief description of your adventure to the review would be appreciated.
-
-My husband is also a writer, so please look for "Forgiving Judas" by Spencer Conrad.
-
-:Back|start
-
-[Go down the stairs|d70ae699]
-// Start the Game|906d2fff
-
-You walk down one flight of stairs, then another and come to a bend in passageway.
-
-You see another flight of stairs disappearing into darkness.
-
-:Continue Downwards|85aacc47
-:Light a torch|2e3f2197
-
-[Continue|d91ac75b]
-// Start the Game|906d2fff
-
+[Continue|d91ac75b] (906d2fff)
 Atop of the hill stand the ruins of what was once an abbey.
 Legend has it that long ago the studious monks became corrupted by some evil
 and were destroyed by a band of wizards.
@@ -123,34 +121,284 @@ Digging through the rumble you happen upon a flight of stairs leading down under
 
 :Go down the stairs|d70ae699
 
-[Continue Downwards|85aacc47]
-// Go down the stairs|d70ae699
+[Go down the stairs|d70ae699] (d91ac75b)
+; Start the Game|906d2fff
 
-!1d6 = 1
+You walk down one flight of stairs, then another and come to a bend in passageway.
+
+You see another flight of stairs disappearing into darkness.
+
+:Continue Downwards|85aacc47
+:Light a torch|2e3f2197
+
+[Light a torch|2e3f2197] (d70ae699)
+!torches= 2 # @torches: torches - 1
+TORCHES REMAINING: 2
+
+You light a torch and peer deeper into the stairwell. The floor
+at the bend looks odd. Examining it closer you determine that it is
+probably trapped and proceed to disarm it.
+
+; "FAIL 3 < 9" # @dl_check("Challenging", player.rogue) # disarm
+; False # @roll("1d6")==1 # trigger
+
+You proceed to head downwards when suddenly you feel the floor
+shift downwards beneath you. You hurry across the remaining distance
+to the next flight of stairs heading down. The floor does not shift anymore.
+
+; (False, '') # @random_encounter_check()
+
+You go down the stairs and follow a passage 3 meters before it comes to
+a bend turning to your right.
+
+; (True, '1 giant beetle') # @random_encounter_check()
+!beetle= unpickle("{\"py/object\": \"character_sheet.CharacterSheet\", \"name\": \"Giant Beetle\", \"description\": \"\", \"weapons\": [{\"py/object\": \"equipment.Weapon\", \"name\": \"Bite\", \"skill\": {\"py/object\": \"skills.CharacterSkill\", \"skill_name\": \"Unarmed\", \"skill_attribute\": {\"py/reduce\": [{\"py/type\": \"skills.SkillAttribute\"}, {\"py/tuple\": [3]}]}}, \"_damage\": \"1d6\", \"cost_sp\": 0, \"_two_handed\": false}], \"armor_worn\": [], \"skills\": [], \"talents\": [], \"spells\": [], \"equipment\": [], \"warrior\": 4, \"rogue\": 4, \"mage\": 0, \"adv_taken\": 0, \"fate\": 4, \"fate_starting\": 4, \"armor_penalty\": 0, \"hit_points_max\": 14, \"mana_max\": 0, \"defense\": 8, \"_hit_points\": 14, \"mana\": 0, \"base_defense\": 8, \"armor\": 0, \"hit_points_armor\": 15}") # @beetle: NPC.giant_beetle()
+
+Suddenly you hear scurrying up ahead just as a giant beetle comes into view!
+
+:Fight|a2e1203a
+:Run Past|04d830bb
+
+[Run Past|04d830bb] (2e3f2197)
+!run_past= "FAIL 5 < 9" # @run_past: dl_check("Challenging", player.rogue)
+
+As you try to quickly skirt around the terrifying insect, it blocks your path so you can't pass by.
+
+:Continue|a2e1203a
+
+[Fight|a2e1203a] (2e3f2197; 04d830bb)
+; Light a torch|2e3f2197
+
+; (11, 10) # @player.hit_points, player.hit_points_armor
+; "NPC" # @initiative(2+2, 4)
+; "Fail" # @attack(beetle.warrior, player.defense)
+; "Success" # @attack(player.warrior, beetle.defense)
+!dmg= "1d6" # @dmg: player.weapon.damage
+!beetle.hps= unpickle("{\"py/tuple\": [14, 14]}") # @beetle.hps: damage_against(beetle, dmg)
+
+Faster than you can react the beetle is upon you. Avoiding the gnashing mandibles
+you swing your axe at the beetle. It leaves a slight gouge.
+
+; "Success" # @attack(beetle.warrior, player.defense)
+!dmg= "1d6" # @dmg: beetle.weapon.damage
+!player.hps= unpickle("{\"py/tuple\": [11, 0]}") # @player.hps: damage_against(player, dmg)
+
+; "Success" # @attack(player.warrior, beetle.defense)
+!dmg= "1d6"  #- @dmg: player.weapon.damage -#
+!beetle.hps= unpickle("{\"py/tuple\": [14, 12]}") # @beetle.hps: damage_against(beetle, dmg)
+
+Again the beetle lunges at you and manages to bite into your armor and lunges
+backward leaving a long ragged tear. Again your axe swipe leaves a slight gouge.
+
+; "Fail" # @attack(beetle.warrior, player.defense)
+; "Success" # @attack(player.warrior, beetle.defense)
+!dmg= "1d6 +5"  #- @dmg: player.weapons[0].damage + " +" + str(player.warrior) -#
+!beetle.hps= unpickle("{\"py/tuple\": [14, 1]}") # @beetle.hps: damage_against(beetle, dmg)
+
+The beetle scurries towards you and you step aside while launching a massive axe
+swing into its side. With a crunching sound you see a long crack form in the
+carapace. But that doesn't seem to slow it down any.
+
+; "Fail" # @attack(beetle.warrior, player.defense)
+; "Success" # @attack(player.warrior, beetle.defense)
+!dmg= "1d6"  #- @dmg: player.weapons[0].damage -#
+!beetle.hps= unpickle("{\"py/tuple\": [14, 0]}") # @beetle.hps: damage_against(beetle, dmg)
+
+Again you avoid its mandibles and swing and cause another crack to form.
+
+; "Success" # @attack(beetle.warrior, player.defense)
+!dmg= "1d6 + 2"  #- @dmg: beetle.weapons[0].damage -#
+!player.hps= unpickle("{\"py/tuple\": [3, 0]}") # @player.hps: damage_against(player, dmg)
+; "Success" # @attack(player.warrior, beetle.defense)
+!dmg= "1d6"  #- @dmg: player.weapons[0].damage -#
+!beetle.hps= unpickle("{\"py/tuple\": [10, 0]}") # @beetle.hps: damage_against(beetle, dmg)
+
+The beetle lunges at you and again tears into your armor leaving it nothing but
+shreds of leather! You jump over slashing downward with your axe and strike into
+the soft tissue in one of the cracks.
+
+; "Mana: 6/6" # @player.reset_armor_penalty()
+!player.mana= 6 # @player.mana: player.mana
+
+; "Success" # @attack(beetle.warrior, player.defense)
+!dmg= "1d6"  #- @dmg: beetle.weapons[0].damage -#
+!player.hps= unpickle("{\"py/tuple\": [5, 0]}") # @player.hps: damage_against(player, dmg)
+; "Success" # @attack(player.warrior, beetle.defense)
+!dmg= "1d6"
+!beetle.hps= unpickle("{\"py/tuple\": [7, 0]}")  #- @beetle.hps: damage_against(beetle, dmg) -#
+
+You feel the sting as mandibles tear at the flesh of your left calf. You swing wildly back
+and succeed into digging into more soft flesh. The beetle seems to have slowed somewhat.
+
+; "Fail" # @attack(beetle.warrior, player.defense)
+; "Success" # @attack(player.warrior, beetle.defense)
+!dmg= "1d6"  #- @dmg: player.weapons[0].damage -#
+!beetle.hps= unpickle("{\"py/tuple\": [5, 0]}")  #- @beetle.hps: damage_against(beetle, dmg) -#
+
+The beetle scurries towards you. Blocking its approach with an axe swing, you add another
+crack into its carapace.
+
+; "Success" # @attack(beetle.warrior, player.defense)
+!dmg= "1d6"  #- @dmg: beetle.weapons[0].damage -#
+!player.hps= unpickle("{\"py/tuple\": [1, 0]}")  #- @player.hps: damage_against(player, dmg) -#
+; "Success" # @attack(player.warrior, beetle.defense)
+!dmg= "1d6"  #- @dmg: player.weapons[0].damage -#
+!beetle.hps= unpickle("{\"py/tuple\": [4, 0]}")  #- @beetle.hps: damage_against(beetle, dmg) -#
+
+The beetle now bites into your right calf. You chip off another piece of carapace with your axe.
+
+; "Fail" # @attack(beetle.warrior, player.defense)
+; "Fail" # @attack(player.warrior, beetle.defense)
+
+The beetle slowly circles looking for an opening as you do the same.
+
+; "Fail" # @attack(beetle.warrior, player.defense)
+; "Success" # @attack(player.warrior, beetle.defense)
+!dmg= "1d6"  #- @dmg: player.weapons[0].damage -#
+!beetle.hps= unpickle("{\"py/tuple\": [0, 0]}")  #- @beetle.hps: damage_against(beetle, dmg) -#
+
+With a final swing you plunge your axe deep enough into its soft tissues
+to end its life.
+
+You are nearly dead.
+
+:Cast Healing Hand|4a8926bb
+:Continue On|d1a46716
+
+[Continue On|d1a46716] (a2e1203a)
+You follow the passage 300 meters and come to a four way junction.
+
+; (False, '') # @random_encounter_check()
+
+:Go right|efc120a6
+:Go straight ahead|c343559b
+:Go left|f31755fa
+
+[Cast Healing Hand|4a8926bb] (a2e1203a)
+; Fight|a2e1203a
+
+; "Cast succeeded. Healing Hand: Touch. 1d6 HP healed. Mana burn raises heal by +1." # @player.cast("Healing Hand")
+!player.mana= 4 # @player.mana: player.mana
+!player.hit_points= 2 # @player.hit_points: player.hit_points+roll("1d6")
+
+You cast Healing Hand.
+
+HP REMAINING: 2
+
+That's not near enough so you cast the spell a second time.
+
+; "Cast succeeded. Healing Hand: Touch. 1d6 HP healed. Mana burn raises heal by +1." # @player.cast("Healing Hand")
+!player.mana= 3 # @player.mana: player.mana
+!player.hit_points= 5 # @player.hit_points : player.hit_points + roll("1d6")
+
+MANA REMAINING: 3
+
+HP REMAINING: 5
+
+That will have to do for now.
+
+You follow the passage 300 meters and come to a four way junction.
+
+; (False, '') # @random_encounter_check()
+
+:Go right|aa917f29
+:Go straight ahead|b742b184
+:Go left|5433bd46
+
+[Go left|5433bd46] (4a8926bb)
+; Cast Healing Hand|4a8926bb
+; (5, 0) # @player.hps
+
+You go 180 meters and come to a three way intersection. Just past the intersection the far hall comes to a flight of
+stairs heading deeper into the dungeon. To the left you see a long hallway disappearing into darkness.
+
+; (False, '') # @wander()
+
+:Continue Straight|190cc38f
+:Turn Left|f50ef783
+
+[Go straight ahead|b742b184] (4a8926bb)
+; Cast Healing Hand|4a8926bb
+
+[Go right|aa917f29] (4a8926bb)
+; Cast Healing Hand|4a8926bb
+
+You follow the passage 210 meters and come to a rusting iron porticullis
+blocking your way into the room beyond. From floor to ceiling you see a series of alcoves
+covering every wall. In the alcoves rest the bones of long dead monks.
+
+; (True, 'dead adventurer') # @random_encounter_check()
+
+Putting your weight behind it, you manage to open the porticullus
+with the screeching sound of long rusted metal. As the gate opens
+you see a dead body in a corner of the room to the right of the entrance.
+
+:Loot Body|a6a212e2
+:Loot Alcoves|d096a1c2
+:Examine Room|b3170c7f
+
+[Examine Room|b3170c7f] (aa917f29)
+; Go right|aa917f29
+
+[Loot Alcoves|d096a1c2] (aa917f29)
+; Go right|aa917f29
+
+[Loot Body|a6a212e2] (aa917f29)
+; Go right|aa917f29
+
+Things of use that you find and add to your inventory:
+
+* A spell book containing the spells:
+    - Levitation, Mana: 2, Difficulty: Routine, Slowly float up and down for 3 minutes.
+    - Magic Armor, Mana: 2, Difficulty: Routine, Shield. Will last until shield's HP is consumed. 4 HP.
+* A bow with 10 arrows.
+* Scalemail Armor, Defense +3, Mana Penalty: -2
+* 112 SP
+* 2 Torches
+
+You immediately equip the scalemail armor and transfer the spells to your spellbook.
+
+!player.weapons.append(Weapon.by_name("Bow"))
+!arrows= 10 # @arrows: 10
+!torches += 2
+!player.equip_armor(Armor.by_name("Scale")) # Armor: 3, Armor Penalty: 2, Mana: 3
+!player.spell_add("Levitation") # Levitation, Mana: 2, Difficulty: Routine, Slowly float up and down for 3 minutes. May be sustained for 1 mana per minute. No propulsion provided.
+!player.spell_add("Magic Armor") # Magic Armor, Mana: 2, Difficulty: Routine, Shield. Will last until shield's HP is consumed. 4 HP. Mana burn: 4 HP. Excess damage is discarded.
+; (5, 15) # @player.hps
+; ['Frost Burn: Easy, Mana: 1', 'Healing Hand: Easy, Mana: 1', 'Levitation: Routine, Mana: 2', 'Magic Armor: Routine, Mana: 2'] # @player.spell_list()
+
+HP REMAINING: 5 + 15
+
+MANA PENALTY: 2, MANA REMAINING: 1
+
+[Continue Downwards|85aacc47] (d70ae699)
+; Go down the stairs|d70ae699
+
+; "FAIL 7 < 9" # @dl_check("Challenging", player.rogue)
 
 As you step into the bend in the passage, you feel a click, and hear a snap from beneath your feet.
 
-The floor disappears out from under you and you fall.
+The floor disappears out from under you and you fall and you crash into a bed of spikes.
 
-!2d10 = 16
+;!2d10 = 16
+; (5, 15) # @player.hps
 
-You crash into a bed of spikes.
+Fate saves you from a gruesome death as you miracously land between all the spikes!
 
-Fate saves you from a gruesome death!
-Miracously you land between all the spikes!
+!player.fate= 1  #- @player.fate: player.fate-1 -#
 
-FATE - 1. FATE REMAINING: 1.
+FATE REMAINING: 1
 
 Next to you lies the pierced remains of a previous adventurer who was not so lucky.
 
 :Loot the Body|e5886c24
 :Climb out of the Pit|b84febcf
 
-[Light a torch|2e3f2197]
-// Go down the stairs|d70ae699
+[Climb out of the Pit|b84febcf] (85aacc47)
+; Continue Downwards|85aacc47
 
-[Loot the Body|e5886c24]
-// Continue Downwards|85aacc47
+[Loot the Body|e5886c24] (85aacc47)
+; Continue Downwards|85aacc47
 
 You dig through the belongings of the corpse to see what you can find.
 
@@ -164,21 +412,21 @@ You find:
 
 Upon examining the spellbook you find one spell:
 
+!player.spell_add("Food and Water") # Food and Water, Mana: 2, Difficulty: Routine, 1 Daily ration of food and water.
 * Food and Water, Mana: 2, Difficulty: Routine, 1 Daily ration of food and water.
 
-Discarding the clothing, you place everything else into your backpack.
+Discarding the ragged and rotting clothing, you place everything else into your backpack.
+!torches= 4 # @torches: torches + 1
 
 :Climb out of the Pit|4f35e379
 
-[Climb out of the Pit|b84febcf]
-// Continue Downwards|85aacc47
-
-[Climb out of the Pit|4f35e379]
-// Loot the Body|e5886c24
+[Climb out of the Pit|4f35e379] (e5886c24)
+; Loot the Body|e5886c24
 
 To see the sides of the pit better you light a torch.
 
-TORCHES - 1, TORCHES REMAINING: 3
+!torches= 3 # @torches: torches - 1
+TORCHES REMAINING: 3
 
 After carefully examining the sides of the pit in the torch light
 you discover a set of handholds that allow you to climb out to the
@@ -187,7 +435,7 @@ top of the next flight of stairs heading down.
 You go down the stairs and follow a passage 3 meters before it comes to
 a bend turning to your right.
 
-!1d6 = 5 // wandering monster check
+; (False, '') # @random_encounter_check()
 
 You follow the passage 300 meters and come to a four way junction.
 
@@ -195,10 +443,16 @@ You follow the passage 300 meters and come to a four way junction.
 :Go straight ahead|81df850c
 :Go left|04ffe3bd
 
-[Go right|33092c7d]
-// Climb out of the Pit|4f35e379
+[Go left|04ffe3bd] (4f35e379)
+; Climb out of the Pit|4f35e379
 
-!1d6 = 4 // wandering monster check
+[Go straight ahead|81df850c] (4f35e379)
+; Climb out of the Pit|4f35e379
+
+[Go right|33092c7d] (4f35e379)
+; Climb out of the Pit|4f35e379
+
+; (False, '') # @random_encounter_check()
 
 You follow the passage 210 meters and come to a rusting iron porticullis
 blocking your way into the room beyond. From floor to ceiling you see a series of alcoves
@@ -207,30 +461,23 @@ covering every wall. In the alcoves rest the bones of long dead monks.
 :Open the porticullis|7356d612
 :Follow the passage back|4d61512b
 
-[Go straight ahead|81df850c]
-// Climb out of the Pit|4f35e379
+[Follow the passage back|4d61512b] (33092c7d)
+; Go right|33092c7d
 
-[Go left|04ffe3bd]
-// Climb out of the Pit|4f35e379
-
-[Open the porticullis|7356d612]
-// Go right|33092c7d
+[Open the porticullis|7356d612] (33092c7d)
+; Go right|33092c7d
 
 Putting your weight behind it, you manage to open the porticullus
 with the screeching sound of long rusted metal.
 
-!1d6 = 4 // wandering monster check
+; (False, '') # @random_encounter_check()
 
 :Enter the room|cc060ada
-:Follow the passage back|1603f137
 
-[Follow the passage back|4d61512b]
-// Go right|33092c7d
+[Enter the room|cc060ada] (7356d612)
+; Open the porticullis|7356d612
 
-[Enter the room|cc060ada]
-// Open the porticullis|7356d612
-
-!1d6 = 5 // wandering monster check
+; (False, '') # @random_encounter_check()
 
 You enter the room. The ceiling is 3 meters above you.
 
@@ -240,214 +487,526 @@ Each alcove is about 3 meters x 3 meters in size.
 :Search the alcoves|e8a86cc6
 :Search the room|04da0905
 
-[Follow the passage back|1603f137]
-// Open the porticullis|7356d612
+[Search the room|04da0905] (cc060ada)
+; Enter the room|cc060ada
 
-[Search the alcoves|e8a86cc6]
-// Enter the room|cc060ada
+; (False, '') # @random_encounter_check()
 
-!1d6 = 3 // wandering monster check
+[Search the alcoves|e8a86cc6] (cc060ada)
+; Enter the room|cc060ada
+
+; (False, '') # @random_encounter_check()
 
 You begin rifling through the alcoves starting on your right looking for loot.
 
 Suddenly, across the room you hear a clattering sound.
 
+!zombie_cnt = 2 # @roll("1d4")
+!skeleton_cnt = 2 # @roll("1d3")
+
+!skel1= unpickle("{\"py/object\": \"character_sheet.CharacterSheet\", \"name\": \"Skeleton Warrior\", \"description\": \"Rusted armor. Broken shield. Short sword.\", \"weapons\": [{\"py/object\": \"equipment.Weapon\", \"name\": \"Sword - Rusty\", \"skill\": {\"py/object\": \"skills.CharacterSkill\", \"skill_name\": \"Swords\", \"skill_attribute\": {\"py/reduce\": [{\"py/type\": \"skills.SkillAttribute\"}, {\"py/tuple\": [3]}]}}, \"_damage\": \"1d6\", \"cost_sp\": 5, \"_two_handed\": false}], \"armor_worn\": [], \"skills\": [], \"talents\": [], \"spells\": [], \"equipment\": [], \"warrior\": 3, \"rogue\": 3, \"mage\": 0, \"adv_taken\": 0, \"fate\": 3, \"fate_starting\": 3, \"armor_penalty\": 0, \"hit_points_max\": 9, \"mana_max\": 0, \"defense\": 7, \"_hit_points\": 9, \"mana\": 0, \"base_defense\": 7, \"armor\": 0, \"hit_points_armor\": 5}") # @skel1: NPC.skeleton_warrior()
+!skel2= unpickle("{\"py/object\": \"character_sheet.CharacterSheet\", \"name\": \"Skeleton Warrior\", \"description\": \"Rusted armor. Broken shield. Short sword.\", \"weapons\": [{\"py/object\": \"equipment.Weapon\", \"name\": \"Sword - Rusty\", \"skill\": {\"py/object\": \"skills.CharacterSkill\", \"skill_name\": \"Swords\", \"skill_attribute\": {\"py/reduce\": [{\"py/type\": \"skills.SkillAttribute\"}, {\"py/tuple\": [3]}]}}, \"_damage\": \"1d6\", \"cost_sp\": 5, \"_two_handed\": false}], \"armor_worn\": [], \"skills\": [], \"talents\": [], \"spells\": [], \"equipment\": [], \"warrior\": 3, \"rogue\": 3, \"mage\": 0, \"adv_taken\": 0, \"fate\": 3, \"fate_starting\": 3, \"armor_penalty\": 0, \"hit_points_max\": 9, \"mana_max\": 0, \"defense\": 7, \"_hit_points\": 9, \"mana\": 0, \"base_defense\": 7, \"armor\": 0, \"hit_points_armor\": 5}") # @skel2: NPC.skeleton_warrior()
+!zomb1= unpickle("{\"py/object\": \"character_sheet.CharacterSheet\", \"name\": \"Zombie\", \"description\": \"Those bitten and killed by a zombie arise as zombies in 1d6 minutes each.\", \"weapons\": [{\"py/object\": \"equipment.Weapon\", \"name\": \"Infected Bite\", \"skill\": {\"py/object\": \"skills.CharacterSkill\", \"skill_name\": \"Unarmed\", \"skill_attribute\": {\"py/reduce\": [{\"py/type\": \"skills.SkillAttribute\"}, {\"py/tuple\": [3]}]}}, \"_damage\": \"1d6\", \"cost_sp\": 0, \"_two_handed\": false}], \"armor_worn\": [], \"skills\": [], \"talents\": [], \"spells\": [], \"equipment\": [], \"warrior\": 6, \"rogue\": 0, \"mage\": 0, \"adv_taken\": 0, \"fate\": 1, \"fate_starting\": 1, \"armor_penalty\": 0, \"hit_points_max\": 12, \"mana_max\": 0, \"defense\": 7, \"_hit_points\": 12, \"mana\": 0, \"base_defense\": 7, \"armor\": 0, \"hit_points_armor\": 0}") # @zomb1: NPC.zombie()
+!zomb2= unpickle("{\"py/object\": \"character_sheet.CharacterSheet\", \"name\": \"Zombie\", \"description\": \"Those bitten and killed by a zombie arise as zombies in 1d6 minutes each.\", \"weapons\": [{\"py/object\": \"equipment.Weapon\", \"name\": \"Infected Bite\", \"skill\": {\"py/object\": \"skills.CharacterSkill\", \"skill_name\": \"Unarmed\", \"skill_attribute\": {\"py/reduce\": [{\"py/type\": \"skills.SkillAttribute\"}, {\"py/tuple\": [3]}]}}, \"_damage\": \"1d6\", \"cost_sp\": 0, \"_two_handed\": false}], \"armor_worn\": [], \"skills\": [], \"talents\": [], \"spells\": [], \"equipment\": [], \"warrior\": 6, \"rogue\": 0, \"mage\": 0, \"adv_taken\": 0, \"fate\": 1, \"fate_starting\": 1, \"armor_penalty\": 0, \"hit_points_max\": 12, \"mana_max\": 0, \"defense\": 7, \"_hit_points\": 12, \"mana\": 0, \"base_defense\": 7, \"armor\": 0, \"hit_points_armor\": 0}") # @zomb2: NPC.zombie()
+
 Quickly turning to take a look, you see two skeletons and two zombies standing before you
 with empty alcoves behind them.
-
-!1d4 = 2 // count of skeletons
-!1d3 = 2 // count of zombies
 
 :Flee down the passage|d390e2a8
 :Fight|c22133b7
 
-[Search the room|04da0905]
-// Enter the room|cc060ada
-
-!1d6 = 4 // wandering monster check
-
-[Flee down the passage|d390e2a8]
-// Search the alcoves|e8a86cc6
-
-!1d6 = 6 // wandering monster check
-
-[Fight|c22133b7]
-// Search the alcoves|e8a86cc6
+[Fight|c22133b7] (e8a86cc6)
+; Search the alcoves|e8a86cc6
 
 You have chosen to stand your ground. How dare this undead filth attack you without warning!
 
-!1d6 = 2 // initiative undead
-!1d6 = 1 // initiative player
+; "NPC" # @initiative(player.rogue, skel1.rogue)
 
 And they are upon you, attacking first!
 
-!1d4 = 2 // how many?
-!1d4 = 4 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
-!1d4 = 3 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+!qty= 2  #- @qty: roll("1d4") -#
+; ['zomb2', 'zomb1'] # @random.choices(["skel1", "skel2", "zomb1", "zomb2"], k=qty)
 
-!1d6 + 6 = 12 // attack against defense 7
-!1d6 = 3 // claw and bite damage
-@HP = 11
-@HP_ARMOR = 10
-@HP_ARMOR - 3 = 7
+; "Success" # @attack(zomb1.warrior, player.defense)
+!player.hps= unpickle("{\"py/tuple\": [11, 7]}") # @player.hps: damage_against(player, zomb1.weapon.damage)
 
-!1d6 + 6 = 10 // attack against defense 7
-!1d6x = 2 // claw and bite damage
-@HP = 11
-@HP_ARMOR = 7
-@HP_ARMOR - 2 = 5
+; "Success" # @attack(zomb2.warrior, player.defense)
+!player.hps= unpickle("{\"py/tuple\": [11, 5]}") # @player.hps: damage_against(player, zomb2.weapon.damage)
 
 A groaning zombie reaches out to you with clawed hands and gnashing teeth.
 His claws leaving gouges in your armor. He is followed up by a second
 zombie attacking which adds to the number of gouges in your armor.
 
-!1d6 + 5 = 9 // axe attack against zombie 7
-!1d6x = 4 // axe damage
-@zombie_3.HP = 12
-@zombie_3.HP_ARMOR = 0
-@zombie_3.HP - 4 = 8
+; "Success" # @attack(player.warrior, zomb1.defense)
+!zomb1.hps= unpickle("{\"py/tuple\": [8, 0]}") # @zomb1.hps: damage_against(zomb1, player.weapon.damage)
 
 You swing your axe around and hit the second zombie with a mighty wet thwack sinking into the
 creatures chest and pull it away with a messy sounding squelch.
 
-!1d4 = 2 // how many?
-
-!1d4 = 2 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
-!1d6 + 3 = 6 // attack against defense 7
-
-!1d4 = 3 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
-!1d6 + 6 = 9 // zombie attack against defense 7
-!1d6x = 5 // claw and bite damage
-@HP_ARMOR = 5
+!qty= 2  #- @qty: roll("1d4") -#
+; ['skel1', 'zomb1'] # @random.choices(["skel1", "skel2", "zomb1", "zomb2"], k=qty)
+; "Fail" # @attack(skel1.warrior, player.defense)
+; "Success" # @attack(zomb1.warrior, player.defense)
+;!1d6x = 5 ; claw and bite damage
+!player.hps= unpickle("{\"py/tuple\": [11, 0]}") # @player.hps: damage_against(player, zomb1.weapon.damage)
 
 A skeleton swings a short sword at you and barely misses. It is followed up by
 another zombie strike which rips the ragged remains of your armor off your person.
 
-!1d6 + 5 = 11 // axe attack against zombie 7
-!1d6x = 1 // axe damage
-@zombie_3.HP = 8
-@zombie_3.HP_ARMOR = 0
-@zombie_3.HP - 1 = 7
+; "Success" # @attack(player.warrior, zomb1.defense)
+;!1d6x = 1 ; axe damage
+!zomb1.hps= unpickle("{\"py/tuple\": [7, 0]}") # @zomb1.hps: damage_against(zomb1, player.weapon.damage)
 
 You attack again with your axe and only do a glancing blow against the zombie.
 
-!1d4 = 3 // how many?
-!1d4 = 3 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
-!1d6 + 6 = 8 // zombie attack against defense 7
-!1d6x = 21 // claw and bite damage
+!qty= 3  #- @qty: roll("1d4") -#
+; ['zomb1', 'skel1', 'skel2'] # @random.choices(["skel1", "skel2", "zomb1", "zomb2"], k=qty)
+; "Success" # @attack(zomb1.warrior, player.defense)
+!hp= unpickle("{\"py/tuple\": [0, 0]}") # @hp: unpickle("{\"py/tuple\": [0, 0]}") # @player.hps: damage_against(player, zomb1.weapon.damage)
 
-FATE - 1. FATE REMAINING: 0.
+!player.fate= 0  #- @player.fate: player.fate - 1 -#
 
-!1d4 = 1 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
-!1d4 = 1 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+!qty= 2  #- @qty: roll("1d4") -#
+!fall_down= unpickle("[\"zomb1\", \"skel1\"]") # @fall_down: random.choices(["skel1", "skel2", "zomb1", "zomb2"], k=qty)
 
 The zombie attacking leaps forward trying to land on you. At the last moment,
 a pebble under the zombie's foot causes it to completely lose its footing.
 It falls prone and knocks down both skeletons as they were preparing to shove
 their short swords into your chest. Only the second zombie is currently standing.
 
-!1d6 + 5 = 6 // axe attack against zombie 7
-!1d6x = 1 // axe damage
-@zombie_4.HP = 12
-@zombie_4.HP_ARMOR = 0
-@zombie_4.HP - 1 = 11
+FATE REMAINING: 0.
+
+; "Fail" # @attack(player.warrior, zomb1.defense)
 
 The second zombie attacks and leaves long burning gouges across your chest.
 
-!1d6 + 6 = 11 // zombie attack against defense 7
-!1d6x = 4 // claw and bite damage
-
-@HP - 4 = 7
+; "Success" # @attack(zomb1.warrior, player.defense)
+;!1d6x = 4 ; claw and bite damage
+!player.hps= unpickle("{\"py/tuple\": [7, 0]}") # @player.hps: damage_against(player, zomb1.weapon.damage)
 
 :Continue Fighting|c4918f4f
 :Heal Self|7cf288e9
 
-[data:bestiary|7fd133a7]
+[Heal Self|7cf288e9] (c22133b7)
+; Fight|c22133b7
 
-## Skeleton Warrior
-Warrior: 3
-Rogue: 3
-Mage: 0
-HP: 9, 5
-Mana: 0
-Defense: 6
+[Continue Attacking|c4918f4f] (c22133b7)
+; Fight|c22133b7
 
-Rusted armor. Broken shield. Short sword.
-
-## Skeleton Archer
-Warrior: 3
-Rogue: 3
-Mage: 0
-HP: 9, 5
-Mana: 0
-Defense: 6
-
-Rusted armor. Bow. 10 Arrows.
-
-## Zombie
-Warrior: 6
-Rogue: 0
-Mage: 0
-HP: 12, 0
-Mana: 0
-Defense: 7
-Attacks: Infected bite (warrior) 1d6
-Those bitten and killed by a zombie arise as zombies in 1d6 minutes each.
-
-[Continue Attacking|c4918f4f]
-// Fight|c22133b7
-
-@HP = 7
+; (7, 0) # @player.hps
 
 The remaining undead have recovered and attack once more.
 
-!1d4 = 3 // how many?
-!1d4 = 1 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
-!1d4 = 3 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
-!1d4 = 3 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+!qty= 3  # @qty: roll("1d4")
+; ['skel1', "zomb1", "zomb2"] # @random.choices(["skel1", "skel2", "zomb1", "zomb2"], k=qty)
 
-!1d6 + 3 = 7 // skeleton attack against defense 7
-!1d6x = 2 // sword damage
-@HP - 2 = 5
+; "Success" # @attack(skel1.warrior, player.defense)
+!player.hps= unpickle("{\"py/tuple\": [5, 0]}") # @player.hps: damage_against(player, "2") # skel1.weapon.damage)
 
 The first skeleton stabs out with his short sword and leaves a horrible gouge in your left thigh.
 
-!1d6 + 6 = 12 // zombie attack against defense 7
-!1d6x = 3 // claw and bite damage
-@HP - 3 = 2
+; "Success" # @attack(zomb1.warrior, player.defense)
+;!1d6x = 3 ; claw and bite damage
+!player.hps= unpickle("{\"py/tuple\": [2, 0]}") # @player.hps: damage_against(player, zomb1.weapon.damage) -#
 
 The first zombie claws your left arm and bites tearing into your flesh.
 
-!1d6 = 6 // axe attack against zombie 7
-@zombie_4.HP = 11
-@zombie_4.HP_ARMOR = 0
+; "Fail" # @attack(player.warrior, zomb1.defense)
 
 You swing mightely with your axe at a second approaching zombie but miss.
 
-!1d4 = 4 // how many?
-!1d4 = 3 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
-!1d4 = 1 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
-!1d4 = 1 // which npc? 1 = skel a, 2 = skel b, 3 = zom a, 4 = zom b
+!qty= 3  #- @qty: roll("1d4") -#
+; ['skel1', 'zomb2', 'zomb1'] # @random.sample(["skel1", "skel2", "zomb1", "zomb2"], k=qty)
 
-!1d6 + 6 = 7 // zombie attack against defense 7
-!1d6x = 4 // claw and bite damage
-@HP - 4 = -2
+; "Success" # @attack(zomb1.warrior, player.defense)
+!player.hps= unpickle("{\"py/tuple\": [0, 0]}") # @player.hps: damage_against(player, zomb1.weapon.damage)
 
 It grapples with you pulling you down where the rest of the undead pile upon you and quickly
 take your life.
 
 :Continue|Death by Zombie
 
-[Heal Self|7cf288e9]
-// Fight|c22133b7
-
-@HP = 7
-
-[Continue|Death by Zombie]
-// Continue Attacking|c4918f4f
+[Continue|Death by Zombie] (c4918f4f)
+; Continue Attacking|c4918f4f
 
 You were struck down by a zombie. You are cursed to wander about attacking the living
 until you are destroyed by some powerful adventurer.
 
 :Start Over|start
+
+[Flee down the passage|d390e2a8] (e8a86cc6)
+; Search the alcoves|e8a86cc6
+
+; (False, '') # @random_encounter_check()
+
+[Go right|efc120a6] (d1a46716)
+; Continue On|d1a46716
+
+[Go straight ahead|c343559b] (d1a46716)
+; Continue On|d1a46716
+
+[Go left|f31755fa] (d1a46716)
+; Continue On|d1a46716
+
+[Continue Straight|190cc38f] (5433bd46)
+; Go left|5433bd46
+
+; (False, '') # @wander()
+
+You continue 30 meters past the intersection and descend the stairs.
+
+You come to a large wine cellar. 180 meters wide and 120 meters deep.
+
+On the opposite side of the room you see a series of huge wooden casks filling the entire wall. Some of the
+casks appear busted open.
+
+; 3 # @player.mana
+; ['Frost Burn: Easy, Mana: 1', 'Healing Hand: Easy, Mana: 1'] # @player.spell_list()
+; (5, 0) # @player.hps
+
+:Examine casks|38bdf688
+:Cast Healing Hand then examine casks|5c8a05c7
+
+[Turn Left|f50ef783] (5433bd46)
+; Go left|5433bd46
+
+[Examine Casks|38bdf688] (190cc38f)
+; Continue Straight|190cc38f
+
+[Cast Healing Hand|5c8a05c7] (190cc38f)
+; Continue Straight|190cc38f
+
+; "Cast succeeded. Healing Hand: Touch. 1d6 HP healed. Mana burn raises heal by +1." # @player.cast("healing hand")
+!player.mana= 2 # @player.mana: player.mana
+!player.hit_points= 11 # @player.hit_points: player.hit_points+roll("1d6")
+
+You successfully cast Healing Hand and your Hit Points are back to your maximun of 11.
+
+HIT POINTS: 11
+MANA: 2
+
+You find both busted casks and intact casks. All of the intact casks are empty.
+
+Suddenly you hear scurrying noises from behind the casks and you see large beady eyes staring out at you
+from the shadows of the casks cast by your torch light. It's a giant rat!
+
+!qty_rats= 1 # @qty_rats: roll("1d3")
+!rat= unpickle("{\"py/object\": \"character_sheet.CharacterSheet\", \"name\": \"Giant Rat\", \"description\": \"Bites. 1d6.\", \"weapons\": [{\"py/object\": \"equipment.Weapon\", \"name\": \"Bite (Warrior)\", \"skill\": {\"py/object\": \"skills.CharacterSkill\", \"skill_name\": \"Unarmed\", \"skill_attribute\": {\"py/reduce\": [{\"py/type\": \"skills.SkillAttribute\"}, {\"py/tuple\": [3]}]}}, \"_damage\": \"1d6\", \"cost_sp\": 0, \"_two_handed\": false}], \"armor_worn\": [], \"skills\": [], \"talents\": [], \"spells\": [], \"equipment\": [], \"warrior\": 4, \"rogue\": 2, \"mage\": 0, \"adv_taken\": 0, \"fate\": 2, \"fate_starting\": 2, \"armor_penalty\": 0, \"hit_points_max\": 12, \"mana_max\": 0, \"defense\": 7, \"_hit_points\": 12, \"mana\": 0, \"base_defense\": 7, \"armor\": 0, \"hit_points_armor\": 0}") # @rat: NPC.giant_rat()
+
+; "PLAYER" # @initiative(player.rogue, rat.rogue)
+
+:Flee|f4cab94f
+:Attack|f43e1f35
+
+[Flee|f4cab94f] (5c8a05c7)
+; Cast Healing Hand|5c8a05c7
+; "PASS 10 >= 7" # @dl_check("Routine", player.rogue)
+
+You successfully disengage from the rat and make it back upstairs to the three way intersection.
+
+; (False, '') # @wander()
+
+:Go straight ahead|6230c105
+:Go right|662eca7c
+
+[Attack|f43e1f35] (5c8a05c7)
+; Cast Healing Hand|5c8a05c7
+
+; (11, 0) # @player.hps
+; (12, 0) # @rat.hps
+
+; "Fail" # @attack(player.warrior, rat.defense)
+
+You swing at the the giant rat with your axe but it nimbly jumps away.
+
+; "Success" # @attack(rat.warrior, player.defense)
+!player.hps= unpickle("{\"py/tuple\": [7, 0]}") # @player.hps: damage_against(player, rat.weapon.damage)
+
+The rat leaps at you, bites, then leaps away.
+
+; "Fail" # @attack(player.warrior, rat.defense)
+
+Again the rat nimbly dodges your blow.
+
+; "Fail" # @attack(rat.warrior, player.defense)
+
+The rat rushes up and misses taking a bite out of your left leg.
+
+; "Fail" # @attack(player.warrior, rat.defense)
+
+You take another swing and it jumps back and readies itself for another lung.
+
+; (7, 0) # @player.hps
+; "Success" # @attack(rat.warrior, player.defense)
+!player.hps= unpickle("{\"py/tuple\": [4, 0]}") # @player.hps: damage_against(player, rat.weapon.damage)
+
+The rat rushes up and takes a bite out of your left leg for 3 points of damage.
+
+HP REMAINING: 4
+
+:Continue Fighting|3645901b
+:Cast Healing Hand|66465242
+:Flee|19cfe55c
+
+[Continue Fighting|3645901b] (f43e1f35; 19cfe55c)
+; Attack|f43e1f35
+; (12, 0) # @rat.hps
+; (4, 0) # @player.hps
+
+You decide and try to use your massive attack against the rat to hopefully squash it once and for all.
+
+You swing your axe and hit the rat on the top of its head for 11 points of damage. You hear the sound
+of crunching bone as its skull cracks. Amazingly, it is still alive and now full of vengeance though it
+does appear much weaker.
+
+; "Success (9>=7)" # @attack(player.warrior, rat.defense)
+!dmg= "1d6" # @dmg: player.weapon.damage
+!rat.hps= unpickle("{\"py/tuple\": [1, 0]}") # @rat.hps: damage_against(rat, f"{dmg} + {player.warrior}")
+
+; "Success (10>=7)" # @attack(rat.warrior, player.defense)
+!player.hps= unpickle("{\"py/tuple\": [0, 0]}") # @player.hps: damage_against(player, rat.weapon.damage)
+; "Success (10>=7)" # @attack(player.warrior, rat.defense)
+
+As you reach out to end the threat, the rat manages to scurry up your side and latch into your throat, tearing
+it out. You have perished.
+
+:Start Over|start
+
+[Cast Healing Hand|66465242] (f43e1f35)
+; Attack|f43e1f35
+; (12, 0) # @rat.hps
+; 7 # @rat.defense
+; (4, 0) # @player.hps
+; 2 # @player.mana
+; "Cast succeeded. Healing Hand: Touch. 1d6 HP healed. Mana burn raises heal by +1." # @player.cast("healing hand")
+!player.mana= 1 # @player.mana: player.mana
+!player.hit_points= 7 # @player.hit_points: player.hit_points + roll("1d6")
+; "Fail" # @attack(rat.warrior, player.defense)
+
+You successfully cast Healing Hand upon your self and gain 3 HP. The rat lunges at your while the healing is taking
+effect and you successfully dodge its bite.
+
+; "Fail" # @attack(player.warrior, rat.defense)
+; "Fail" # @attack(rat.warrior, player.defense)
+
+You strike out with your axe while the rat leaps to attack. You both miss.
+
+; "Fail (6<7)" # @attack(player.warrior, rat.defense)
+; "Success (9>=7)" # @attack(rat.warrior, player.defense)
+; (7, 0) # @player.hps
+!player.hps= unpickle("{\"py/tuple\": [1, 0]}") # @player.hps: damage_against(player, rat.weapon.damage)
+
+You try an up swing to catch the rat as it leaps from a stacked casket above you. Your swing misses the rat
+and shatters a cask. The rat latches on your left arm and tears out a huge chunk for 6 points of damage.
+
+HP REMAINING: 1
+
+:Continue Fighting|924bf099
+:Cast Healing Hand|dfc2d10a
+:Flee|e55babe0
+
+[Flee|19cfe55c] (f43e1f35)
+; Attack|f43e1f35
+
+!escape= "FAIL 3 < 9" # @escape: dl_check("Challenging", player.rogue)
+
+You attempt at fleeing fails. You are forced to fight.
+
+:Continue|3645901b
+
+[Continue Fighting|924bf099] (66465242; e55babe0)
+; Cast Healing Hand|66465242
+
+; (1, 0) # @player.hps
+; 1 # @player.mana
+; (12, 0) # @rat.hps
+
+; "Success (11>=7)" # @attack(player.warrior, rat.defense)
+!dmg= "1d6 + 5" # @dmg: f"{player.weapon.damage} + {player.warrior}"
+!rat.hps= unpickle("{\"py/tuple\": [3, 0]}") # @rat.hps: damage_against(rat, dmg)
+; "Success (10>=7)" # @attack(rat.warrior, player.defense)
+!dmg= "1d6" # @dmg: rat.weapon.damage
+!player.hps= unpickle("{\"py/tuple\": [0, 0]}") # @player.hps: damage_against(player, dmg)
+
+You decide to use your massive attack skill and shouting you strike the rat for 9 points of damage. The rat retaliates
+by biting into your throat and taking your life.
+
+:Start Over|start
+
+[Cast Healing Hand|dfc2d10a] (66465242)
+; Cast Healing Hand|66465242
+
+; (1, 0) # @player.hps
+; 1 # @player.mana
+
+; "Cast succeeded. Healing Hand: Touch. 1d6 HP healed. Mana burn raises heal by +1." # @player.cast("healing hand")
+!player.mana= 0 # @player.mana: player.mana
+!player.hit_points= 2 # @player.hit_points: player.hit_points + roll("1d6")
+; "Success (8>=7)" # @attack(rat.warrior, player.defense)
+!player.hps= unpickle("{\"py/tuple\": [0, 0]}") # @player.hps: damage_against(player, rat.weapon.damage)
+
+You manage to heal yourself 1 point before the rat is upon you gnashing and tearing. Things go dark and you pass out.
+
+You have perished at the paws of a giant rat.
+
+:Start Over|start
+
+[Flee|e55babe0] (66465242)
+; Cast Healing Hand|66465242
+
+!escape= "FAIL 4 < 9" # @escape: dl_check("Challenging", player.rogue)
+
+You are too far into the room to try and run back to the stairs and then up. The rat will surely attack you with
+deadly effect from behind. Your only choice is to stand and fight.
+
+:Continue|924bf099
+
+[Go straight ahead|6230c105] (f4cab94f)
+; Flee|f4cab94f
+
+[Go right|662eca7c] (f4cab94f)
+; Flee|f4cab94f
+
+; (True, 'loot') # @wander()
+
+You go down 150 meters and come to a tiled cave. This roughly domed room has been carved in the rock and its floor
+is covered with square black marble tiles. You notice that the air feels much cooler here. The room is bare except for
+a large two-handed axe on a display stand in the middle of the room. You notice that it appears beautifully mastered.
+
+!axe= unpickle("{\"py/object\": \"equipment.Weapon\", \"name\": \"Axe (Flame Enchanted)\", \"skill\": {\"py/object\": \"skills.CharacterSkill\", \"skill_name\": \"Axes\", \"skill_attribute\": {\"py/reduce\": [{\"py/type\": \"skills.SkillAttribute\"}, {\"py/tuple\": [3]}]}}, \"_damage\": \"2d6\", \"cost_sp\": 5, \"_attack_bonus\": 1, \"_damage_bonus\": 1, \"_two_handed\": true}") # @axe: Weapon.by_name("Axe (Flame Enchanted)")
+; Axe (Flame Enchanted) (Axes) [2d6 + 1] # @axe
+
+:Examine room and walls|68521455
+:Walk over and examine axe|9eef40e9
+
+[Examine room and walls|68521455] (662eca7c; 9eef40e9)
+; Go right|662eca7c
+
+As you feel along the walls looking for secrets they start feeling colder and colder to the touch. You keep having
+the sensation that something is moving towards you which causes you to glance around. Nothing is there.
+
+:Keep examining walls|3e699aa3
+:Examine axe|9eef40e9
+
+[Walk over and examine axe|9eef40e9] (662eca7c; 68521455)
+; Go right|662eca7c
+; Axe (Flame Enchanted) (Axes) [2d6 + 1] # @axe
+
+You walk over and examine the axe in more detail. You find a two handed axe that is inlaid in the flat of the blade
+with various red runes. The grip is bound up in a red colored leather. It looks very sharp. It is upon a stand on a
+9 meter tall plain stone plynth.
+
+:Take the axe|b3dc7a0c
+:Examine room and walls|68521455
+
+[Keep examining walls|3e699aa3] (68521455; b3dc7a0c)
+; Examine room and walls|68521455
+
+; "FAIL 3 < 11" # @dl_check("Hard", player.rogue)
+
+As you continue examining the walls suddenly a spectral hand pops out of the wall near one of your hands grasping about
+like it is trying to grab you. As you jerk back away from the spectral hand, whatever it is attached to suddenly surges
+out of the wall up to its elbow, grabs you, and pulls you into utter blackness. You feel your life essence fade as
+everything fades away.
+
+You have perished.
+
+Start Over|start
+
+[Take the axe|b3dc7a0c] (9eef40e9)
+; Walk over and examine axe|9eef40e9
+
+Carefully setting your torch against one of the walls so it stays lit, you pick up the two-handed beast and heft it in
+your hands. You notice that is has a very nice feel and seems perfectly balanced when a glow begins to eminate from
+the blade. Soon it becomes bright as a torch and stops getting brighter. As you stand there staring at the axe in awe,
+you realize that you know longer need to carry a torch to be able to see. You place your one handed axe into your
+backpack and equip the two-handed one.
+
+!player.equip_weapon(Weapon.by_name("Axe (Flame Enchanted)")) # ('Axe (Flame Enchanted)', 1, 1)
+
+:Keep examining room|3e699aa3
+:Head down the passage back to the intersection|d2d61e3a
+
+[Head down the passage back to the intersection|d2d61e3a] (b3dc7a0c)
+; Take the axe|b3dc7a0c
+
+You exit the room with your prize and head back down the corridor to the three way intersection.
+To the left you see a short corridor ending in a flight of stairs heading down.
+To the right you see a long corridor heading into darkness.
+
+; (False, '') # @wander()
+
+:Take the stairs down|b844f940
+:Head down the long corridor|b156d971
+
+[Take the stairs down|b844f940] (d2d61e3a)
+; Head down the passage back to the intersection|d2d61e3a
+!rat.hps # (12, 0)
+!rat.weapon.name # Bite (Warrior)
+!rat.attack # 4
+!rat.damage # 1d6 + 0
+
+!player.hps # (11, 0)
+!player.weapon.name # Axe (Flame Enchanted)
+!player.attack # 6
+!player.damage # 2d6 + 1
+!player.mana # 2
+!player.spell_list() # ['Frost Burn: Easy, Mana: 1', 'Healing Hand: Easy, Mana: 1']
+
+; (False, '') # @wander()
+
+You turn left, go down 30 meters, then take the flight of stairs down.
+You come to a large wine cellar. 180 meters wide and 120 meters deep.
+
+On the opposite side of the room you see a series of huge wooden casks filling the entire wall. Some of the
+casks appear busted open.
+
+In the light cast by your axe you see the giant rat's tail sticking out from the casks across the way.
+
+:Fight|84c434ed
+:Head back up to the three way intersection|999e5a42
+
+[Head down the long corridor|b156d971] (d2d61e3a)
+; Head down the passage back to the intersection|d2d61e3a
+!player.hps # (11, 0)
+
+[Fight|84c434ed] (b844f940)
+; Take the stairs down|b844f940
+
+You decide there's no time like the present to test out your new toy. Using your massive attack skill, you strike at
+the creature. As the axe swings down towards the creature the blade is suddenly covered in flames and cleaves the
+rat into two. Gah! The smell of slightly cooked giant rat is appalling! The rat has perished. Just as quickly as they
+appeared, the flames go out.
+
+; "NPC" # @initiative(player.rogue, rat.rogue)
+; "Success (11>=4)" # @attack(player.attack, rat.attack)
+!rat.hps= unpickle("{\"py/tuple\": [0, 0]}") # @rat.hps: damage_against(rat, player.damage, player.warrior)
+!rat.name= "Dead Giant Rat Halves" # @rat.name: "Dead Giant Rat Halves"
+
+:Examine room|4f9985a2
+:Examine casks|1160d00e
+
+[Examine room|4f9985a2] (84c434ed; 1160d00e)
+; Fight|84c434ed
+; (False, '') # @wander()
+
+You look about the room and examine its walls but find no secrets or loot.
+
+:Head back up to the three way intersection|f967e224
+:Examine casks|1160d00e
+
+[Examine casks|1160d00e] (84c434ed; 4f9985a2)
+; Fight|84c434ed
+; (False, '') # @wander()
+
+You poke through the casks, hoping for some hidden treasure, but all the casks are either busted up or empty.
+
+:Examine room|4f9985a2
+:Head back up to the three way intersection|f967e224
+
+[Head back up to the three way intersection|999e5a42] (b844f940)
+; Take the stairs down|b844f940
+
+[Head back up to the three way intersection|f967e224] (4f9985a2; 1160d00e)
+; Examine casks|1160d00e
 

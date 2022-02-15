@@ -1,3 +1,4 @@
+import copy
 import random
 from dataclasses import dataclass
 from dataclasses import field
@@ -58,6 +59,13 @@ class TalentList:
         self.talents.append(CharacterTalent("Sixth Sense", "You may roll 4+ to become aware of an ambush, etc, before "
                                                            "it occurs and are not surprised."))
         self.talents.append(CharacterTalent("Touch as Nails", "All damage per attack is reduced by -2."))
+
+    @classmethod
+    def by_name(cls, name: str) -> CharacterTalent | None:
+        for talent in TalentList().talents:
+            if name.lower() == talent.name.lower():
+                return copy.deepcopy(talent)
+        return None
 
     def random_talent(self, skill_attribute: SkillAttribute = None):
         if not skill_attribute:

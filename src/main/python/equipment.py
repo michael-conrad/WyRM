@@ -1,6 +1,5 @@
 import random
 from dataclasses import dataclass
-from enum import Enum
 
 from skills import CharacterSkill
 from skills import CharacterSkillsList
@@ -31,14 +30,16 @@ class Shield:
 @dataclass(slots=True)
 class Item:
     name: str = ""
+    location: str = ""
     cost_sp: int = 0
 
-    def __init__(self, name: str, cost_sp: int):
+    def __init__(self, name: str, location: str = "", cost_sp: int = 0):
         self.name = name
+        self.location = location
         self.cost_sp = cost_sp
 
     def __str__(self) -> str:
-        return f"{self.name}"
+        return f"{self.name} ({self.location})"
 
     @classmethod
     def list(cls) -> list["Item"]:
@@ -133,6 +134,8 @@ class Weapon:
 
     @property
     def damage_bonus(self) -> int:
+        if not hasattr(self, "_damage_bonus"):
+            setattr(self, "_damage_bonus", 0)
         return self._damage_bonus
 
     @damage_bonus.setter
@@ -154,7 +157,7 @@ class Weapon:
 
     def __init__(self, name: str,  #
                  skill: CharacterSkill = CharacterSkillsList.skill_by_name("Unarmed"),  #
-                 base_damage: str = "1d4",  #
+                 base_damage: str = "1d4x",  #
                  cost_sp: int = 0,  #
                  two_handed: bool = False):
         self.name = name
@@ -164,13 +167,12 @@ class Weapon:
         self.two_handed = two_handed
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.skill.skill_name}) [{self.damage}]"
-
-    def __repr__(self) -> str:
-        return f"Weapon(\"{self.name}\"," \
-               f" {self.skill}," \
-               f" \"{self.damage}\"," \
-               f" {self.cost_sp}) "
+        skill_name: str
+        if self.skill:
+            skill_name = f"({self.skill.skill_name}) "
+        else:
+            skill_name = ""
+        return f"{self.name} {skill_name}[{self.attack_bonus:+}/attack, {self._damage}{self.damage_bonus:+}/damage]"
 
     @classmethod
     def by_name(cls, name: str):
@@ -180,29 +182,41 @@ class Weapon:
         return random.choice(Weapon.list())
 
     @classmethod
+    def random(cls) -> "Weapon":
+        return random.choice(cls.list())
+
+    @classmethod
     def list(cls) -> list["Weapon"]:
         weapons: list["Weapon"] = list()
-        weapons.append(Weapon("Axe", CharacterSkillsList.skill_by_name("Axes"), "1d6", 5))
-        weapons.append(Weapon("Bow", CharacterSkillsList.skill_by_name("Bows"), "1d6", 4))
-        weapons.append(Weapon("Crossbow", CharacterSkillsList.skill_by_name("Bows"), "1d6+3", 8))
-        weapons.append(Weapon("Dagger", CharacterSkillsList.skill_by_name("Daggers"), "1d6-2", 2))
-        weapons.append(Weapon("Dragon Pistol", CharacterSkillsList.skill_by_name("Firearms"), "1d6+4", 18))
-        weapons.append(Weapon("Dragon Rifle", CharacterSkillsList.skill_by_name("Firearms"), "2d6", 25))
-        weapons.append(Weapon("Halberd", CharacterSkillsList.skill_by_name("Axes"), "1d6", 7))
-        weapons.append(Weapon("Longbow", CharacterSkillsList.skill_by_name("Bows"), "1d6+2", 0))
-        weapons.append(Weapon("Mace", CharacterSkillsList.skill_by_name("Blunt"), "1d6", 5))
-        weapons.append(Weapon("Spear", CharacterSkillsList.skill_by_name("Thrown"), "1d6", 3))
-        weapons.append(Weapon("Staff", CharacterSkillsList.skill_by_name("Blunt"), "1d6", 2))
-        weapons.append(Weapon("Sword", CharacterSkillsList.skill_by_name("Swords"), "1d6", 5))
-        weapons.append(Weapon("Throwing Star", CharacterSkillsList.skill_by_name("Thrown"), "1d6-2", 2))
-        weapons.append(Weapon("Warhammer", CharacterSkillsList.skill_by_name("Blunt"), "1d6", 5))
-        two_handed_flame_axe: Weapon = Weapon("Axe (Flame Enchanted)",  #
+        weapons.append(Weapon("Axe", CharacterSkillsList.skill_by_name("Axes"), "1d6x", 5))
+        weapons.append(Weapon("Bow", CharacterSkillsList.skill_by_name("Bows"), "1d6x", 4))
+        weapons.append(Weapon("Crossbow", CharacterSkillsList.skill_by_name("Bows"), "1d6x+3", 8))
+        weapons.append(Weapon("Dagger", CharacterSkillsList.skill_by_name("Daggers"), "1d6x-2", 2))
+        weapons.append(Weapon("Dragon Pistol", CharacterSkillsList.skill_by_name("Firearms"), "1d6x+4", 18))
+        weapons.append(Weapon("Dragon Rifle", CharacterSkillsList.skill_by_name("Firearms"), "2d6x", 25))
+        weapons.append(Weapon("Halberd", CharacterSkillsList.skill_by_name("Axes"), "1d6x", 7))
+        weapons.append(Weapon("Longbow", CharacterSkillsList.skill_by_name("Bows"), "1d6x+2", 0))
+        weapons.append(Weapon("Mace", CharacterSkillsList.skill_by_name("Blunt"), "1d6x", 5))
+        weapons.append(Weapon("Spear", CharacterSkillsList.skill_by_name("Thrown"), "1d6x", 3))
+        weapons.append(Weapon("Staff", CharacterSkillsList.skill_by_name("Blunt"), "1d6x", 2))
+        weapons.append(Weapon("Sword", CharacterSkillsList.skill_by_name("Swords"), "1d6x", 5))
+        weapons.append(Weapon("Throwing Star", CharacterSkillsList.skill_by_name("Thrown"), "1d6x-2", 2))
+        weapons.append(Weapon("Warhammer", CharacterSkillsList.skill_by_name("Blunt"), "1d6x", 5))
+        two_handed_flame_axe: Weapon = Weapon("Axe (Dark Enchanted)",  #
                                               skill=CharacterSkillsList.skill_by_name("Axes"),  #
-                                              base_damage="2d6",  #
-                                              cost_sp=5,  #
+                                              base_damage="2d6x",  #
+                                              cost_sp=50000,  #
                                               two_handed=True)
         two_handed_flame_axe.attack_bonus = 1
         two_handed_flame_axe.damage_bonus = 1
+        two_handed_flame_axe._description = """
+The blades are a solid black with red etchings following along their cutting edges.
+The hand grip is wrapped in a black leather that is stamped with dark blood red arcane symbols.
+The top of the hand grip has a circle of dark blood red leather as does the bottom of the hand grip.
+From the edge of the hasp dangles a dark blood red leather strip loop.
+Attack Bonus: +1, Damage Bonus: +1, Grants dark sight 60ft.
+The blade edges become wreathed in flame when attacking. The +1 effects are from the flames. 
+"""
         weapons.append(two_handed_flame_axe)
 
         return weapons

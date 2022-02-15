@@ -13,7 +13,6 @@ import random
 import re
 from dataclasses import dataclass
 from dataclasses import field
-
 import jsonpickle
 
 
@@ -40,6 +39,19 @@ class Section:
     text: list[str] = field(default_factory=list)
     choices: list[Choice] = field(default_factory=list)
     has_end_game: bool = False
+    _state: str = "{}"
+    path: list[str] = field(default_factory=list)
+    rooms: str | None = None
+
+    @property
+    def state(self) -> dict[str, any] | None:
+        if self._state is None:
+            return None
+        return jsonpickle.decode(self._state)
+
+    @state.setter
+    def state(self, state: dict[str, any]) -> None:
+        self._state = jsonpickle.encode(state, keys=True)
 
     def choice_labels(self) -> list[str]:
         choices: list[str] = list()
@@ -73,7 +85,14 @@ class Section:
                 continue
             text += f"{line}\n"
             prev_line = line
-        result: str = f"""[{self.name}|{self.label}]{parents}
+        need_choices = "" if self.choices else "- TODO: CHOICES "
+        section_marker: str = f"[{self.name}|{self.label}]{parents}" \
+                              f" - End Game: {self.has_end_game}" \
+                              f" {need_choices}"
+        if len(section_marker) < 120:
+            section_marker += ("=" * (120 - len(section_marker)))
+        result: str = f"""
+{section_marker}
 {text}
 {choices}
 """
@@ -115,13 +134,8 @@ def new_label(already: set[str]) -> str:
     return label
 
 
-def fstr(template, global_state: dict, local_state: dict):
-    bs = ord("\\")
-    template.replace("\\", f"{{chr({bs})}}")
-    return eval(f"f'{template}'", global_state, local_state)
-
-
 def main() -> None:
+    section_tag_match: str = "(?i)^\\[.*?|[a-z0-9]+]"
     gb_file: str = gamebook_file()
     if not os.path.exists(gb_file):
         raise RuntimeError(f"Unable to find '{gb_file}'")
@@ -133,7 +147,7 @@ def main() -> None:
     with open(gb_file, "r") as f:
         for line in f:
             line = line.strip()
-            if re.match("(?i)^\\[[a-z0-9_\\-|: ]+]", line):
+            if re.match(section_tag_match, line):
                 break
             if line.startswith("Title:"):
                 meta_header.title = line[line.find(":") + 1:].strip()
@@ -165,7 +179,7 @@ def main() -> None:
                 continue
             prev_line = line
             # Parse Section Tag
-            if re.match("(?i)^\\[[a-z0-9_\\-|: ]+]", line.strip()):
+            if re.match("(?i)^\\[[a-z0-9_\\-|: .]+]", line.strip()):
                 section = Section()
                 sections.append(section)
                 data: str = line[line.find("[") + 1:line.rfind("]")]
@@ -220,15 +234,27 @@ def main() -> None:
                     new_sections.append(new_section)
                     new_section.label = choice.label
                     new_section.name = choice.text
-                    new_section.text.append(f"; {section.name}|{section.label}")
-                    # new_section.parents.append(f"{section.label}")
+                    new_section.text.append(f"")
+                    new_section.text.append(f"!player.hit_points")
+                    new_section.text.append(f"!player.weapon")
+                    new_section.text.append(f"!player.armor_worn[0]")
+                    new_section.text.append(f"!player.equipment_list")
+                    new_section.text.append(f"!list_items(locals())")
+                    new_section.text.append(f"!list_chars(locals())")
+                    new_section.text.append(f"@turn: turn + 1")
+                    new_section.text.append(f"@'' if turn % 20 != 0 else 'Torch starts guttering'")
+                    new_section.text.append(f"")
+                    new_section.text.append(f"@wander()")
+                    new_section.text.append(f"")
+                    new_section.text.append(f"!str([location, facing])")
+                    new_section.text.append(f"; @facing: \"\"")
+                    new_section.text.append(f"; @location: \"\"")
+                    new_section.text.append(f"!room=rooms(location)")
+                    new_section.text.append(f"!room")
+                    new_section.text.append(f"")
     sections.extend(new_sections)
-    new_sections.clear()
     print(f"Sections added: {len(new_sections):,}")
-
-    for section in sections:
-        if not section.choices and ":" not in section.name:
-            print(f"Section [{section.name}|{section.label}] has no choices.")
+    new_sections.clear()
 
     # Populate parent sections
     sections_dict: dict[str, Section] = dict()
@@ -254,9 +280,14 @@ def main() -> None:
 
     while len(old_list):
         for section in old_list:
-            if section in sections:
+            if not section.parents:
                 break
-            if section.parents and section.parents[0] not in sections_have:
+            have_parent: bool = False
+            for parent in section.parents:
+                if parent in sections_have:
+                    have_parent = True
+                    break
+            if not have_parent:
                 continue
             break
         old_list.remove(section)
@@ -278,115 +309,156 @@ def main() -> None:
             if _.label in found_sections:
                 continue
             found_sections.add(_.label)
-            child_labels = get_child_section_labels(sections_lookup[_.label],
-                                                    sections_lookup,
-                                                    found_sections.copy())
+            child_labels = get_child_section_labels(sections_lookup[_.label], sections_lookup, found_sections.copy())
             found_sections = found_sections.union(child_labels)
         return found_sections
 
     for section in sections:
-        if end_game_label in get_child_section_labels():
+        if end_game_label in get_child_section_labels(section, sections_by_label):
             section.has_end_game = True
 
-    # Handle processing instructions such as roll dice
-    state: dict[str, dict] = dict()
-    state[first_label] = dict()
-
-    # Do the imports (Libraries)
-    start_global: dict = dict()
-    start_local: dict = dict()
-    state[f"{first_section.label}_global"] = start_global
-    state[f"{first_section.label}_local"] = start_local
-    for lib in meta_header.libs:
-        exec(f"from {lib} import *", start_global, start_local)
-
     for section in sections:
-        # determine parent section and clone its environment into new section
-        label_global: str = f"{section.label}_global"
-        label_local: str = f"{section.label}_local"
+        if not section.has_end_game:
+            print(f"Section [{section.name}|{section.label}] has no end game.")
 
-        parent_global: str | None = None
-        parent_local: str | None = None
-        if section.parents:
-            parent_global: str = f"{section.parents[0]}_global"
-            parent_local: str = f"{section.parents[0]}_local"
+    for section in sections[1:]:
+        section.state = None
 
-        if parent_global and parent_global in state:
-            state[label_global] = jsonpickle.decode(jsonpickle.encode(state[parent_global]))
-        else:
-            state[label_global] = start_global
+    # Handle processing instructions such as roll dice
+    for section in sections:
+        state = section.state
+        for lib in meta_header.libs:
+            exec(f"from {lib} import *", state)
+        if section.rooms:
+            exec(f"restore_rooms({section.rooms})", state)
+        # make sure certain variables are always available
+        exec("locations=list() if 'locations' not in locals() else locations", state)
+        exec("location='start' if 'location' not in locals() else location", state)
+        exec("if not locations or locations[-1] != location: locations.append(location)", state)
+        exec("turn=1 if 'turn' not in locals() else turn", state)
+        exec("facing='?' if 'facing' not in locals() else facing", state)
+        exec("room=rooms(location)", state)
 
-        if parent_local and parent_local in state:
-            state[label_local] = jsonpickle.decode(jsonpickle.encode(state[parent_local]))
-        else:
-            state[label_local] = start_local
+        # start processing
+        print()
+        print(f"{section.name}|{section.label}")
+        text_list = section.text.copy()
+        section.text.clear()
+        if section.path:
+            for path in section.path:
+                section.text.append(f";## -> {path}")
+        section.text.append(f";## -> {section.name}|{section.label}")
+        section.text.append(f"")
+        location: str = eval("location", state)
+        section.text.append(f";## Location: {location}")
+        facing: str = eval("facing", state)
+        section.text.append(f";## Facing: {facing}")
+        locations: set[str] = eval("locations", state)
+        if locations:
+            section.text.append(f";## VISITED: {locations}")
+        section.text.append(f"")
+        section.text.append(";## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13")
+        section.text.append(f"")
+        if 'player' in state:
+            needs_healing = eval("player.hp < player.hit_points_max // 2", state)
+            if needs_healing:
+                section.text.append(f";## ---> PLAYER NEEDS HEALING <---")
+                section.text.append(f"")
 
-        state_global: dict = start_global  # state[label_global]
-        state_local: dict = state[label_local]
-
-        for _, line in enumerate(section.text):
+        for line in text_list:
             line = line.strip()
-            if line.startswith("!save_state"):
+            if line.startswith(";##"):
                 continue
+            print(f"{len(section.text) + 1:06} {line}")
             if line.startswith("!"):
-                cmd: str = line[line.find("!")+1:].strip()
+                cmd: str = line[line.find("!") + 1:].strip()
                 result: any = None
                 try:
-                    result = eval(cmd, state_global, state_local)
+                    result = eval(cmd, state)
                 except SyntaxError:
                     try:
-                        result = exec(cmd, state_global, state_local)
+                        result = exec(cmd, state)
                     except RuntimeError as e:
                         print(f"{e}")
                         print(f"{line}")
-                if result:
+                if result is not None and isinstance(result, list):
+                    line = ";;; " + line
+                    section.text.append(line)
+                    line = ""
+                    for new_line in result:
+                        section.text.append(str(new_line))
+                elif result is not None:
                     if "#" in line:
                         line = line[:line.rfind('#')].strip()
                     line = f"{line} # {result}"
-                section.text[_] = line
-
+                section.text.append(line)
             elif line.startswith("@"):
                 # saved eval
                 cmd: str = line[line.find("@") + 1:]
                 if ":" in line:
                     var: str = cmd[:cmd.find(":")].strip()
-                    cmd = cmd[cmd.find(":")+1:].lstrip()
-                    result: any = eval(cmd, state_global, state_local)
-                    if isinstance(result, int):
-                        section.text[_] = f"!{var}= {result} # {line}"
+                    cmd = cmd[cmd.find(":") + 1:].lstrip()
+                    result: any = eval(cmd, state)
+                    if isinstance(result, list):
+                        line = ";;; " + line
+                        section.text.append(line)
+                        line = ""
+                        for new_line in result:
+                            section.text.append(str(new_line))
+                    elif isinstance(result, int):
+                        line = f"!{var}= {result} # {line}"
                     elif isinstance(result, str):
-                        section.text[_] = f"!{var}= \"{result}\" # {line}"
+                        line = f"!{var}= \"{result}\" # {line}"
                     else:
                         result = jsonpickle.encode(result, keys=True)
                         result = result.replace("\\", "\\\\")
                         result = result.replace("'", "\\'")
                         result = result.replace("\"", "\\\"")
-                        section.text[_] = f"!{var}= unpickle(\"{result}\") # {line}"
+                        line = f"!{var}= unpickle(\"{result}\") # {line}"
                     try:
-                        exec(section.text[_][1:], state_global, state_local)
+                        exec(line[1:], state)
                     except NameError as e:
-                        print(section.text[_])
+                        print(line)
                         raise e
+                    section.text.append(line)
                 else:
-                    result: any = eval(cmd, state_global, state_local)
+                    result: any = eval(cmd, state)
                     if isinstance(result, str):
                         result = "\"" + result.replace("\"", "\\\"") + "\""
-                    section.text[_] = f"; {result} # {line}"
+                    line = f"; {result} # {line}"
+                    section.text.append(line)
             else:
-                section.text[_] = fstr(section.text[_].replace("'", "\\'"), state_global, state_local)
+                section.text.append(line)
+
+        section.state = state
+
+        # determine child sections and clone environment into children
+        for choice in section.choices:
+            state: dict[str, any] = section.state
+            child_section = sections_by_label[choice.label]
+            child_section.rooms = eval(f"save_rooms()", state)
+            child_section.path = section.path.copy()
+            child_section.path.append(f"{section.name}|{section.label}")
+            child_section.state = state
 
     with open(gb_file, "w") as w:
         w.write(str(meta_header))
+        sections_have.clear()
         for section in sections:
             if ":" in section.name:
                 continue
+            if section.label in sections_have:
+                continue
+            sections_have.append(section.label)
             w.write(str(section))
         for section in sections:
             if ":" not in section.name:
                 continue
-            w.write(str(section))
-    #  subprocess.run(["git", "commit", "-m", "autosave [after]", gb_file],  #
-    #               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if section.label in sections_have:
+                continue
+            sections_have.append(section.label)
+            w.write(str(
+                section))  # subprocess.run(["git", "commit", "-m", "autosave [after]", gb_file],  #  #               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 if __name__ == "__main__":

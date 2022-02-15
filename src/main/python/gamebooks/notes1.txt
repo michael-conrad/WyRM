@@ -1,0 +1,18 @@
+c343559b
+
+You follow the corridor for 180 meters and come to a very large cave. It is about 300 meters wide and 240 meters deep.
+You see water oozing down the walls of this natural cave where it pools together to form a small pond directly ahead
+of you in the middle of cave floor. The pond is about 120 meters in diameter. Water is also dripping from the ceiling
+90 meters above you directly into the pond with a plunk plunk plunk sound. You see where excess water in the pond
+runs to your left and is lost in a large crack on the wall. The crack looks large enough to walk into.
+The surface of the pond is covered with a dark green algae.
+
+!cave_room_treasure= "A fist-sized ruby under a heavy iron slab." # @cave_room_treasure: "A fist-sized ruby under a heavy iron slab."
+
+!spider1= unpickle("{\"py/object\": \"character_sheet.CharacterSheet\", \"name\": \"Giant Spider\", \"description\": \"Venomous Bite. 1d6+2.\", \"weapons\": [{\"py/object\": \"equipment.Weapon\", \"name\": \"Venomous Bite (Rogue)\", \"skill\": {\"py/object\": \"skills.CharacterSkill\", \"skill_name\": \"Unarmed\", \"skill_attribute\": {\"py/reduce\": [{\"py/type\": \"skills.SkillAttribute\"}, {\"py/tuple\": [3]}]}}, \"_damage\": \"1d6\", \"cost_sp\": 0, \"_damage_bonus\": 2, \"_two_handed\": false}], \"armor_worn\": [], \"skills\": [], \"talents\": [], \"spells\": [], \"equipment\": [], \"warrior\": 6, \"rogue\": 6, \"mage\": 0, \"adv_taken\": 0, \"fate\": 6, \"fate_starting\": 6, \"armor_penalty\": 0, \"hit_points_max\": 24, \"mana_max\": 0, \"defense\": 10, \"_hit_points\": 24, \"mana\": 0, \"base_defense\": 10, \"armor\": 4, \"hit_points_armor\": 20, \"attack_attribute\": {\"py/reduce\": [{\"py/type\": \"skills.SkillAttribute\"}, {\"py/tuple\": [1]}]}}") # @spider1: NPC.giant_spider()
+!spider1.name="Giant Spider 1"
+!spider2= unpickle("{\"py/object\": \"character_sheet.CharacterSheet\", \"name\": \"Giant Spider\", \"description\": \"Venomous Bite. 1d6+2.\", \"weapons\": [{\"py/object\": \"equipment.Weapon\", \"name\": \"Venomous Bite (Rogue)\", \"skill\": {\"py/object\": \"skills.CharacterSkill\", \"skill_name\": \"Unarmed\", \"skill_attribute\": {\"py/reduce\": [{\"py/type\": \"skills.SkillAttribute\"}, {\"py/tuple\": [3]}]}}, \"_damage\": \"1d6\", \"cost_sp\": 0, \"_damage_bonus\": 2, \"_two_handed\": false}], \"armor_worn\": [], \"skills\": [], \"talents\": [], \"spells\": [], \"equipment\": [], \"warrior\": 6, \"rogue\": 6, \"mage\": 0, \"adv_taken\": 0, \"fate\": 6, \"fate_starting\": 6, \"armor_penalty\": 0, \"hit_points_max\": 24, \"mana_max\": 0, \"defense\": 10, \"_hit_points\": 24, \"mana\": 0, \"base_defense\": 10, \"armor\": 4, \"hit_points_armor\": 20, \"attack_attribute\": {\"py/reduce\": [{\"py/type\": \"skills.SkillAttribute\"}, {\"py/tuple\": [1]}]}}") # @spider2: NPC.giant_spider()
+!spider2.name="Giant Spider 2"
+!spider1 # CharacterSheet(name='Giant Spider 1', description='Venomous Bite. 1d6+2.', weapons=[Weapon("Venomous Bite (Rogue)", CharacterSkill("Unarmed", SkillAttribute.Warrior), "1d6 + 2", 0) ], armor_worn=[], skills=[], talents=[], spells=[], equipment=[], warrior=6, rogue=6, mage=0, adv_taken=0, fate=6, fate_starting=6, armor_penalty=0, hit_points_max=24, mana_max=0, defense=10, _hit_points=24, mana=0, base_defense=10, armor=4, hit_points_armor=20, attack_attribute=<SkillAttribute.Rogue: 1>)
+
+

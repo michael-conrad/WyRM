@@ -109,7 +109,8 @@ class Armor:
 
 @dataclass(slots=True)
 class Weapon:
-    name: str = ""
+    _name: str = ""
+    location: str = ""
     skill: CharacterSkill = None
     _damage: str = "1d6"
     cost_sp: int = 1
@@ -117,6 +118,18 @@ class Weapon:
     _attack_bonus: int = 0
     _damage_bonus: int = 0
     _two_handed: bool = False
+
+    @property
+    def name(self) -> str:
+        two: str = " Two-handed." if self.two_handed else ""
+        _: str = f"{self._name} ({self.attack_bonus:+}/{self.damage_bonus:+}).{two}"
+        if hasattr(self, "location") and self.location:
+            return f"{_} <Room: {self.location}>"
+        return _
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
 
     @property
     def damage(self) -> str:
@@ -160,7 +173,8 @@ class Weapon:
                  base_damage: str = "1d4x",  #
                  cost_sp: int = 0,  #
                  two_handed: bool = False):
-        self.name = name
+        self._name = name
+        self.location = ""
         self.skill = skill
         self._damage = base_damage
         self.cost_sp = cost_sp
@@ -177,7 +191,7 @@ class Weapon:
     @classmethod
     def by_name(cls, name: str):
         for weapon in Weapon.list():
-            if weapon.name.lower() == name.lower():
+            if weapon._name.lower() == name.lower():
                 return weapon
         return random.choice(Weapon.list())
 

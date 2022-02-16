@@ -107,7 +107,17 @@ _ = rooms("4a")
 _.desc1 = "You enter a very large crack in the cave wall and go about 30 ft and notice the" \
           " ground starting to slope upwards."
 _.desc2 = "Inside crack in cave wall"
-_.notes = "1d2 Giant Spiders"
+_.notes = "1d3 Giant Spiders"
+
+_ = rooms("4-pond")
+_.desc1 = " You step into the pond and grope around feeling along its rough bottom." \
+          " When you reach the center you notice the " \
+          "texture suddenly becomes very smooth. Feeling around a little more you find an edge you can pull " \
+          "up on. You pull up on the edge and a large metal" \
+          " plate comes to the surface in your grasp. You toss the plate aside and feel down " \
+          "where it was. You find a shallow depression with a sack in it. "
+_.desc2 = "You are standing in a pond covered in algae in a cave."
+_.notes = ":Set the sack down and fight :Loot sack and equip anything found before fighting"
 
 _ = rooms("5")
 _.desc1 = "You come to a portcullis. Beyond you see a 90ft x 40ft room with" \

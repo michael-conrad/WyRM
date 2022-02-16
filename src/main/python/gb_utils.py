@@ -3,7 +3,10 @@ import random
 import dice
 import jsonpickle
 
+from equipment import Armor
 from equipment import Item
+from equipment import Shield
+from equipment import Weapon
 from skills import Difficulty
 
 
@@ -89,7 +92,7 @@ def list_items(state: dict) -> str:
         var = state[key]
         if isinstance(var, type):
             continue
-        if isinstance(var, Item) and hasattr(var, "name"):
+        if isinstance(var, Item) or isinstance(var, Weapon) or isinstance(var, Armor) or isinstance(var, Shield):
             item_list += f";##  {key}: {var.name}\n"
     return item_list
 

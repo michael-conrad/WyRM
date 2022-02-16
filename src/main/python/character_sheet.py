@@ -1,11 +1,10 @@
-from copy import deepcopy
+
 import random
 from dataclasses import dataclass
 from dataclasses import field
 
 import dice
 import jsonpickle
-from varname.helpers import register
 
 from equipment import Armor
 from equipment import Item
@@ -24,10 +23,10 @@ def copy_of(o) -> any:
     return jsonpickle.decode(jsonpickle.encode(o))
 
 
-@register
-@dataclass(slots=False)
+@dataclass(slots=True)
 class CharacterSheet:
-    name: str = ""
+    _name: str = ""
+    location: str = ""
     description: str = ""
     weapons: list[Weapon] = field(default_factory=list)
     armor_worn: list[Armor] = field(default_factory=list)
@@ -62,6 +61,17 @@ class CharacterSheet:
     attack_attribute: SkillAttribute = SkillAttribute.Warrior
 
     _massive_attack: bool = False
+
+    @property
+    def name(self) -> str:
+        if self.location:
+            return f"{self._name} <Room: {self.location}>"
+        else:
+            return f"{self._name}"
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
 
     @property
     def warrior(self) -> int:

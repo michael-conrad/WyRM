@@ -36,11 +36,29 @@ def roll(die: str) -> int:
     return max(0, int(dice.roll(f"{die}")))
 
 
+def dark_power_intervention_text() -> str:
+    return """
+   
+You can't move. Before you appears a two-handed axe dripping with blood and a voice booms out:
+
+"Ah! Entertainment! Agree to do a task for me and have a chance to live. Refuse and you most certainly will die. 
+There is an amulet secreted away on a shadow plane where locations from this reality show up in that reality. 
+Retrieving this amulet then escaping the complex will result in your life being spared. After obtaining the amulet, 
+take it to a place of my choosing for a reward beyond just your life." 
+
+:Accept task
+:Refuse task
+"""
+
+
 def intervention() -> str:
     check: int = roll("1d6+1d6+1d6")
     "3,4, 5,6,7,8, 9,10,11,12, 13,14,15,16, 17,18"
     if check <= 4:
-        return f"Dark Power Intervention ({check})."
+        return f"""
+; Dark Power Intervention ({check}).
+{dark_power_intervention_text()}
+"""
     if check <= 8:
         return f"Environmental. Lightning. Tunnel collapse. ({check})."
     if check <= 12:
@@ -76,24 +94,27 @@ def divine_god() -> str:
 
 
 def list_chars(state: dict) -> str:
-    char_list: str = "\n"
+    char_list: str = ""
     for key in state:
         var = state[key]
         if isinstance(var, type):
             continue
-        if hasattr(var, "is_alive") and hasattr(var, "name"):
-            char_list += f";## {key}: {var.name}\n"
+        if hasattr(var, "hp") and hasattr(var, "name"):
+            if getattr(var, "hp"):
+                char_list += f"\n;## {key}: {var.name}"
+            else:
+                char_list += f"\n;## {key}: {var.name} (DEAD)"
     return char_list
 
 
 def list_items(state: dict) -> str:
-    item_list: str = "\n"
+    item_list: str = ""
     for key in state:
         var = state[key]
         if isinstance(var, type):
             continue
         if isinstance(var, Item) or isinstance(var, Weapon) or isinstance(var, Armor) or isinstance(var, Shield):
-            item_list += f";##  {key}: {var.name}\n"
+            item_list += f"\n;##  {key}: {var.name}"
     return item_list
 
 

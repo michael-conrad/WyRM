@@ -1,4 +1,3 @@
-
 import random
 from dataclasses import dataclass
 from dataclasses import field
@@ -8,6 +7,7 @@ import jsonpickle
 
 from equipment import Armor
 from equipment import Item
+from equipment import Shield
 from equipment import Weapon
 from gb_utils import dl_check
 from gb_utils import initiative_check
@@ -33,7 +33,7 @@ class CharacterSheet:
     skills: list[CharacterSkill] = field(default_factory=list)
     talents: list[CharacterTalent] = field(default_factory=list)
     spells: list[MageSpell] = field(default_factory=list)
-    equipment: list[Item] = field(default_factory=list)
+    equipment: list[Item | Weapon | Armor | Shield] = field(default_factory=list)
 
     warrior_base: int = 0
     rogue_base: int = 0
@@ -61,6 +61,13 @@ class CharacterSheet:
     attack_attribute: SkillAttribute = SkillAttribute.Warrior
 
     _massive_attack: bool = False
+
+    @property
+    def armor_worn_list(self) -> str:
+        _ = ""
+        for armor in self.armor_worn:
+            _ += f"\n;## {armor}"
+        return _
 
     @property
     def name(self) -> str:
@@ -208,10 +215,10 @@ class CharacterSheet:
         self.armor_penalty = penalty
         self.mana = min(self.mana_max - self.armor_penalty, self.mana)
         self.hit_points_armor = 0  # 5 * self.armor
-        return f"Armor: {self.armor}, Armor Penalty: {self.armor_penalty}, Mana: {self.mana}"
+        return f"Total defense: {self.armor}, Mana Penalty: {self.armor_penalty}, Mana: {self.mana}"
 
     def equip_armor(self, armor: Armor) -> str:
-        self.armor_worn.append(armor)
+        self.armor_worn.insert(0, armor)
         return self.set_armor(armor.defense, armor.armor_penalty)
 
     def print(self) -> None:
@@ -335,7 +342,8 @@ class CharacterSheet:
         return dl_check("Routine", self.warrior + bonus)
 
     def run_combat4(self, side_b: list["CharacterSheet"],  #
-                    max_opponents: int = 3) -> list[str]:
+                    max_opponents: int = 3  #
+                    ) -> list[str]:
         logs: list[list[str]] = list()
         for _ in range(4):
             copy_self = copy_of(self)
@@ -439,8 +447,9 @@ class CharacterSheet:
                 break
 
             if new_pc_hp < pc_hp // 2:
-                combat_log.append("")
-                combat_log.append(f";PC party low on HP")  # break
+                # combat_log.append("")
+                # combat_log.append(f";PC party low on HP")  # break
+                pass
 
             have_initiative = not have_initiative
 
@@ -450,16 +459,15 @@ class CharacterSheet:
         combat_log.append("")
         for pc in side_a:
             combat_log.append(f";{pc.name} hit points = {pc.hit_points}")
-
+        if pc.hit_points > 0:
+            combat_log.append(";win")
+        else:
+            combat_log.append(";lose")
         return combat_log
 
     @property
     def equipment_list(self) -> str:
-        _ = "\n"
+        _ = ""
         for item in self.equipment:
-            if item.location:
-                _ += f";## {item.name} ({item.location})\n"
-            else:
-                _ += f";## {item.name}\n"
+            _ += f"\n;## {item.name}\n"
         return _
-

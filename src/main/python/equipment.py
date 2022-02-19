@@ -8,6 +8,7 @@ from skills import CharacterSkillsList
 @dataclass(slots=True)
 class Shield:
     name: str = ""
+    location: str = ""
     defense_bonus: int = 0
     armor_penalty: int = 0
     cost_sp: int = 0
@@ -17,6 +18,12 @@ class Shield:
         self.defense_bonus = defense_bonus
         self.armor_penalty = armor_penalty
         self.cost_sp = cost_sp
+
+    def __str__(self) -> str:
+        name: str = f"{self.name}, Defense: +{self.defense_bonus}, Mana: -{self.armor_penalty}"
+        if hasattr(self, 'location') and self.location:
+            return f"{name} ({self.location})"
+        return name
 
     @classmethod
     def list(cls) -> list["Shield"]:
@@ -29,17 +36,23 @@ class Shield:
 
 @dataclass(slots=True)
 class Item:
-    name: str = ""
+    _name: str = ""
     location: str = ""
     cost_sp: int = 0
 
     def __init__(self, name: str, location: str = "", cost_sp: int = 0):
-        self.name = name
+        self._name = name
         self.location = location
         self.cost_sp = cost_sp
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.location})"
+        return self.name
+
+    @property
+    def name(self) -> str:
+        if hasattr(self, 'location') and self.location:
+            return f"{self._name} <Room: {self.location}>"
+        return self._name
 
     @classmethod
     def list(cls) -> list["Item"]:
@@ -75,15 +88,20 @@ class Armor:
     defense: int = 0
     armor_penalty: int = 0
     cost_sp: int = 0
+    location: str = ""
 
     def __init__(self, name: str, defense: int, armor_penalty: int, cost_sp: int):
         self.name = name
         self.defense = defense
         self.armor_penalty = armor_penalty
         self.cost_sp = cost_sp
+        self.location = ""
 
     def __str__(self) -> str:
-        return f"{self.name}, Defense: +{self.defense}, Mana: -{self.armor_penalty}"
+        name: str = f"{self.name}, Defense: +{self.defense}, Mana: -{self.armor_penalty}"
+        if hasattr(self, 'location') and self.location:
+            return f"{name} ({self.location})"
+        return name
 
     @classmethod
     def list(cls) -> list["Armor"]:
@@ -179,6 +197,9 @@ class Weapon:
         self._damage = base_damage
         self.cost_sp = cost_sp
         self.two_handed = two_handed
+        self._description = ""
+        self._attack_bonus = 0
+        self._damage_bonus = 0
 
     def __str__(self) -> str:
         skill_name: str

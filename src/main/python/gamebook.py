@@ -230,14 +230,14 @@ def main() -> None:
             for choice in section.choices:
                 if choice.label not in section_labels:
                     known_labels.add(choice.label)
+                    section_labels.add(choice.label)
                     new_section: Section = Section()
-                    new_sections.append(new_section)
                     new_section.label = choice.label
                     new_section.name = choice.text
                     new_section.text.append(f"")
                     new_section.text.append(f"!player.hit_points")
                     new_section.text.append(f"!player.weapon")
-                    new_section.text.append(f"!player.armor_worn[0]")
+                    new_section.text.append(f"!player.armor_worn_list")
                     new_section.text.append(f"!player.equipment_list")
                     new_section.text.append(f"!list_items(locals())")
                     new_section.text.append(f"!list_chars(locals())")
@@ -252,6 +252,7 @@ def main() -> None:
                     new_section.text.append(f"!room=rooms(location)")
                     new_section.text.append(f"!room")
                     new_section.text.append(f"")
+                    new_sections.append(new_section)
     sections.extend(new_sections)
     print(f"Sections added: {len(new_sections):,}")
     new_sections.clear()
@@ -269,7 +270,7 @@ def main() -> None:
             sections_dict[choice.label].parents.append(section.label)
 
     # Reorder sections to ensure parent environments are created first
-    old_list = sections.copy()
+    old_list: list[Section] = [old_section for old_section in sections_dict.values()]
     old_list.remove(first_section)
 
     sections.clear()
@@ -327,6 +328,9 @@ def main() -> None:
     # Handle processing instructions such as roll dice
     for section in sections:
         state = section.state
+        if state is None:
+            print(f"NO PARENT FOR SECTION: [{section.name}|{section.label}]")
+            state = sections_by_label[section.parents[0]]
         for lib in meta_header.libs:
             exec(f"from {lib} import *", state)
         if section.rooms:
@@ -338,6 +342,8 @@ def main() -> None:
         exec("turn=1 if 'turn' not in locals() else turn", state)
         exec("facing='?' if 'facing' not in locals() else facing", state)
         exec("room=rooms(location)", state)
+        exec("notes=list() if 'notes' not in locals() else notes", state)
+        exec("note=list() if 'note' not in locals() else note", state)
 
         # start processing
         print()
@@ -356,6 +362,9 @@ def main() -> None:
         locations: set[str] = eval("locations", state)
         if locations:
             section.text.append(f";## VISITED: {locations}")
+        note: str = eval("note", state)
+        if note:
+            section.text.append(f";## Note: {note}")
         section.text.append(f"")
         section.text.append(";## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13")
         section.text.append(f"")
@@ -430,11 +439,8 @@ def main() -> None:
             else:
                 section.text.append(line)
 
-        section.state = state
-
         # determine child sections and clone environment into children
         for choice in section.choices:
-            state: dict[str, any] = section.state
             child_section = sections_by_label[choice.label]
             child_section.rooms = eval(f"save_rooms()", state)
             child_section.path = section.path.copy()

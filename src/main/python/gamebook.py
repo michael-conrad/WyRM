@@ -8,6 +8,7 @@ exec python "$0" "$@"
 exit $?
 ''"""
 import argparse
+import datetime
 import os.path
 import random
 import re
@@ -135,6 +136,7 @@ def new_label(already: set[str]) -> str:
 
 
 def main() -> None:
+    random.seed(datetime.datetime.utcnow())
     section_tag_match: str = "(?i)^\\[.*?|[a-z0-9]+]"
     gb_file: str = gamebook_file()
     if not os.path.exists(gb_file):
@@ -244,7 +246,10 @@ def main() -> None:
                     new_section.text.append(f"@turn: turn + 1")
                     new_section.text.append(f"@'' if turn % 20 != 0 else 'Torch starts guttering'")
                     new_section.text.append(f"")
-                    new_section.text.append(f"@wander()")
+                    new_section.text.append(f"@wandering_monster_1: wander()")
+                    new_section.text.append(f"@wandering_monster_2: '' if turn < 10 else wander()")
+                    new_section.text.append(f"@wandering_monster_3: '' if turn < 15 else wander()")
+                    new_section.text.append(f"@wandering_monster_4: '' if turn < 20 else wander()")
                     new_section.text.append(f"")
                     new_section.text.append(f"!str([location, facing])")
                     new_section.text.append(f"; @facing: \"\"")
@@ -365,15 +370,8 @@ def main() -> None:
         note: str = eval("note", state)
         if note:
             section.text.append(f";## Note: {note}")
-        section.text.append(f"")
         section.text.append(";## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13")
         section.text.append(f"")
-        if 'player' in state:
-            needs_healing = eval("player.hp < player.hit_points_max // 2", state)
-            if needs_healing:
-                section.text.append(f";## ---> PLAYER NEEDS HEALING <---")
-                section.text.append(f"")
-
         for line in text_list:
             line = line.strip()
             if line.startswith(";##"):
@@ -438,6 +436,11 @@ def main() -> None:
                     section.text.append(line)
             else:
                 section.text.append(line)
+        if 'player' in state:
+            needs_healing = eval("player.hp <= player.hit_points_max // 2", state)
+            if needs_healing:
+                section.text.append(f";## ---> PLAYER NEEDS HEALING <---")
+                section.text.append(f"")
 
         # determine child sections and clone environment into children
         for choice in section.choices:

@@ -62,6 +62,10 @@ class CharacterSheet:
 
     _massive_attack: bool = False
 
+    def set_location(self, location: str) -> "CharacterSheet":
+        self.location = location
+        return self
+
     @property
     def armor_worn_list(self) -> str:
         _ = ""
@@ -299,12 +303,13 @@ class CharacterSheet:
                 return f"Cast succeeded. {spell.name}: {spell.description}"
         return "That spell is not available."
 
-    def spell_list(self, all: bool = False) -> list[str]:
-        spells: list[str] = list()
+    @property
+    def spell_list(self) -> str:
+        spells: str = ""
         for spell in self.spells:
-            if not all and spell.mana_cost > self.mana:
+            if spell.mana_cost > self.mana:
                 continue
-            spells.append(f"{spell.name}: {spell.difficulty.name}, Mana: {spell.mana_cost:,}")
+            spells += f"\n;## {spell.name}: {spell.difficulty.name}, Mana: {spell.mana_cost:,}"
         return spells
 
     def spell_add(self, name: str) -> MageSpell:
@@ -333,6 +338,8 @@ class CharacterSheet:
 
     def take_damage_roll(self, die: str = "1d6x", extra_damage: str = "") -> int:
         damage: int = roll(f"{die} + {extra_damage}") if extra_damage else roll(f"{die}")
+        if damage < 1:
+            damage = 1
         self.hit_points -= damage
         if self.hit_points < 0:
             self.hit_points = 0
@@ -459,15 +466,111 @@ class CharacterSheet:
         combat_log.append("")
         for pc in side_a:
             combat_log.append(f";{pc.name} hit points = {pc.hit_points}")
-        if pc.hit_points > 0:
-            combat_log.append(";win")
+            if pc.hit_points > 0:
+                combat_log.append(";win")
+            else:
+                combat_log.append(";lose")
+        return combat_log
+
+    def run_combat_round(self,  #
+                         side_b: list["CharacterSheet"],  #
+                         max_opponents: int = 1,  #
+                         opponents_have_initiative: None | bool = None) -> list[str]:
+
+        combat_log: list[str] = list()
+        side_a = [self]
+
+        npc_1: CharacterSheet = side_b[0]
+
+        have_initiative: bool
+        if opponents_have_initiative is not None:
+            have_initiative = not opponents_have_initiative
         else:
-            combat_log.append(";lose")
+            have_initiative = initiative_check(self.rogue, npc_1.rogue)
+
+        if have_initiative:
+            combat_log.append("; Group 1 attacks")
+        else:
+            combat_log.append("; Group 2 attacks")
+
+        pc_hp: int = 0
+        for pc in side_a:
+            pc_hp += pc.hit_points
+
+        npc_hp: int = 0
+        for npc in side_b:
+            npc_hp += npc.hit_points
+
+        if have_initiative:
+            for pc in side_a:
+                if not pc.is_alive:
+                    continue
+                npc: CharacterSheet | None = None
+                for npc in side_b:
+                    if not npc.is_alive:
+                        continue
+                    break
+                if not npc or not npc.is_alive:
+                    continue
+                combat_log.append(f"; {pc.name} attacks {npc.name}")
+                if pc.attack_opponent(npc):
+                    if pc.massive_attack:
+                        combat_log.append(f"; {pc.name} uses talent massive attack")
+                    hp: int = npc.hit_points
+                    npc.hit_points = pc.damage_opponent(npc)
+                    if npc.hit_points < 1:
+                        combat_log.append(f"; {pc.name} hits for {hp - npc.hit_points} points and {npc.name} dies")
+                    else:
+                        combat_log.append(f"; {pc.name} hits {npc.name} for {hp - npc.hit_points} points of damage")
+                else:
+                    combat_log.append(f"; {pc.name} misses {npc.name}")
+        else:
+            counter: int = 0
+            random.shuffle(side_b)
+            for npc in side_b:
+                if not npc.is_alive:
+                    continue
+                counter += 1
+                if counter > max_opponents:
+                    break
+                pc: CharacterSheet | None = None
+                for pc in side_a:
+                    if not pc.is_alive:
+                        continue
+                    break
+                if not pc or not pc.is_alive:
+                    continue
+                combat_log.append(f"; {npc.name} attacks {pc.name}")
+                if npc.attack_opponent(pc):
+                    hp: int = pc.hit_points
+                    pc.hit_points = npc.damage_opponent(pc)
+                    if pc.hit_points < 1:
+                        combat_log.append(f"; {npc.name} hits for {hp - pc.hit_points} points and kills {pc.name}")
+                    else:
+                        combat_log.append(f"; {npc.name} hits {pc.name} for {hp - pc.hit_points} points of damage")
+                else:
+                    combat_log.append(f"; {npc.name} misses {pc.name}")
+
+            new_pc_hp: int = 0
+            for pc in side_a:
+                new_pc_hp += pc.hit_points
+
+            new_npc_hp: int = 0
+            for npc in side_b:
+                new_npc_hp += npc.hit_points
+            if new_npc_hp < 1:
+                combat_log.append(";NPC party perished")
+            if new_pc_hp < 1:
+                combat_log.append(";PC party perished")
+        for npc in side_b:
+            combat_log.append(f";{npc.name} hit points = {npc.hit_points}")
+        for pc in side_a:
+            combat_log.append(f";{pc.name} hit points = {pc.hit_points}")
         return combat_log
 
     @property
     def equipment_list(self) -> str:
         _ = ""
         for item in self.equipment:
-            _ += f"\n;## {item.name}\n"
+            _ += f"\n;## {item.name}"
         return _

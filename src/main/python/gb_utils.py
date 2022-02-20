@@ -134,12 +134,9 @@ def stat_check(stat: int, bonus: int) -> bool:
     return check >= stat
 
 
-def random_encounter_check(die: int = 6, yes_if_under: int = 2) -> (bool, str):
+def wander(die: int = 6, yes_if_under: int = 2) -> str:
     yes: bool = roll(f"1d{die}") < yes_if_under
-    return (yes, random_encounter()) if yes else (yes, "")
-
-
-wander = random_encounter_check
+    return random_encounter() if yes else ""
 
 
 def random_encounter() -> str:

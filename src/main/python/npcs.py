@@ -61,7 +61,7 @@ class NPC:
         sheet.rogue_base = 3
         sheet.mage_base = 0
         sheet.armor = 1
-        wpn: Weapon = Weapon.by_name("Bow").copy()
+        wpn: Weapon = Weapon.by_name("Bow")
         wpn.name = "Bow - Dry rotting"
         sheet.weapons.append(wpn)
         sheet.reset_pools()

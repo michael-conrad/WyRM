@@ -88,8 +88,8 @@ _.desc2 = "Tiled floor cave with stone plynth"
 _.notes = "Dead monk with arrows in back next to plynth. Axe on plynth. 1d3 skeletons. 1d4 zombies."
 
 _ = rooms("3")
-_.desc1 = "90ft x 40ft room full of wine and ale casks many of which appear busted open. You don't see any doors or " \
-          "passages in the room. "
+_.desc1 = "90ft x 40ft room full of wine and ale casks. Many are open. You don't see any other doors or " \
+          "passages leading from the room. "
 _.desc2 = "room of broken casks"
 _.notes = "1d4 giant rats nesting in casks"
 

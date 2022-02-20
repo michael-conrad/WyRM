@@ -1,6 +1,8 @@
 import random
 from dataclasses import dataclass
 
+import jsonpickle
+
 from skills import CharacterSkill
 from skills import CharacterSkillsList
 
@@ -25,6 +27,10 @@ class Shield:
             return f"{name} ({self.location})"
         return name
 
+    def set_location(self, location: str) -> "Shield":
+        self.location = location
+        return self
+
     @classmethod
     def list(cls) -> list["Shield"]:
         shields: list["Shield"] = list()
@@ -48,11 +54,19 @@ class Item:
     def __str__(self) -> str:
         return self.name
 
+    def set_location(self, location: str) -> "Item":
+        self.location = location
+        return self
+
     @property
     def name(self) -> str:
         if hasattr(self, 'location') and self.location:
-            return f"{self._name} <Room: {self.location}>"
+            return f"{self._name} <loc:{self.location}>"
         return self._name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
 
     @classmethod
     def list(cls) -> list["Item"]:
@@ -103,6 +117,10 @@ class Armor:
             return f"{name} ({self.location})"
         return name
 
+    def set_location(self, location: str) -> "Armor":
+        self.location = location
+        return self
+
     @classmethod
     def list(cls) -> list["Armor"]:
         armors: list["Armor"] = list()
@@ -137,12 +155,16 @@ class Weapon:
     _damage_bonus: int = 0
     _two_handed: bool = False
 
+    def set_location(self, location: str) -> "Weapon":
+        self.location = location
+        return self
+
     @property
     def name(self) -> str:
         two: str = " Two-handed." if self.two_handed else ""
         _: str = f"{self._name} ({self.attack_bonus:+}/{self.damage_bonus:+}).{two}"
         if hasattr(self, "location") and self.location:
-            return f"{_} <Room: {self.location}>"
+            return f"{_} <loc:{self.location}>"
         return _
 
     @name.setter

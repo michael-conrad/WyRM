@@ -1,8 +1,8 @@
+import random
 from dataclasses import dataclass
 from dataclasses import field
 from enum import Enum
 from enum import auto
-import random
 
 
 class Difficulty(Enum):

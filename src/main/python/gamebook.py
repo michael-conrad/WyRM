@@ -12,8 +12,10 @@ import datetime
 import os.path
 import random
 import re
+import textwrap
 from dataclasses import dataclass
 from dataclasses import field
+
 import jsonpickle
 
 
@@ -99,6 +101,79 @@ class Section:
 """
         return re.sub("\n\n+", "\n\n", result)
 
+    def html(self) -> str:
+        parents: str = ""
+        for parent in self.parents:
+            parents += f"{parent}; "
+        if parents:
+            parents = f" ({parents[:-2]})"
+        else:
+            parents = f" !!! (ORPHANED)"
+        choices: str = ""
+        for choice in self.choices:
+            choices += f":<a href='#{choice.label}'>{Section.escape_html(choice.text)}|{choice.label}</a><br/>\n"
+        text: str = ""
+        prev_line: str = ""
+        ul_mode: bool = False
+        div_started: bool = False
+        for line in self.text:
+            line = line.strip()
+            if line.startswith(";") or line.startswith("!"):
+                continue
+            if not prev_line and not line:
+                continue
+            prev_line = line
+            if not div_started:
+                text += "\n<div style='margin-bottom: 1em;'>\n"
+                div_started = True
+
+            li_mode: bool = line.startswith("*")
+            h_mode: int = 1 if line.startswith("#") else 0
+            h_mode: int = 2 if line.startswith("##") else h_mode
+            h_mode: int = 3 if line.startswith("###") else h_mode
+            if h_mode:
+                line = line[h_mode:]
+                if div_started:
+                    div_started = False
+                    text += "\n</div>\n"
+
+            line = Section.escape_html(line)
+            if li_mode:
+                line = f"<li>{line[1:]}</li>\n"
+            if li_mode and not ul_mode:
+                ul_mode = True
+                line = f"\n<ul>\n{line}"
+            elif not li_mode and ul_mode:
+                ul_mode = False
+                line = f"{line}\n</ul>\n"
+            if h_mode:
+                line = f"<h{h_mode}>{line}</h{h_mode}>\n"
+            if line:
+                text += f"{line}\n"
+            else:
+                if div_started:
+                    text += "\n</div>\n"
+                    div_started = False
+        if div_started:
+            text += "\n</div>\n"
+        # text = re.sub("(.*)\n\n", "<div>\\1</div>\n", text)
+        need_choices = "" if self.choices else "- TODO: CHOICES "
+        section_marker: str = f"<hr/>" \
+                              f"<a id='{Section.escape_html(self.label)}'></a>" \
+                              f"[{Section.escape_html(self.name)}|{self.label}]{parents}" \
+                              f" - End Game: {self.has_end_game}" \
+                              f" {need_choices}"
+        result: str = f"""<div style='margin-bottom: 400px;'>
+    <pre>{section_marker}</pre>
+    <div class='Section'>{text}</div>
+    <div style='margin-top: 0.25 em; margin-left: 1em;'>{choices}</div>
+    </div>"""
+        return re.sub("\n\n+", "\n", result)
+
+    @classmethod
+    def escape_html(cls, text: str) -> str:
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
 
 @dataclass(slots=True)
 class Header:
@@ -127,6 +202,21 @@ License: {self.license}
 """
         return re.sub("\n\n+", "\n\n", result)
 
+    def html(self) -> str:
+        notes: str = ""
+        for note in self.notes:
+            notes += f"Note: {note}<br/>"
+        libs: str = ""
+        result: str = f"""<div class='Header'>
+        Title: {self.title}<br/>
+        Subtitle: {self.subtitle}<br/>
+        Author: {self.author}<br/>
+        License: {self.license}<br/>
+        <hr/>
+        {notes}
+        </div>"""
+        return re.sub("\n\n+", "\n", result)
+
 
 def new_label(already: set[str]) -> str:
     label: str = f"{random.randint(0, 4294967296 - 1):08x}"
@@ -137,8 +227,9 @@ def new_label(already: set[str]) -> str:
 
 def main() -> None:
     random.seed(datetime.datetime.utcnow())
-    section_tag_match: str = "(?i)^\\[.*?|[a-z0-9]+]"
+    section_tag_match: str = "(?i)^\\[[^\\]]*?\\]"
     gb_file: str = gamebook_file()
+    html_file: str = os.path.splitext(gb_file)[0] + ".html"
     if not os.path.exists(gb_file):
         raise RuntimeError(f"Unable to find '{gb_file}'")
 
@@ -172,6 +263,7 @@ def main() -> None:
             if not line.strip():
                 continue
             raise RuntimeError(f"Unknown Metadata Tag: {line}")
+    already: set[str] = set()
     with open(gb_file, "r") as f:
         section: Section | None = None
         prev_line: str = ""
@@ -191,8 +283,11 @@ def main() -> None:
                 else:
                     section.name = data
                     section.label = ""
+                if section.label and section.label in already:
+                    section = None
+                already.add(section.label)
                 continue
-            if not section:
+            if section is None:
                 continue
             # Parse Choices
             if line.lstrip().startswith(":"):
@@ -206,11 +301,42 @@ def main() -> None:
                     choice.text = data
                     choice.label = ""
                 continue
+            if line.lstrip().startswith("["):
+                line = f"; {line}"
             section.text.append(f"{line}")
+
+    # re-layout text sections for consistency
+
+    for section in sections:
+        new_text: list[str] = list()
+        new_text.append("")
+        for line in section.text:
+            line = line.strip()
+            if not line:
+                if new_text[-1]:
+                    new_text.append("")
+                new_text.append("")
+                continue
+            if line.startswith("#") or line.startswith("*"):
+                new_text.append(line)
+                continue
+            if line.startswith(";") or line.startswith("!") or line.startswith("@"):
+                if new_text[-1]:
+                    new_text.append(line)
+                    new_text.append("")
+                else:
+                    new_text[-1] = line
+                    new_text.append("")
+                continue
+            new_text[-1] = textwrap.fill(f"{new_text[-1]} {line}", 80)
+        section.text.clear()
+        section.text.extend(new_text)
 
     print(f"Found {len(sections):,} sections.")
     known_labels: set[str] = set()
     for section in sections:
+        if section.label in known_labels:
+            raise Exception(f"Duplicate Section Label: {section.label}")
         if section.label:
             known_labels.add(section.label)
     new_sections: list[Section] = list()
@@ -237,19 +363,13 @@ def main() -> None:
                     new_section.label = choice.label
                     new_section.name = choice.text
                     new_section.text.append(f"")
-                    new_section.text.append(f"!player.hit_points")
-                    new_section.text.append(f"!player.weapon")
-                    new_section.text.append(f"!player.armor_worn_list")
-                    new_section.text.append(f"!player.equipment_list")
-                    new_section.text.append(f"!list_items(locals())")
-                    new_section.text.append(f"!list_chars(locals())")
                     new_section.text.append(f"@turn: turn + 1")
                     new_section.text.append(f"@'' if turn % 20 != 0 else 'Torch starts guttering'")
                     new_section.text.append(f"")
-                    new_section.text.append(f"@wandering_monster_1: wander()")
-                    new_section.text.append(f"@wandering_monster_2: '' if turn < 10 else wander()")
-                    new_section.text.append(f"@wandering_monster_3: '' if turn < 15 else wander()")
-                    new_section.text.append(f"@wandering_monster_4: '' if turn < 20 else wander()")
+                    new_section.text.append(f"@wandering_monster_1: wander(6, 2)")
+                    new_section.text.append(f"@wandering_monster_2: '' if turn < 10 else wander(6, 3)")
+                    new_section.text.append(f"@wandering_monster_3: '' if turn < 15 else wander(6, 4)")
+                    new_section.text.append(f"@wandering_monster_4: '' if turn < 20 else wander(6, 5)")
                     new_section.text.append(f"")
                     new_section.text.append(f"!str([location, facing])")
                     new_section.text.append(f"; @facing: \"\"")
@@ -258,8 +378,9 @@ def main() -> None:
                     new_section.text.append(f"!room")
                     new_section.text.append(f"")
                     new_sections.append(new_section)
+    print(f"Sections to add: {len(new_sections):,}")
+
     sections.extend(new_sections)
-    print(f"Sections added: {len(new_sections):,}")
     new_sections.clear()
 
     # Populate parent sections
@@ -272,22 +393,24 @@ def main() -> None:
         for choice in section.choices:
             if choice.label == first_label:
                 continue
-            sections_dict[choice.label].parents.append(section.label)
+            if choice.label in sections_dict:
+                sections_dict[choice.label].parents.append(section.label)
 
     # Reorder sections to ensure parent environments are created first
     old_list: list[Section] = [old_section for old_section in sections_dict.values()]
     old_list.remove(first_section)
+    old_list.sort(key=lambda x: x.label)
 
     sections.clear()
     sections.append(first_section)  # always keep first parent section first
 
-    sections_have: list[str] = list()
-    sections_have.append(first_section.label)
+    sections_have: set[str] = set()
+    sections_have.add(first_section.label)
 
     while len(old_list):
         for section in old_list:
             if not section.parents:
-                break
+                continue
             have_parent: bool = False
             for parent in section.parents:
                 if parent in sections_have:
@@ -298,7 +421,7 @@ def main() -> None:
             break
         old_list.remove(section)
         sections.append(section)
-        sections_have.append(section.label)
+        sections_have.add(section.label)
 
     # Scan for branches that don't have an end game scenario
     sections_by_label: dict[str, Section] = dict()
@@ -315,8 +438,10 @@ def main() -> None:
             if _.label in found_sections:
                 continue
             found_sections.add(_.label)
-            child_labels = get_child_section_labels(sections_lookup[_.label], sections_lookup, found_sections.copy())
-            found_sections = found_sections.union(child_labels)
+            if _.label in sections_lookup:
+                child_labels = get_child_section_labels(sections_lookup[_.label], sections_lookup,
+                                                        found_sections.copy())
+                found_sections = found_sections.union(child_labels)
         return found_sections
 
     for section in sections:
@@ -444,30 +569,38 @@ def main() -> None:
 
         # determine child sections and clone environment into children
         for choice in section.choices:
-            child_section = sections_by_label[choice.label]
-            child_section.rooms = eval(f"save_rooms()", state)
-            child_section.path = section.path.copy()
-            child_section.path.append(f"{section.name}|{section.label}")
-            child_section.state = state
+            if choice.label in sections_by_label:
+                child_section = sections_by_label[choice.label]
+                child_section.rooms = eval(f"save_rooms()", state)
+                child_section.path = section.path.copy()
+                child_section.path.append(f"{section.name}|{section.label}")
+                child_section.state = state
 
     with open(gb_file, "w") as w:
         w.write(str(meta_header))
         sections_have.clear()
         for section in sections:
-            if ":" in section.name:
-                continue
             if section.label in sections_have:
                 continue
-            sections_have.append(section.label)
+            sections_have.add(section.label)
             w.write(str(section))
+        new_sections.sort(key=lambda x: x.label)
+        for section in new_sections:
+            w.write(str(section))
+
+    with open(html_file, "w") as w:
+        w.write("<html><meta charset='utf-8'/>\n")
+        w.write(f"<head><title>{Section.escape_html(meta_header.title)}</title></head>\n")
+        w.write("<body style='fonts-size: 200%;'>")
+        w.write(meta_header.html())
+        sections_have.clear()
+        sections[1:].sort(key=lambda sec: sec.name)
         for section in sections:
-            if ":" not in section.name:
-                continue
             if section.label in sections_have:
                 continue
-            sections_have.append(section.label)
-            w.write(str(
-                section))  # subprocess.run(["git", "commit", "-m", "autosave [after]", gb_file],  #  #               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            sections_have.add(section.label)
+            w.write(section.html())
+        w.write("\n</body></html>\n")
 
 
 if __name__ == "__main__":

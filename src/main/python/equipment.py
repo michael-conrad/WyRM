@@ -1,8 +1,6 @@
 import random
 from dataclasses import dataclass
 
-import jsonpickle
-
 from skills import CharacterSkill
 from skills import CharacterSkillsList
 
@@ -43,11 +41,13 @@ class Shield:
 @dataclass(slots=True)
 class Item:
     _name: str = ""
+    _desc: str = ""
     location: str = ""
     cost_sp: int = 0
 
     def __init__(self, name: str, location: str = "", cost_sp: int = 0):
         self._name = name
+        self._desc = ""
         self.location = location
         self.cost_sp = cost_sp
 
@@ -57,6 +57,16 @@ class Item:
     def set_location(self, location: str) -> "Item":
         self.location = location
         return self
+
+    @property
+    def description(self) -> str:
+        if self._desc:
+            return f"\n{self.name}\n{self._desc}".replace("\n", '\n;## ')
+        return self.name
+
+    @description.setter
+    def description(self, desc: str) -> None:
+        self._desc = desc
 
     @property
     def name(self) -> str:
@@ -98,11 +108,14 @@ class Item:
 
 @dataclass(slots=True)
 class Armor:
-    name: str = ""
-    defense: int = 0
-    armor_penalty: int = 0
+    _name: str = ""
+    _defense: int = 0
+    defense_bonus: int = 0
+    mana_bonus: int = 0
+    _armor_penalty: int = 0
     cost_sp: int = 0
     location: str = ""
+    _desc: str = ""
 
     def __init__(self, name: str, defense: int, armor_penalty: int, cost_sp: int):
         self.name = name
@@ -110,12 +123,49 @@ class Armor:
         self.armor_penalty = armor_penalty
         self.cost_sp = cost_sp
         self.location = ""
+        self.mana_bonus=0
+        self.defense_bonus=0
+        self._desc=""
 
     def __str__(self) -> str:
-        name: str = f"{self.name}, Defense: +{self.defense}, Mana: -{self.armor_penalty}"
-        if hasattr(self, 'location') and self.location:
-            return f"{name} ({self.location})"
-        return name
+        return self.name
+
+    @property
+    def description(self) -> str:
+        if self._desc:
+            return f"\n{self.name}\n{self._desc}".replace("\n", '\n;## ')
+        return self.name
+
+    @description.setter
+    def description(self, desc: str) -> None:
+        self._desc = desc
+
+    @property
+    def defense(self) -> int:
+        return self.defense_bonus + self._defense
+
+    @defense.setter
+    def defense(self, defense: int) -> None:
+        self._defense = defense
+
+    @property
+    def armor_penalty(self) -> int:
+        return max(self._armor_penalty - self.mana_bonus, 0)
+
+    @armor_penalty.setter
+    def armor_penalty(self, penalty: int):
+        self._armor_penalty = penalty
+
+    @property
+    def name(self) -> str:
+        _: str = f"{self._name}, Defense: +{self.defense}, Mana: -{self.armor_penalty}"
+        if hasattr(self, "location") and self.location:
+            return f"{_} <loc:{self.location}>"
+        return _
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
 
     def set_location(self, location: str) -> "Armor":
         self.location = location
@@ -138,7 +188,7 @@ class Armor:
     def by_name(cls, name: str) -> "Armor":
         armor: Armor
         for armor in cls.list():
-            if name.lower() == armor.name.lower():
+            if name.lower() == armor._name.lower():
                 return armor
         return cls.list()[0]
 
@@ -150,7 +200,7 @@ class Weapon:
     skill: CharacterSkill = None
     _damage: str = "1d6"
     cost_sp: int = 1
-    _description: str = ""
+    _desc: str = ""
     _attack_bonus: int = 0
     _damage_bonus: int = 0
     _two_handed: bool = False
@@ -158,6 +208,28 @@ class Weapon:
     def set_location(self, location: str) -> "Weapon":
         self.location = location
         return self
+
+    @property
+    def description(self) -> str:
+        if not hasattr(self, "_desc"):
+            setattr(self, "_desc", None)
+        if self._desc:
+            return f"\n{self.name}\n{self._desc}".replace("\n", '\n;## ')
+        return self.name
+
+    @description.setter
+    def description(self, desc: str) -> None:
+        self._desc = desc
+
+    @property
+    def _description(self) -> str:
+        if self._desc:
+            return f"\n{self.name}\n{self._desc}".replace("\n", '\n;## ')
+        return self.name
+
+    @_description.setter
+    def _description(self, desc: str) -> None:
+        self._desc = desc
 
     @property
     def name(self) -> str:
@@ -175,7 +247,7 @@ class Weapon:
     def damage(self) -> str:
         if not hasattr(self, "_damage_bonus"):
             setattr(self, "_damage_bonus", 0)
-        return f"{self._damage} + {self._damage_bonus}"
+        return f"{self._damage}{self._damage_bonus:+}"
 
     @property
     def two_handed(self) -> bool:
@@ -218,10 +290,11 @@ class Weapon:
         self.skill = skill
         self._damage = base_damage
         self.cost_sp = cost_sp
-        self.two_handed = two_handed
+        self._desc = ""
         self._description = ""
         self._attack_bonus = 0
         self._damage_bonus = 0
+        self.two_handed = two_handed
 
     def __str__(self) -> str:
         skill_name: str

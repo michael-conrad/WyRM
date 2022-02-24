@@ -1,4 +1,5 @@
 import random
+import textwrap
 from dataclasses import dataclass
 from dataclasses import field
 
@@ -11,6 +12,7 @@ from equipment import Shield
 from equipment import Weapon
 from gb_utils import dl_check
 from gb_utils import initiative_check
+from gb_utils import intervention
 from gb_utils import roll
 from mana import MageSpell
 from mana import MageSpellList
@@ -25,6 +27,7 @@ def copy_of(o) -> any:
 
 @dataclass(slots=True)
 class CharacterSheet:
+    xp: int = 0
     _name: str = ""
     location: str = ""
     description: str = ""
@@ -62,6 +65,13 @@ class CharacterSheet:
 
     _massive_attack: bool = False
 
+    @property
+    def is_full_health(self) -> str:
+        at_full_health: bool = self.hp >= self.hit_points_max
+        if at_full_health:
+            return f"At full health. {self.hp}/{self.hit_points_max}"
+        return f"Not at full health. {self.hp}/{self.hit_points_max}"
+
     def set_location(self, location: str) -> "CharacterSheet":
         self.location = location
         return self
@@ -76,9 +86,9 @@ class CharacterSheet:
     @property
     def name(self) -> str:
         if self.location:
-            return f"{self._name} <Room: {self.location}>"
+            return f"{self._name} (HP: {self.hp}, XP: {self.xp}) <Room: {self.location}>"
         else:
-            return f"{self._name}"
+            return f"{self._name} (HP: {self.hp}, XP: {self.xp})"
 
     @name.setter
     def name(self, name: str) -> None:
@@ -153,9 +163,9 @@ class CharacterSheet:
             weapon: Weapon = self.weapons[0]
             damage = weapon.damage
         if self.hit_points < self.hit_points_max // 2:
-            damage = f"({damage}) - 3"
+            damage = f"({damage})-3"
         if self.massive_attack:
-            damage = f"{damage} + {self.warrior}"
+            damage = f"{damage}{self.warrior:+}"
             self.massive_attack = False
         return damage
 
@@ -443,12 +453,12 @@ class CharacterSheet:
             for npc in side_b:
                 new_npc_hp += npc.hit_points
 
-            if new_npc_hp < 1:
+            if not new_npc_hp:
                 combat_log.append("")
                 combat_log.append(";NPC party perished")
                 break
 
-            if new_pc_hp < 1:
+            if not new_pc_hp:
                 combat_log.append("")
                 combat_log.append(";PC party perished")
                 break
@@ -470,11 +480,21 @@ class CharacterSheet:
                 combat_log.append(";win")
             else:
                 combat_log.append(";lose")
+        if not new_pc_hp and self.fate:
+            self.fate -= 1
+            if self.fate:
+                combat_log.append("")
+                combat_log.append(f"; FATE - 1. FATE POINTS REMAINING: {self.fate}")
+                combat_log.append(f"; {textwrap.fill(intervention(), 80).strip()}".replace("\n", "\n; "))
+            else:
+                combat_log.append("")
+                combat_log.append(f"; FATE - 1. NO FATE POINTS REMAINING.")
+                combat_log.append(f"; {textwrap.fill(intervention(), 80).strip()}".replace("\n", "\n; "))
         return combat_log
 
     def run_combat_round(self,  #
                          side_b: list["CharacterSheet"],  #
-                         max_opponents: int = 1,  #
+                         max_opponents: int = 3,  #
                          opponents_have_initiative: None | bool = None) -> list[str]:
 
         combat_log: list[str] = list()
@@ -571,6 +591,11 @@ class CharacterSheet:
     @property
     def equipment_list(self) -> str:
         _ = ""
+        for armor in self.armor_worn:
+            _ += f"\n;## {armor.name}"
+        for weapon in self.weapons:
+            _ += f"\n;## {weapon.name}"
         for item in self.equipment:
             _ += f"\n;## {item.name}"
+
         return _

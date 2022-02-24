@@ -1,9 +1,15 @@
+import random
 import textwrap
-from copy import deepcopy
 from dataclasses import dataclass
 from dataclasses import field
 
 import jsonpickle
+
+from character_sheet import CharacterSheet
+from equipment import Armor
+from equipment import Item
+from equipment import Weapon
+from gb_utils import loot
 
 
 @dataclass(slots=True)
@@ -12,28 +18,100 @@ class RoomDescription:
     desc1: str = ""
     desc2: str = ""
     notes: str = ""
-    items: list[str] = field(default_factory=list)
+    items: list[Item | Armor | Weapon | CharacterSheet] = field(default_factory=list)
     new_visit: bool = True
     views: int = 0
 
+    def add_item(self, item: Item | Armor | Weapon | CharacterSheet) -> str:
+        self.items.append(item)
+        idx: int = self.items.index(item) + 1
+        _: str = f"\n;## [{idx}] {item.name}"
+        if isinstance(item, CharacterSheet):
+            if item.weapon:
+                _ += "\n" + f";## Weapon: {item.weapon}".replace("\n", "\n;## ")
+            if item.armor_worn_list:
+                _ += "\n" + f";## Armor: {item.armor_worn_list.strip()}"
+        if item.description:
+            desc: str = textwrap.fill(item.description, 80).strip()
+            _ += "\n" + f";## {desc}".replace("\n", "\n;## ")
+        return _
+
+    def pop_item(self, name: str) -> Item | Armor | Weapon | CharacterSheet | None:
+        for _, x in enumerate([x.name for x in self.items]):
+            if x.lower().startswith(name.lower()):
+                return self.items.pop(_)
+
+    def get_item(self, name: str) -> Item | Armor | Weapon | CharacterSheet | None:
+        return self.item(name)
+
+    def item(self, name: str) -> Item | Armor | Weapon | CharacterSheet | None:
+        for _, x in enumerate([x.name for x in self.items]):
+            if x.lower().startswith(name.lower()):
+                return self.items[_]
+
     def __str__(self):
         self.views += 1
-        desc = self.desc1 if self.new_visit else self.desc2
+        desc = self.desc1.strip() if self.new_visit else self.desc2.strip()
         if not desc:
-            desc = self.desc1
+            desc = self.desc1.strip()
         self.new_visit = False
         _: str = ""
         for line in textwrap.wrap(desc, tabsize=4):
-            _ += f";##  {line}\n"
+            _ += f"\n;## {line}"
         desc = _
 
-        result: str = f""
-        result += f"ROOM: {self.name} ({self.views:,})\n"
-        result += f"{desc}"
+        result: str = f"\n;## ROOM: {self.name} ({self.views:,})"
+        if desc.strip():
+            result += desc
         if self.items:
-            result += ";##  Items: " + str(self.items) + "\n"
+            result += "\n;##"
+            result += self.item_list
         if self.notes:
-            result += ";##  Notes: " + str(self.notes) + "\n"
+            result += f"\n;## {self.notes}"
+        return result
+
+    @property
+    def item_list(self) -> str:
+        result = ""
+        if self.items:
+            for item in self.items:
+                idx: int = self.items.index(item) + 1
+                result += f"\n;## [{idx}] "
+                if isinstance(item, CharacterSheet):
+                    if item.hp < 1:
+                        result += "DEAD "
+                result += f"{item.name}"
+        return result
+
+    @property
+    def npcs(self) -> list[CharacterSheet]:
+        result: list = list()
+        if self.items:
+            for item in self.items:
+                if isinstance(item, CharacterSheet):
+                    result.append(item)
+        return result
+
+    def npc(self, number_id: int) -> CharacterSheet | None:
+        if self.items:
+            if len(self.items) > number_id \
+                    and isinstance(self.items[number_id], CharacterSheet):
+                return self.items[number_id]
+            for item in self.items:
+                if isinstance(item, CharacterSheet):
+                    if f"(#{number_id})" in item.name:
+                        return item
+        invalid: CharacterSheet = CharacterSheet()
+        invalid.name=f"Invalid NPC idx {number_id}"
+        return invalid
+
+    @property
+    def npc_list(self) -> list[str]:
+        result: list = list()
+        if self.items:
+            for item in self.items:
+                if isinstance(item, CharacterSheet):
+                    result.append(f"; {item.name}")
         return result
 
 
@@ -60,6 +138,53 @@ class Rooms:
 
 
 _rooms: Rooms = Rooms()
+
+
+def rooms_notes() -> str:
+    _ = ""
+    room_ids: list[str] = [key for key in _rooms.rooms.keys()]
+    room_ids.sort()
+    for room_id in room_ids:
+        room = _rooms.room(room_id)
+        _ += f"\n;## {room.name}: {room.notes}"
+    return _
+
+
+def rooms_random_loot(seed: int = 0):
+    r = random.Random(seed)
+    for room in _rooms.rooms.values():
+        if r.randint(1, 100) <= 33:
+            if room.notes:
+                room.notes = f"{room.notes}, {loot(r)}"
+            else:
+                room.notes = loot(r)
+
+
+def rooms_random_encounters(seed: int = 0):
+    r = random.Random(seed)
+    for room in _rooms.rooms.values():
+        qty: int = r.randint(1, 4)
+        creatures: str = r.choice(
+                ["Bears", "Large Cats", "Fire Beetles", "Giant Beetles", "Giant Rats", "Giant Spiders", "Dire Wolves",
+                 "Earth Elementals", "War Golems", "Warrior Skeletons", "Archer Skeletons", "Zombies"])
+        if r.randint(1, 100) <= 40:
+            if room.notes:
+                room.notes = f"{room.notes}, {qty} {creatures}"
+            else:
+                room.notes = f"{qty} {creatures}"
+
+
+def rooms_reset() -> None:
+    for room in _rooms.rooms.values():
+        room.views = 0
+        room.new_visit = True
+        room.items.clear()
+
+
+def rooms_clear_notes() -> None:
+    for room in _rooms.rooms.values():
+        room.notes = ""
+        room.new_visit = True
 
 
 def rooms(room_id: str) -> RoomDescription:

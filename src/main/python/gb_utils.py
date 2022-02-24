@@ -53,19 +53,44 @@ take it to a place of my choosing for a reward beyond just your life."
 
 def intervention() -> str:
     check: int = roll("1d6+1d6+1d6")
-    "3,4, 5,6,7,8, 9,10,11,12, 13,14,15,16, 17,18"
+    "3,4, 5,6, 7,8, 9,10, 11,12, 13,14, 15,16, 17,18"
     if check <= 4:
         return f"""
 ; Dark Power Intervention ({check}).
 {dark_power_intervention_text()}
 """
+    if check <= 6:
+        effect: str = random.choice(["Roof collapse.", "Hidden floor pit full of spikes triggers. (3d6 dmg).",
+                                     "Spontaneous Combustion. (2d8 dmg).",
+                                     "Hidden darts trap from wall triggers. (3d4 dmg).",
+                                     "Hidden spikes trap from ceiling triggers. (3d8 dmg)"])
+        return f"{effect} ({check})."
     if check <= 8:
-        return f"Environmental. Lightning. Tunnel collapse. ({check})."
+        creatures: str = random.choice(
+                ["Bears", "Large Cats", "Fire Beetles", "Giant Beetles", "Giant Rats", "Giant Spiders", "Dire Wolves",
+                 "Earth Elementals", "War Golems", "Warrior Skeletons", "Archer Skeletons", "Zombies"])
+        return f"{roll('1d4+1')} {creatures} show up and attacks opponent(s)." \
+               f" Player gets an automatic flee success check. " \
+               f" Creatures will attack player if they run out of opponents." \
+               f" ({check})"
+    if check <= 10:
+        creatures: str = random.choice(
+                ["Goblins", "Kobolds", "Hobgoblins", "Worgs", "Gnolls", "Giant Weasals", "Giant Lizards",
+                 "Awakened Shrubs"])
+        return f"{roll('1d4+1')} {creatures} show up and attacks opponent(s)." \
+               f" Player gets an automatic flee success check. " \
+               f" Creatures will attack player if they run out of opponents." \
+               f" ({check})"
     if check <= 12:
-        return f"Opposing forces make a mistake, trip up, get in the way of each other ({check})."
+        return f"Opposing forces make a mistake, trip up, get in the way of each other" \
+               f" Player gets an automatic flee success check. " \
+               f" Opponents will attack player next round.  ({check})."
+    if check <= 14:
+        return f"Opposing forces attack each other or hurt themselves with own weapons." \
+               f" Player gets an automatic flee success check. " \
+               f" Opponents will attack player next round.  ({check})."
     if check <= 16:
-        return f"Opposing forces attack each other or hurt themselves with own weapons ({check})."
-    # check >= 17
+        return f" ({check})"
     return f"Divine Intervention ({check})."
 
 
@@ -104,6 +129,25 @@ def list_chars(state: dict) -> str:
                 char_list += f"\n;## {key}: {var.name}"
             else:
                 char_list += f"\n;## {key}: {var.name} (DEAD)"
+    return char_list
+
+
+def delete_dead_chars(state: dict) -> str:
+    char_list: str = ""
+    to_delete: list[str] = list()
+    for key in state:
+        var = state[key]
+        if isinstance(var, type):
+            continue
+        if hasattr(var, "hp") and hasattr(var, "name"):
+            if getattr(var, "hp"):
+                char_list += f"\n;## {key}: {var.name}"
+            else:
+                char_list += f"\n;## {key}: {var.name} (DEAD)"
+                to_delete.append(key)
+    if to_delete:
+        for key in to_delete:
+            del state[key]
     return char_list
 
 
@@ -166,10 +210,14 @@ def initiative_check(player_bonus: int = 0, npc_bonus: int = 0) -> bool:
     return initiative_check(player_bonus, npc_bonus)
 
 
-def loot_box(qty: int = 1) -> list[str]:
+def loot_box(qty: int = 1, seed: int | None = None) -> list[str]:
+    if seed is not None:
+        r = random.Random(seed)
+    else:
+        r = random.Random()
     items: list[str] = list()
     while len(items) < qty:
-        item: str = "; " + loot()
+        item: str = "; " + loot(r)
         if item in items:
             continue
         items.append(item)
@@ -177,39 +225,67 @@ def loot_box(qty: int = 1) -> list[str]:
     return items
 
 
-def loot() -> str:
+def loot(r: random.Random | None = None) -> str:
+    if r is None:
+        r = random.Random()
     items: list[str] = list()
-    if dice.roll("1d100t") < 75:
-        items.append("Amulet of Health, MAX HP + 3")
-        items.append("Armor 1d100 01-75=+1 76-95=+2, 96-00=+3")
+    if r.randint(1, 100) < 75:
+        bns = r.randint(1, 3)
+        items.append(f"Amulet of Health, MAX HP: {bns:+}")
+        d100 = r.randint(1, 100)
+        bns = 1 if d100 < 75 else 2 if d100 < 96 else 3
+        items.append(f"Armor {bns:+}")
         items.append("Bag of Holding")
-        items.append("Boots of Striding and Springing, ROGUE +1d3")
-        items.append("Cloak of Elvenkind")
-        items.append("Gauntlets of Ogre Power, WARRIOR +1d3")
+        bns = r.randint(1, 3)
+        items.append(f"Boots of Striding and Springing, Rogue: {bns:+}")
+        bns = r.randint(1, 3)
+        items.append(f"Cloak of Elvenkind, Mage: {bns:+}, Rogue: {bns:+}")
+        bns = r.randint(1, 3)
+        items.append(f"Gauntlets of Ogre Power, Warrior {bns:+}")
         items.append("Gloves of Swimming and Climbing")
         items.append("Goggles of Night (darkvision 60ft)")
-        items.append("Headband of Intellect, MAGE +1d3")
-        items.append("Keoghtom's Ointment, doses: 1d4+1, heals 2d8+2")
+        bns = r.randint(1, 3)
+        items.append(f"Headband of Intellect, Mage: {bns:+}")
+        bns = r.randint(1, 4) + 1
+        items.append(f"Keoghtom's Ointment, doses: {bns}, heals 2d8+2")
         items.append("Potion of Flying")
         items.append("Potion of Invisibility")
         items.append("Potion of Vitality")
-        items.append("Ring of Evasion, ROGUE +1d3")
+        bns = r.randint(1, 3)
+        items.append(f"Ring of Evasion, Rogue: {bns:+}")
         items.append("Ring of Protection, BASE ARMOR +1")
         items.append("Ring of Resistance, 1d10: see pg60 DMBasicRulesv.0.3")
-        items.append("Spell Scroll 1d100 01-55=c1 56-80=c2 81-93=c3, 94-00=c4")
+        d100 = r.randint(1, 100)
+        circle = 1 if d100 < 56 else 2 if d100 < 81 else 3 if d100 < 94 else 4
+        items.append(f"Spell Scroll: Circle {circle} ")
         items.append("Wand of Magic Detection, 1d3 uses/day")
         items.append("Wand of Magic Missiles, 1d3 uses/day")
-        items.append("Weapon 1d100 00-75%=+1 76-95=+2, 96-00=+3")
+        d100 = r.randint(1, 100)
+        bns = 1 if d100 < 75 else 2 if d100 < 96 else 3
+        items.append(f"Weapon {bns:+}")
     else:
-        items.append("Amulet of Weakness, MAX HP -1d3")
-        items.append("Armor of Slowness 1d100 01-75=-1 76-95=-2, 96-00=-3 Rogue")
+        bns = - r.randint(1, 3)
+        items.append(f"Amulet of Weakness, Max HP: {bns:+}")
+        d100 = r.randint(1, 100)
+        bns = -1 if d100 < 75 else -2 if d100 < 96 else -3
+        items.append(f"Armor of Slowness, Rogue: {bns:+}")
         items.append("Bag of Devouring")
-        items.append("Boots of Clumsiness, ROGUE -1d3")
-        items.append("Gauntlets of Sapping Strength, WARRIOR -1d3")
-        items.append("Headband of Dull Thinking, MAGE -1d3")
-        items.append("Keoghtaz's Ointment, doses: 1d4+1, damages 2d8+2")
-        items.append("Potion of Health Drain. HP -2d4")
-        items.append("Ring of Clumsiness, ROGUE -1d3")
-        items.append("Ring of Slowness, DEFENSE -1")
-        items.append("Cursed Weapon 1d100 00-75%=-1 76-95=-2, 96-00=-3 ATTACK/DAMAGE")
-    return random.choice(items)
+        bns = - r.randint(1, 3)
+        items.append(f"Boots of Clumsiness, Rogue: {bns:+}")
+        bns = - r.randint(1, 3)
+        items.append(f"Gauntlets of Sapping Strength, Warrior: {bns:+}")
+        bns = - r.randint(1, 3)
+        items.append(f"Headband of Dull Thinking, Mage: {bns:+}")
+        bns = - r.randint(1, 4) + 1
+        items.append(f"Keoghtaz's Ointment, doses: {bns}, damages 2d8+2")
+        bns = - (r.randint(1, 4) + r.randint(1, 4))
+        items.append(f"Potion of Health Drain. HP: {bns:+}")
+        bns = - r.randint(1, 3)
+        items.append(f"Ring of Clumsiness, Rogue: {bns:+}")
+        items.append("Ring of Slowness, Defense: -1")
+        d100 = r.randint(1, 100)
+        bns = -1 if d100 < 75 else -2 if d100 < 96 else -3
+        items.append(f"Cursed Weapon {bns:+}")
+    return r.choice(items)
+
+

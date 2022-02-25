@@ -99,4 +99,5 @@ def from_dnd5e(dnd: CharacterSheet5):
         sheet.description += f", Resists: {dnd.resist}"
     if dnd.special:
         sheet.description += f", Special: {dnd.special}"
+    sheet.fate = 0
     return sheet

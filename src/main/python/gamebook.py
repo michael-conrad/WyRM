@@ -13,6 +13,7 @@ import os.path
 import random
 import re
 import textwrap
+import time
 from dataclasses import dataclass
 from dataclasses import field
 
@@ -226,8 +227,8 @@ def new_label(already: set[str]) -> str:
 
 
 def main() -> None:
-    random.seed(datetime.datetime.utcnow())
-    section_tag_match: str = "(?i)^\\[[^\\]]*?\\]"
+    random.seed(time.time())
+    section_tag_match: str = "(?i)^\\[[^|]+\\|.*?]"
     gb_file: str = gamebook_file()
     html_file: str = os.path.splitext(gb_file)[0] + ".html"
     if not os.path.exists(gb_file):
@@ -273,9 +274,9 @@ def main() -> None:
                 continue
             prev_line = line
             # Parse Section Tag
-            if re.match("(?i)^\\[[a-z0-9_\\-|: .]+]", line.strip()):
+            if re.match(section_tag_match, line.strip()):
+                print(line)
                 section = Section()
-                sections.append(section)
                 data: str = line[line.find("[") + 1:line.rfind("]")]
                 if "|" in data:
                     section.name = data[:data.find("|")].strip()
@@ -285,6 +286,10 @@ def main() -> None:
                     section.label = ""
                 if section.label and section.label in already:
                     section = None
+                    continue
+                if section.name[-1] not in "!.?":
+                    section.name += "."
+                sections.append(section)
                 already.add(section.label)
                 continue
             if section is None:
@@ -300,13 +305,19 @@ def main() -> None:
                 else:
                     choice.text = data
                     choice.label = ""
+                if choice.text[-1] not in "!.?":
+                    choice.text += "."
                 continue
             if line.lstrip().startswith("["):
                 line = f"; {line}"
             section.text.append(f"{line}")
 
-    # re-layout text sections for consistency
+    # sort choices by description text
+    for section in sections:
+        if section.choices:
+            section.choices.sort(key=lambda x: x.text.strip())
 
+    # re-layout text sections for consistency
     for section in sections:
         new_text: list[str] = list()
         new_text.append("")
@@ -329,6 +340,24 @@ def main() -> None:
                     new_text.append("")
                 continue
             new_text[-1] = textwrap.fill(f"{new_text[-1]} {line}", 80)
+        section.text.clear()
+        section.text.extend(new_text)
+
+    # scan for repeats
+    for section in sections:
+        new_text: list[str] = list()
+        for line in section.text:
+            if not line:
+                new_text.append("")
+                continue
+            if re.match("^!\\d+ ", line):
+                new_text.append(f";;; {line}")
+                repeat: int = int(line[1:line.index(" ")])
+                line = line[line.index(" ")+1:]
+                for _ in range(repeat):
+                    new_text.append(f"!{line}")
+                continue
+            new_text.append(line)
         section.text.clear()
         section.text.extend(new_text)
 
@@ -366,10 +395,10 @@ def main() -> None:
                     new_section.text.append(f"@turn: turn + 1")
                     new_section.text.append(f"@'' if turn % 20 != 0 else 'Torch starts guttering'")
                     new_section.text.append(f"")
-                    new_section.text.append(f"@wandering_monster_1: wander(6, 2)")
-                    new_section.text.append(f"@wandering_monster_2: '' if turn < 10 else wander(6, 3)")
-                    new_section.text.append(f"@wandering_monster_3: '' if turn < 15 else wander(6, 4)")
-                    new_section.text.append(f"@wandering_monster_4: '' if turn < 20 else wander(6, 5)")
+                    new_section.text.append(f"@wander(6, 2) if turn < 10 else ''")
+                    new_section.text.append(f"@wander(6, 3) if turn >= 10 and turn < 15 else ''")
+                    new_section.text.append(f"@wander(6, 4) if turn >= 15 and turn < 20 else ''")
+                    new_section.text.append(f"@wander(6, 5) if turn >= 20 else ''")
                     new_section.text.append(f"")
                     new_section.text.append(f"!str([location, facing])")
                     new_section.text.append(f"; @facing: \"\"")
@@ -393,8 +422,7 @@ def main() -> None:
         for choice in section.choices:
             if choice.label == first_label:
                 continue
-            if choice.label in sections_dict:
-                sections_dict[choice.label].parents.append(section.label)
+            sections_dict[choice.label].parents.append(section.label)
 
     # Reorder sections to ensure parent environments are created first
     old_list: list[Section] = [old_section for old_section in sections_dict.values()]
@@ -416,12 +444,11 @@ def main() -> None:
                 if parent in sections_have:
                     have_parent = True
                     break
-            if not have_parent:
-                continue
-            break
-        old_list.remove(section)
-        sections.append(section)
+            if have_parent:
+                break
         sections_have.add(section.label)
+        sections.append(section)
+        old_list.remove(section)
 
     # Scan for branches that don't have an end game scenario
     sections_by_label: dict[str, Section] = dict()
@@ -460,7 +487,7 @@ def main() -> None:
         state = section.state
         if state is None:
             print(f"NO PARENT FOR SECTION: [{section.name}|{section.label}]")
-            state = sections_by_label[section.parents[0]]
+            state = sections_by_label[section.parents[0]].state
         for lib in meta_header.libs:
             exec(f"from {lib} import *", state)
         if section.rooms:
@@ -497,12 +524,14 @@ def main() -> None:
             section.text.append(f";## Note: {note}")
         section.text.append(";## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13")
         section.text.append(f"")
+        section.text.append(eval("rooms_status()", state))
         for line in text_list:
             line = line.strip()
             if line.startswith(";##"):
                 continue
             print(f"{len(section.text) + 1:06} {line}")
             if line.startswith("!"):
+                repeat: int = 1
                 cmd: str = line[line.find("!") + 1:].strip()
                 result: any = None
                 try:
@@ -569,6 +598,8 @@ def main() -> None:
 
         # determine child sections and clone environment into children
         for choice in section.choices:
+            if choice.label not in sections_by_label:
+                raise Exception(f"{choice.label} not in sections_by_label")
             if choice.label in sections_by_label:
                 child_section = sections_by_label[choice.label]
                 child_section.rooms = eval(f"save_rooms()", state)

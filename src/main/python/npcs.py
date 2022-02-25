@@ -36,6 +36,7 @@ class NPC:
         sheet.base_defense = 8 - sheet.armor
         sheet.hit_points_max = 14
         sheet.hp = 14
+        sheet.fate = 0
         return sheet
 
     @classmethod
@@ -55,6 +56,7 @@ class NPC:
         sheet.hit_points_max = 9
         sheet.hp = 9
         sheet.equip_armor(Armor("Rusted chain mail", 1, 0, 0))
+        sheet.fate = 0
         return sheet
 
     @classmethod
@@ -73,6 +75,7 @@ class NPC:
         sheet.base_defense = 7 - sheet.armor
         sheet.hit_points_max = 9
         sheet.hp = 9
+        sheet.fate = 0
         return sheet
 
     @classmethod
@@ -90,6 +93,7 @@ class NPC:
         sheet.base_defense = 7
         sheet.hit_points_max = 12
         sheet.hp = 12
+        sheet.fate = 0
         return sheet
 
     @classmethod
@@ -107,7 +111,8 @@ class NPC:
         sheet.base_defense = 7
         sheet.hit_points_max = 12
         sheet.hp = 12
-        return jsonpickle.decode(jsonpickle.encode(sheet))
+        sheet.fate = 0
+        return sheet
 
     @classmethod
     def giant_spider(cls) -> CharacterSheet:
@@ -126,7 +131,8 @@ class NPC:
         sheet.base_defense = 8
         sheet.hit_points_max = 24
         sheet.hp = 24
-        return jsonpickle.decode(jsonpickle.encode(sheet))
+        sheet.fate = 0
+        return sheet
 
     # Imprecise conversions from DnD 5e follow:
 

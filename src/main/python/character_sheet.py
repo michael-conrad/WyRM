@@ -299,19 +299,21 @@ class CharacterSheet:
             skills.append(skill.skill_name)
         return skills
 
-    def cast(self, spell_name: str, mana_burn: bool = False) -> str:
+    def cast(self, spell_name: str, mana_burn: bool = False) -> list[str]:
         if not self.spells:
-            return "No spells."
+            return list("; No spells.")
         for spell in self.spells:
             if spell.name.lower() == spell_name.lower():
                 if self.mana < spell.mana_cost:
-                    return f"Not enough mana ({self.mana}) for {spell.name} ({spell.mana_cost})"
-                roll: int = dice.roll(f"1d6 + {self.mage}")
-                if roll < spell.difficulty.value:
-                    return f"Cast failed. {roll} < {spell.difficulty.name} {spell.difficulty.value}"
+                    return [f"; Not enough mana ({self.mana}) for {spell.name} ({spell.mana_cost})"]
+                check: int = dice.roll(f"1d6 + {self.mage}")
+                if check < spell.difficulty.value:
+                    return [f"; Cast failed. {check} < {spell.difficulty.name} {spell.difficulty.value}"]
                 self.mana -= spell.mana_cost
-                return f"Cast succeeded. {spell.name}: {spell.description}"
-        return "That spell is not available."
+                pc_id: str = f"player" if "Player" in self.name else f"room.npc(\"{self._name}\")"
+                update: str = f"!{pc_id}.mana={self.mana}"
+                return [f"; Cast succeeded. {spell.name}: {spell.description}", f"{update}"]
+        return ["; That spell is not available."]
 
     @property
     def spell_list(self) -> str:
@@ -395,7 +397,6 @@ class CharacterSheet:
 
         while True:
             if have_initiative:
-                # combat_log.append("")
                 for pc in side_a:
                     if not pc.is_alive:
                         continue
@@ -406,16 +407,26 @@ class CharacterSheet:
                         break
                     if not npc or not npc.is_alive:
                         continue
-                    # combat_log.append(f"; {pc.name} attacks {npc.name}")
                     if pc.attack_opponent(npc):
+                        var: str ="_"
+                        if "Player" in pc._name:
+                            var = "player"
+                        else:
+                            var = f"room.npc(\"{pc._name}\")"
                         if pc.massive_attack:
-                            combat_log.append(f"; {pc.name} uses talent massive attack")
+                            combat_log.append(f"; {pc._name} uses talent massive attack")
+                            combat_log[-1] = f"!{var}.massive_attack=False # " + combat_log[-1]
                         hp: int = npc.hit_points
                         npc.hit_points = pc.damage_opponent(npc)
                         if npc.hit_points < 1:
-                            combat_log.append(f"; {pc.name} hits for {hp - npc.hit_points} points and {npc.name} dies")
+                            combat_log.append(f"; {pc._name} hits for {hp - npc.hit_points} points and {npc._name} dies")
                         else:
-                            combat_log.append(f"; {pc.name} hits {npc.name} for {hp - npc.hit_points} points of damage")
+                            combat_log.append(f"; {pc._name} hits {npc.name} for {hp - npc.hit_points} points of damage")
+                        if "Player" in npc._name:
+                            var = "player"
+                        else:
+                            var = f"room.npc(\"{npc._name}\")"
+                        combat_log[-1] = f"!{var}.hp={npc.hit_points} # " + combat_log[-1]
                     else:
                         pass  # combat_log.append(f"; {pc.name} misses {npc.name}")
             else:
@@ -434,16 +445,24 @@ class CharacterSheet:
                         break
                     if not pc or not pc.is_alive:
                         continue
-                    # combat_log.append(f"; {npc.name} attacks {pc.name}")
                     if npc.attack_opponent(pc):
+                        var: str = "_"
+                        if "Player" in npc._name:
+                            var = "player"
+                        else:
+                            var = f"room.npc(\"{npc._name}\")"
                         hp: int = pc.hit_points
                         pc.hit_points = npc.damage_opponent(pc)
                         if pc.hit_points < 1:
-                            combat_log.append(f"; {npc.name} hits for {hp - pc.hit_points} points and kills {pc.name}")
+                            combat_log.append(f"; {npc._name} hits for {hp - pc.hit_points} points and kills {pc._name}")
                         else:
-                            combat_log.append(f"; {npc.name} hits {pc.name} for {hp - pc.hit_points} points of damage")
-                    else:
-                        pass  # combat_log.append(f"; {npc.name} misses {pc.name}")
+                            combat_log.append(f"; {npc._name} hits {pc._name} for {hp - pc.hit_points} points of damage")
+                        var: str = "_"
+                        if "Player" in pc._name:
+                            var = "player"
+                        else:
+                            var = f"room.npc(\"{pc._name}\")"
+                        combat_log[-1] = f"!{var}.hp = {pc.hit_points} # " + combat_log[-1]
 
             new_pc_hp: int = 0
             for pc in side_a:
@@ -454,41 +473,38 @@ class CharacterSheet:
                 new_npc_hp += npc.hit_points
 
             if not new_npc_hp:
-                combat_log.append("")
-                combat_log.append(";NPC party perished")
                 break
 
             if not new_pc_hp:
-                combat_log.append("")
-                combat_log.append(";PC party perished")
                 break
-
-            if new_pc_hp < pc_hp // 2:
-                # combat_log.append("")
-                # combat_log.append(f";PC party low on HP")  # break
-                pass
 
             have_initiative = not have_initiative
 
         combat_log.append("")
+        side_b.sort(key=lambda x: x.name)
         for npc in side_b:
-            combat_log.append(f";{npc.name} hit points = {npc.hit_points}")
-        combat_log.append("")
-        for pc in side_a:
-            combat_log.append(f";{pc.name} hit points = {pc.hit_points}")
-            if pc.hit_points > 0:
-                combat_log.append(";win")
+            if npc.is_alive:
+                combat_log.append(f"; {npc._name}")
             else:
-                combat_log.append(";lose")
+                combat_log.append(f"; DEAD: {npc._name}")
+        side_a.sort(key=lambda x: x.name)
+        for pc in side_a:
+            if pc.is_alive:
+                combat_log.append(f"; {pc._name}")
+            else:
+                combat_log.append(f"; DEAD: {pc._name}")
         if not new_pc_hp and self.fate:
             self.fate -= 1
+            combat_log.append(f"@player.fate: {self.fate}")
             if self.fate:
                 combat_log.append("")
-                combat_log.append(f"; FATE - 1. FATE POINTS REMAINING: {self.fate}")
+                combat_log.append(f"FATE - 1. FATE POINTS REMAINING: {self.fate}")
+                combat_log.append("")
                 combat_log.append(f"; {textwrap.fill(intervention(), 80).strip()}".replace("\n", "\n; "))
             else:
                 combat_log.append("")
-                combat_log.append(f"; FATE - 1. NO FATE POINTS REMAINING.")
+                combat_log.append(f"FATE - 1. NO FATE POINTS REMAINING.")
+                combat_log.append("")
                 combat_log.append(f"; {textwrap.fill(intervention(), 80).strip()}".replace("\n", "\n; "))
         return combat_log
 
@@ -499,6 +515,7 @@ class CharacterSheet:
 
         combat_log: list[str] = list()
         side_a = [self]
+        hp_to_report: dict[str, int] = dict()
 
         npc_1: CharacterSheet = side_b[0]
 
@@ -507,11 +524,6 @@ class CharacterSheet:
             have_initiative = not opponents_have_initiative
         else:
             have_initiative = initiative_check(self.rogue, npc_1.rogue)
-
-        if have_initiative:
-            combat_log.append("; Group 1 attacks")
-        else:
-            combat_log.append("; Group 2 attacks")
 
         pc_hp: int = 0
         for pc in side_a:
@@ -532,18 +544,17 @@ class CharacterSheet:
                     break
                 if not npc or not npc.is_alive:
                     continue
-                combat_log.append(f"; {pc.name} attacks {npc.name}")
                 if pc.attack_opponent(npc):
                     if pc.massive_attack:
                         combat_log.append(f"; {pc.name} uses talent massive attack")
+                        pc.massive_attack = False
                     hp: int = npc.hit_points
                     npc.hit_points = pc.damage_opponent(npc)
+                    hp_to_report[npc.name] = npc.hp
                     if npc.hit_points < 1:
                         combat_log.append(f"; {pc.name} hits for {hp - npc.hit_points} points and {npc.name} dies")
                     else:
                         combat_log.append(f"; {pc.name} hits {npc.name} for {hp - npc.hit_points} points of damage")
-                else:
-                    combat_log.append(f"; {pc.name} misses {npc.name}")
         else:
             counter: int = 0
             random.shuffle(side_b)
@@ -560,16 +571,14 @@ class CharacterSheet:
                     break
                 if not pc or not pc.is_alive:
                     continue
-                combat_log.append(f"; {npc.name} attacks {pc.name}")
                 if npc.attack_opponent(pc):
                     hp: int = pc.hit_points
                     pc.hit_points = npc.damage_opponent(pc)
+                    hp_to_report[npc.name] = npc.hp
                     if pc.hit_points < 1:
                         combat_log.append(f"; {npc.name} hits for {hp - pc.hit_points} points and kills {pc.name}")
                     else:
                         combat_log.append(f"; {npc.name} hits {pc.name} for {hp - pc.hit_points} points of damage")
-                else:
-                    combat_log.append(f"; {npc.name} misses {pc.name}")
 
             new_pc_hp: int = 0
             for pc in side_a:
@@ -578,14 +587,9 @@ class CharacterSheet:
             new_npc_hp: int = 0
             for npc in side_b:
                 new_npc_hp += npc.hit_points
-            if new_npc_hp < 1:
-                combat_log.append(";NPC party perished")
-            if new_pc_hp < 1:
-                combat_log.append(";PC party perished")
-        for npc in side_b:
-            combat_log.append(f";{npc.name} hit points = {npc.hit_points}")
-        for pc in side_a:
-            combat_log.append(f";{pc.name} hit points = {pc.hit_points}")
+        if hp_to_report:
+            for _ in hp_to_report:
+                combat_log.append(f"; {_} hit points = {hp_to_report[_]}")
         return combat_log
 
     @property

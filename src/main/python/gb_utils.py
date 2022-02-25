@@ -3,6 +3,7 @@ import random
 import dice
 import jsonpickle
 
+import character_sheet
 from equipment import Armor
 from equipment import Item
 from equipment import Shield
@@ -180,25 +181,54 @@ def stat_check(stat: int, bonus: int) -> bool:
 
 def wander(die: int = 6, yes_if_under: int = 2) -> str:
     yes: bool = roll(f"1d{die}") < yes_if_under
-    return random_encounter() if yes else ""
+    return random_encounter(yes_if_under - 1) if yes else ""
 
 
-def random_encounter() -> str:
+def random_encounter(c: int) -> str:
     choices: list[str] = list()
-    choices.append("1d2 spiders")
-    choices.append("1d3 giant rats")
-    choices.append("1 giant beetle")
-    choices.append("1d3 skeletons")
-    choices.append("1d2 zombies")
-    choices.append("loot")
+    d2: int = roll(f"{c}d2")
+    d3: int = roll(f"{c}d3")
+    d4: int = roll(f"{c}d4")
+    d6: int = roll(f"{c}d6")
+    d8: int = roll(f"{c}d8")
+    d10: int = roll(f"{c}d10")
+
+    choices.append(f"{d4} giant beetles")
+    choices.append(f"{d3} skeleton warriors")
+    choices.append(f"{d2} zombies")
+    choices.append(f"{d3} giant rats")
+    choices.append(f"{d2} spiders")
+    choices.append(f"{d10} awakened shrubs")
+    choices.append(f"{d2} giant lizards")
+    choices.append(f"{d4} giant weasals")
+    choices.append(f"{d2} goblin warriors")
+    choices.append(f"{d2} hobgoblin warriors")
+    choices.append(f"{d4} kobold warriors")
+    choices.append(f"{d2} worgs")
+    choices.append(loot())
     return random.choice(choices)
 
 
-def initiative(player_bonus: int = 0, npc_bonus: int = 0) -> str:
+def initiative(player_bonus = None,  #
+               npc_bonus = None) -> str:
+    player_bonus: int | character_sheet.CharacterSheet | None
+    npc_bonus: int | character_sheet.CharacterSheet | None
+    name1: str = "Player"
+    name2: str = "NPC"
+    if player_bonus is None:
+        player_bonus = 0
+    if npc_bonus is None:
+        npc_bonus = 0
+    if isinstance(player_bonus, character_sheet.CharacterSheet):
+        name1 = player_bonus.name
+        player_bonus = player_bonus.rogue
+    if isinstance(npc_bonus, character_sheet.CharacterSheet):
+        name2 = npc_bonus.name
+        npc_bonus = npc_bonus.rogue
     if roll(f"1d6+{player_bonus}") > roll(f"1d6+{npc_bonus}"):
-        return "First Character (Player)"
+        return f"First Character ({name1})"
     if roll(f"1d6+{player_bonus}") < roll(f"1d6+{npc_bonus}"):
-        return "Second Character (NPC)"
+        return f"Second Character ({name2})"
     return initiative(player_bonus, npc_bonus)
 
 

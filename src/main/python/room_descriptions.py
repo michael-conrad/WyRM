@@ -40,6 +40,13 @@ class RoomDescription:
         for _, x in enumerate([x.name for x in self.items]):
             if x.lower().startswith(name.lower()):
                 return self.items.pop(_)
+            if f"({name.lower()})" in x.lower():
+                return self.items.pop(_)
+            if f"(#{name.lower()})" in x.lower():
+                return self.items.pop(_)
+            if f"{name.lower()}" in x.lower():
+                return self.items.pop(_)
+        return None
 
     def get_item(self, name: str) -> Item | Armor | Weapon | CharacterSheet | None:
         return self.item(name)
@@ -47,6 +54,12 @@ class RoomDescription:
     def item(self, name: str) -> Item | Armor | Weapon | CharacterSheet | None:
         for _, x in enumerate([x.name for x in self.items]):
             if x.lower().startswith(name.lower()):
+                return self.items[_]
+            if f"({name.lower()})" in x.lower():
+                return self.items[_]
+            if f"(#{name.lower()})" in x.lower():
+                return self.items[_]
+            if f"{name.lower()}" in x.lower():
                 return self.items[_]
 
     def __str__(self):
@@ -61,6 +74,26 @@ class RoomDescription:
         desc = _
 
         result: str = f"\n;## ROOM: {self.name} ({self.views:,})"
+        if desc.strip():
+            result += desc
+        if self.items:
+            result += "\n;##"
+            result += self.item_list
+        if self.notes:
+            result += f"\n;## {self.notes}"
+        return result
+
+    @property
+    def info(self) -> str:
+        desc = self.desc2.strip()
+        if not desc:
+            desc = self.desc1.strip()
+        _: str = ""
+        for line in textwrap.wrap(desc, 80):
+            _ += f"\n;## {line}"
+        desc = _
+
+        result: str = f"\n;## ROOM: {self.name} (Visited: {not self.new_visit})"
         if desc.strip():
             result += desc
         if self.items:
@@ -92,18 +125,32 @@ class RoomDescription:
                     result.append(item)
         return result
 
-    def npc(self, number_id: int) -> CharacterSheet | None:
-        if self.items:
-            if len(self.items) > number_id \
-                    and isinstance(self.items[number_id], CharacterSheet):
-                return self.items[number_id]
-            for item in self.items:
-                if isinstance(item, CharacterSheet):
-                    if f"(#{number_id})" in item.name:
-                        return item
-        invalid: CharacterSheet = CharacterSheet()
-        invalid.name=f"Invalid NPC idx {number_id}"
-        return invalid
+    def npc_sublist(self, identifiers: list[str]) -> list[CharacterSheet]:
+        result: list[CharacterSheet] = list()
+        for _ in identifiers:
+            npc = self.get_item(_)
+            if npc:
+                if isinstance(npc, CharacterSheet):
+                    result.append(npc)
+        return result
+
+    def npc(self, identifier: int | str) -> CharacterSheet | None:
+        if isinstance(identifier, int):
+            identifier -= 1
+            if identifier < 0:
+                return None
+            if len(self.items) > identifier \
+                    and isinstance(self.items[identifier], CharacterSheet):
+                return self.items[identifier]
+        for item in self.items:
+            if isinstance(item, CharacterSheet):
+                if f"(#{identifier})" in item.name:
+                    return item
+                if f"({identifier})" in item.name:
+                    return item
+                if f"{identifier}" in item.name:
+                    return item
+        return None
 
     @property
     def npc_list(self) -> list[str]:
@@ -111,7 +158,10 @@ class RoomDescription:
         if self.items:
             for item in self.items:
                 if isinstance(item, CharacterSheet):
-                    result.append(f"; {item.name}")
+                    if item.hp < 1:
+                        result.append(f"; {item.name} (DEAD)")
+                    else:
+                        result.append(f"; {item.name}")
         return result
 
 
@@ -138,6 +188,19 @@ class Rooms:
 
 
 _rooms: Rooms = Rooms()
+
+
+def rooms_status() -> str:
+    global _rooms
+    lines: list[str] = list()
+    for room in _rooms.rooms.values():
+        v: str = "" if room.new_visit else " (visited)"
+        lines.append(f"{room.name}{v}: {room.notes}")
+    lines.sort()
+    _ = ""
+    for line in lines:
+        _ += f"\n;## {line}"
+    return _
 
 
 def rooms_notes() -> str:

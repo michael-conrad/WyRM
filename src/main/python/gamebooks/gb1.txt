@@ -18037,8 +18037,8 @@ Searching about, you find nothing else of interest.
 
 !str([location, facing]) # ['4', 'w']
 ;## ['4', 'w']
-; @facing: ""
-; @location: ""
+ @facing: "s"
+ @location: "4a"
 !room=rooms(location)
 !room # 
 ;## ROOM: 4 (3)

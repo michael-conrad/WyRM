@@ -40,9 +40,12 @@ class NPC:
         return sheet
 
     @classmethod
-    def skeleton_warrior(cls) -> CharacterSheet:
+    def skeleton_warrior(cls, extra_name: str | None = None) -> CharacterSheet:
         sheet = CharacterSheet()
-        sheet.name = NPC._counter("Skeleton Warrior")
+        if extra_name is None:
+            sheet.name = NPC._counter("Skeleton Warrior")
+        else:
+            sheet.name = NPC._counter(f"Skeleton Warrior {extra_name}")
         sheet.description = "Rusted armor. Broken shield. Short sword."
         sheet.warrior_base = 3
         sheet.rogue_base = 3
@@ -79,9 +82,12 @@ class NPC:
         return sheet
 
     @classmethod
-    def zombie(cls) -> CharacterSheet:
+    def zombie(cls, extra_name: str | None = None) -> CharacterSheet:
         sheet = CharacterSheet()
-        sheet.name = NPC._counter("Zombie")
+        if extra_name is None:
+            sheet.name = NPC._counter("Zombie")
+        else:
+            sheet.name = NPC._counter(f"Zombie {extra_name}")
         sheet.description = "Those bitten and killed by a zombie arise as zombies in 1d6 minutes each."
         sheet.warrior_base = 6
         sheet.rogue_base = 0
@@ -319,9 +325,12 @@ class NPC:
         return sheet
 
     @classmethod
-    def goblin_warrior(cls) -> CharacterSheet:
+    def goblin_warrior(cls, alt_name: str | None = None) -> CharacterSheet:
         dnd = CharacterSheet5()
-        dnd.name = NPC._counter("Goblin Warrior")
+        if alt_name is None:
+            dnd.name = NPC._counter("Goblin Warrior")
+        else:
+            dnd.name = NPC._counter(alt_name)
         dnd.armor_class = 15
         dnd.str = 8
         dnd.dex = 14

@@ -42,9 +42,9 @@ class CharacterSheet:
     rogue_base: int = 0
     mage_base: int = 0
 
-    warrior_mod: int = 0
-    rogue_mod: int = 0
-    mage_mod: int = 0
+    _warrior_mod: int = 0
+    _rogue_mod: int = 0
+    _mage_mod: int = 0
 
     adv_taken: int = 0
     fate: int = 0
@@ -57,6 +57,7 @@ class CharacterSheet:
     _hit_points: int = 0
     mana: int = 0
     base_defense: int = 0
+    _defense_mod: int = 0
     armor: int = 0
     armor_mod: int = 0
     hit_points_armor: int = 0
@@ -64,6 +65,37 @@ class CharacterSheet:
     attack_attribute: SkillAttribute = SkillAttribute.Warrior
 
     _massive_attack: bool = False
+
+    @property
+    def warrior_mod(self) -> int:
+        return self._warrior_mod
+
+    @warrior_mod.setter
+    def warrior_mod(self, mod: int) -> None:
+        self._warrior_mod = mod
+        self.reset_defense()
+
+    @property
+    def rogue_mod(self) -> int:
+        return self._rogue_mod
+
+    @rogue_mod.setter
+    def rogue_mod(self, mod: int) -> None:
+        self._rogue_mod = mod
+        self.reset_defense()
+
+    @property
+    def mage_mod(self) -> int:
+        return self._mage_mod
+
+    @mage_mod.setter
+    def mage_mod(self, mod: int) -> None:
+        self._mage_mod = mod
+        self.reset_mana_max()
+
+    @property
+    def inv(self) -> str:
+        return self.equipment_list
 
     @property
     def is_full_health(self) -> str:
@@ -92,7 +124,10 @@ class CharacterSheet:
 
     @name.setter
     def name(self, name: str) -> None:
-        self._name = name
+        if " (#" in self._name and not " (#" in name:
+            self._name = name + self._name[self._name.index(" (#"):]
+        else:
+            self._name = name
 
     @property
     def warrior(self) -> int:
@@ -195,6 +230,61 @@ class CharacterSheet:
     def hps(self, hit_points: tuple[int, int]) -> None:
         self.hit_points, self.hit_points_armor = hit_points
 
+    def drop(self, name: str) -> Weapon | Armor | Shield | Item | None:
+        name = name.lower()
+        for wpn in self.weapons:
+            if name in wpn.name.lower():
+                self.weapons.remove(wpn)
+                return wpn
+            pass
+        for arm in self.armor_worn:
+            if name in arm.name.lower():
+                self.armor_worn.remove(arm)
+                return arm
+        for item in self.equipment:
+            if name in item.name.lower():
+                self.equipment.remove(item)
+                return item
+        return Item("NOT FOUND")
+
+    def item(self, name: str) -> Weapon | Armor | Shield | Item | None:
+        name = name.lower()
+        for wpn in self.weapons:
+            if name in wpn.name.lower():
+                return wpn
+            pass
+        for arm in self.armor_worn:
+            if name in arm.name.lower():
+                return arm
+        for item in self.equipment:
+            if name in item.name.lower():
+                return item
+        return Item("NOT FOUND")
+
+    def has_item(self, name: str) -> bool:
+        name = name.lower()
+        for wpn in self.weapons:
+            if name in wpn.name.lower():
+                return True
+            pass
+        for arm in self.armor_worn:
+            if name in arm.name.lower():
+                return True
+        for item in self.equipment:
+            if name in item.name.lower():
+                return True
+        return False
+
+    def reset_hp_max(self) -> int:
+        self.hit_points_max = 6 + self.warrior
+        self.hit_points = min(self.hit_points, self.hit_points_max)
+        return self.hit_points_max
+
+    def reset_mana_max(self) -> int:
+        self.mana_max = self.mage * 2
+        self.mana = min(self.mana_max - self.armor_penalty, self.mana)
+        return self.mana_max
+
     def reset_pools(self) -> None:
         self.hit_points_max = 6 + self.warrior
         self.fate_starting = max(self.rogue, 1)
@@ -217,19 +307,19 @@ class CharacterSheet:
         self.armor_penalty = 0
         return f"Mana: {self.mana}/{self.mana_max}"
 
-    def equip_weapon(self, new_weapon: Weapon) -> tuple[str, int, int]:
+    def equip_weapon(self, new_weapon: Weapon) -> str:
         for weapon in self.weapons.copy():
             if weapon.name.lower() == new_weapon.name.lower():
                 self.weapons.remove(weapon)
         self.weapons.insert(0, new_weapon)
-        return new_weapon.name, new_weapon.attack_bonus, new_weapon.damage_bonus
+        return new_weapon.name
 
     def set_armor(self, defense: int, penalty: int) -> str:
         self.armor = defense
         self.armor_penalty = penalty
         self.mana = min(self.mana_max - self.armor_penalty, self.mana)
         self.hit_points_armor = 0  # 5 * self.armor
-        return f"Total defense: {self.armor}, Mana Penalty: {self.armor_penalty}, Mana: {self.mana}"
+        return f"Total defense: {self.defense}, Mana Penalty: {self.armor_penalty}, Mana: {self.mana}"
 
     def equip_armor(self, armor: Armor) -> str:
         self.armor_worn.insert(0, armor)
@@ -363,6 +453,8 @@ class CharacterSheet:
     def run_combat4(self, side_b: list["CharacterSheet"],  #
                     max_opponents: int = 3  #
                     ) -> list[str]:
+        if not isinstance(side_b, list):
+            side_b = [side_b]
         logs: list[list[str]] = list()
         for _ in range(4):
             copy_self = copy_of(self)
@@ -375,8 +467,19 @@ class CharacterSheet:
                    side_b: list["CharacterSheet"],  #
                    max_opponents: int = 1) -> list[str]:
 
+        if isinstance(side_b, list):
+            pass
+        else:
+            side_b = [side_b]
+
         combat_log: list[str] = list()
         side_a = [self]
+
+        for c in side_a:
+            combat_log.append(f"; {c.name} {c.weapon}")
+        for c in side_b:
+            combat_log.append(f"; {c.name} {c.weapon}")
+        combat_log.append("")
 
         npc_1: CharacterSheet = side_b[0]
         have_initiative: bool = initiative_check(self.rogue, npc_1.rogue)
@@ -408,7 +511,7 @@ class CharacterSheet:
                     if not npc or not npc.is_alive:
                         continue
                     if pc.attack_opponent(npc):
-                        var: str ="_"
+                        var: str = "_"
                         if "Player" in pc._name:
                             var = "player"
                         else:
@@ -419,9 +522,11 @@ class CharacterSheet:
                         hp: int = npc.hit_points
                         npc.hit_points = pc.damage_opponent(npc)
                         if npc.hit_points < 1:
-                            combat_log.append(f"; {pc._name} hits for {hp - npc.hit_points} points and {npc._name} dies")
+                            combat_log.append(
+                                f"; {pc._name} hits for {hp - npc.hit_points} points and {npc._name} dies")
                         else:
-                            combat_log.append(f"; {pc._name} hits {npc.name} for {hp - npc.hit_points} points of damage")
+                            combat_log.append(
+                                f"; {pc._name} hits {npc.name} for {hp - npc.hit_points} points of damage")
                         if "Player" in npc._name:
                             var = "player"
                         else:
@@ -454,9 +559,11 @@ class CharacterSheet:
                         hp: int = pc.hit_points
                         pc.hit_points = npc.damage_opponent(pc)
                         if pc.hit_points < 1:
-                            combat_log.append(f"; {npc._name} hits for {hp - pc.hit_points} points and kills {pc._name}")
+                            combat_log.append(
+                                f"; {npc._name} hits for {hp - pc.hit_points} points and kills {pc._name}")
                         else:
-                            combat_log.append(f"; {npc._name} hits {pc._name} for {hp - pc.hit_points} points of damage")
+                            combat_log.append(
+                                f"; {npc._name} hits {pc._name} for {hp - pc.hit_points} points of damage")
                         var: str = "_"
                         if "Player" in pc._name:
                             var = "player"
@@ -517,7 +624,13 @@ class CharacterSheet:
         side_a = [self]
         hp_to_report: dict[str, int] = dict()
 
-        npc_1: CharacterSheet = side_b[0]
+        npc_1: CharacterSheet
+        if isinstance(side_b, list):
+            pass
+        else:
+            side_b = [side_b]
+
+        npc_1 = side_b[0]
 
         have_initiative: bool
         if opponents_have_initiative is not None:
@@ -544,17 +657,25 @@ class CharacterSheet:
                     break
                 if not npc or not npc.is_alive:
                     continue
-                if pc.attack_opponent(npc):
-                    if pc.massive_attack:
-                        combat_log.append(f"; {pc.name} uses talent massive attack")
-                        pc.massive_attack = False
-                    hp: int = npc.hit_points
-                    npc.hit_points = pc.damage_opponent(npc)
-                    hp_to_report[npc.name] = npc.hp
-                    if npc.hit_points < 1:
-                        combat_log.append(f"; {pc.name} hits for {hp - npc.hit_points} points and {npc.name} dies")
-                    else:
-                        combat_log.append(f"; {pc.name} hits {npc.name} for {hp - npc.hit_points} points of damage")
+                var: str = "_"
+                if "Player" in pc._name:
+                    var = "player"
+                else:
+                    var = f"room.npc(\"{pc._name}\")"
+                if pc.massive_attack:
+                    combat_log.append(f"; {pc._name} uses talent massive attack")
+                    combat_log[-1] = f"!{var}.massive_attack=False # " + combat_log[-1]
+                hp: int = npc.hit_points
+                npc.hit_points = pc.damage_opponent(npc)
+                if npc.hit_points < 1:
+                    combat_log.append(f"; {pc._name} hits for {hp - npc.hit_points} points and {npc._name} dies")
+                else:
+                    combat_log.append(f"; {pc._name} hits {npc.name} for {hp - npc.hit_points} points of damage")
+                if "Player" in npc._name:
+                    var = "player"
+                else:
+                    var = f"room.npc(\"{npc._name}\")"
+                combat_log[-1] = f"!{var}.hp={npc.hit_points} # " + combat_log[-1]
         else:
             counter: int = 0
             random.shuffle(side_b)
@@ -572,24 +693,23 @@ class CharacterSheet:
                 if not pc or not pc.is_alive:
                     continue
                 if npc.attack_opponent(pc):
+                    var: str = "_"
+                    if "Player" in npc._name:
+                        var = "player"
+                    else:
+                        var = f"room.npc(\"{npc._name}\")"
                     hp: int = pc.hit_points
                     pc.hit_points = npc.damage_opponent(pc)
-                    hp_to_report[npc.name] = npc.hp
                     if pc.hit_points < 1:
-                        combat_log.append(f"; {npc.name} hits for {hp - pc.hit_points} points and kills {pc.name}")
+                        combat_log.append(f"; {npc._name} hits for {hp - pc.hit_points} points and kills {pc._name}")
                     else:
-                        combat_log.append(f"; {npc.name} hits {pc.name} for {hp - pc.hit_points} points of damage")
-
-            new_pc_hp: int = 0
-            for pc in side_a:
-                new_pc_hp += pc.hit_points
-
-            new_npc_hp: int = 0
-            for npc in side_b:
-                new_npc_hp += npc.hit_points
-        if hp_to_report:
-            for _ in hp_to_report:
-                combat_log.append(f"; {_} hit points = {hp_to_report[_]}")
+                        combat_log.append(f"; {npc._name} hits {pc._name} for {hp - pc.hit_points} points of damage")
+                    var: str = "_"
+                    if "Player" in pc._name:
+                        var = "player"
+                    else:
+                        var = f"room.npc(\"{pc._name}\")"
+                    combat_log[-1] = f"!{var}.hp = {pc.hit_points} # " + combat_log[-1]
         return combat_log
 
     @property

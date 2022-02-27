@@ -21,20 +21,39 @@ class RoomDescription:
     items: list[Item | Armor | Weapon | CharacterSheet] = field(default_factory=list)
     new_visit: bool = True
     views: int = 0
+    _complete: bool = False
 
-    def add_item(self, item: Item | Armor | Weapon | CharacterSheet) -> str:
+    @property
+    def complete(self) -> bool:
+        return not self.new_visit and self._complete
+
+    @complete.setter
+    def complete(self, complete:bool) -> None:
+        self._complete = complete
+
+    def npc_group(self, substring: str) -> list[CharacterSheet]:
+        result: list [CharacterSheet] = list()
+        for x in self.items:
+            if isinstance(x, CharacterSheet):
+                if substring.lower() in x.name.lower():
+                    result.append(x)
+        return result
+
+    def add_item(self, item: Item | Armor | Weapon | CharacterSheet | str, quiet: bool = True) -> str:
+        if isinstance(item, str):
+            item = Item(item)
         self.items.append(item)
+        if quiet:
+            return ""
         idx: int = self.items.index(item) + 1
         _: str = f"\n;## [{idx}] {item.name}"
+        if isinstance(item, Armor):
+            return f"\n;## [{idx}] Armor: {item.name.strip()}"
+        if isinstance(item, Weapon):
+            return f"\n;## [{idx}] Weapon: {item.name.strip()}"
         if isinstance(item, CharacterSheet):
-            if item.weapon:
-                _ += "\n" + f";## Weapon: {item.weapon}".replace("\n", "\n;## ")
-            if item.armor_worn_list:
-                _ += "\n" + f";## Armor: {item.armor_worn_list.strip()}"
-        if item.description:
-            desc: str = textwrap.fill(item.description, 80).strip()
-            _ += "\n" + f";## {desc}".replace("\n", "\n;## ")
-        return _
+            return f"\n;## [{idx}] {item.name.strip()}"
+        return  f"\n;## [{idx}] {item.name.strip()}"
 
     def pop_item(self, name: str) -> Item | Armor | Weapon | CharacterSheet | None:
         for _, x in enumerate([x.name for x in self.items]):
@@ -104,7 +123,7 @@ class RoomDescription:
         return result
 
     @property
-    def item_list(self) -> str:
+    def inv(self) -> str:
         result = ""
         if self.items:
             for item in self.items:
@@ -115,6 +134,10 @@ class RoomDescription:
                         result += "DEAD "
                 result += f"{item.name}"
         return result
+
+    @property
+    def item_list(self) -> str:
+        return self.inv
 
     @property
     def npcs(self) -> list[CharacterSheet]:
@@ -186,6 +209,35 @@ class Rooms:
         self.rooms = jsonpickle.decode(pickled)
         return self
 
+    @classmethod
+    def move_all_items(cls, from_room: RoomDescription | str, dest_room: RoomDescription | str) -> str:
+        global _rooms
+        _: str = ""
+        if isinstance(from_room, str):
+            from_room=_rooms.room(from_room)
+        if isinstance(dest_room, str):
+            dest_room=_rooms.room(dest_room)
+        for item in from_room.items:
+            _ = f"{_}\n;## {item.name} moved from {from_room.name} to {dest_room.name}"
+            dest_room.add_item(item)
+        from_room.items.clear()
+        return _
+
+    @classmethod
+    def move_items(cls, substring: str, from_room: RoomDescription | str, dest_room: RoomDescription | str) -> str:
+        global _rooms
+        _: str = ""
+        if isinstance(from_room, str):
+            from_room = _rooms.room(from_room)
+        if isinstance(dest_room, str):
+            dest_room = _rooms.room(dest_room)
+        for item in from_room.items.copy():
+            if substring.lower() in item.name.lower():
+                _ = f"{_}\n;## {item.name} moved from {from_room.name} to {dest_room.name}"
+                dest_room.add_item(item)
+                from_room.items.remove(item)
+        return _
+
 
 _rooms: Rooms = Rooms()
 
@@ -195,6 +247,7 @@ def rooms_status() -> str:
     lines: list[str] = list()
     for room in _rooms.rooms.values():
         v: str = "" if room.new_visit else " (visited)"
+        v: str = " *** COMPLETED" if room.complete else v
         lines.append(f"{room.name}{v}: {room.notes}")
     lines.sort()
     _ = ""
@@ -241,6 +294,7 @@ def rooms_reset() -> None:
     for room in _rooms.rooms.values():
         room.views = 0
         room.new_visit = True
+        room.complete = False
         room.items.clear()
 
 
@@ -312,8 +366,8 @@ _.desc1 = "You come to a portcullis. Beyond you see a 90ft x 40ft room with" \
           " alcoves in the walls. You can't see into the alcoves from here." \
           " You push the portcullis open with the sound of rusted screeching metal" \
           " and step into the room. You can now see into the alcoves " \
-          "and notice they are filled with the skeletons and corpses of monks, except one." \
-          " Which is in the right wall in the near corner."
+          "and notice they are filled with the skeletons and corpses of monks, except one" \
+          " in the right wall in the near corner."
 _.desc2 = "Crypt of dead monks"
 _.notes = "1d3 Skeletons, 1d4 Zombies"
 

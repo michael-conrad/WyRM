@@ -9,6 +9,7 @@ exit $?
 ''"""
 import argparse
 import datetime
+import inspect
 import os.path
 import random
 import re
@@ -275,7 +276,6 @@ def main() -> None:
             prev_line = line
             # Parse Section Tag
             if re.match(section_tag_match, line.strip()):
-                print(line)
                 section = Section()
                 data: str = line[line.find("[") + 1:line.rfind("]")]
                 if "|" in data:
@@ -353,7 +353,7 @@ def main() -> None:
             if re.match("^!\\d+ ", line):
                 new_text.append(f";;; {line}")
                 repeat: int = int(line[1:line.index(" ")])
-                line = line[line.index(" ")+1:]
+                line = line[line.index(" ") + 1:]
                 for _ in range(repeat):
                     new_text.append(f"!{line}")
                 continue
@@ -395,10 +395,10 @@ def main() -> None:
                     new_section.text.append(f"@turn: turn + 1")
                     new_section.text.append(f"@'' if turn % 20 != 0 else 'Torch starts guttering'")
                     new_section.text.append(f"")
-                    new_section.text.append(f"@wander(6, 2) if turn < 10 else ''")
-                    new_section.text.append(f"@wander(6, 3) if turn >= 10 and turn < 15 else ''")
-                    new_section.text.append(f"@wander(6, 4) if turn >= 15 and turn < 20 else ''")
-                    new_section.text.append(f"@wander(6, 5) if turn >= 20 else ''")
+                    new_section.text.append(f"@wander(6, 1) if turn < 10 else ''")
+                    new_section.text.append(f"@wander(6, 2) if turn >= 10 and turn < 20 else ''")
+                    new_section.text.append(f"@wander(6, 3) if turn >= 20 and turn < 30 else ''")
+                    new_section.text.append(f"@wander(6, 4) if turn >= 30 else ''")
                     new_section.text.append(f"")
                     new_section.text.append(f"!str([location, facing])")
                     new_section.text.append(f"; @facing: \"\"")
@@ -484,6 +484,10 @@ def main() -> None:
 
     # Handle processing instructions such as roll dice
     for section in sections:
+        # start processing
+        print()
+        print(f"{section.name}|{section.label}")
+
         state = section.state
         if state is None:
             print(f"NO PARENT FOR SECTION: [{section.name}|{section.label}]")
@@ -501,10 +505,11 @@ def main() -> None:
         exec("room=rooms(location)", state)
         exec("notes=list() if 'notes' not in locals() else notes", state)
         exec("note=list() if 'note' not in locals() else note", state)
+        exec(f"section=\"{section.label}\"", state)
+        exec(f"if 'player' in locals(): player.massive_attack=True", state) # always reset at start of each turn
+        exec("if 'vitality' not in locals(): vitality = 0", state)
+        exec(f"if vitality > 0 and 'player' in locals(): player.hp += 1; vitality-=1", state) # special for vitality potion drinking or other vitality item usage
 
-        # start processing
-        print()
-        print(f"{section.name}|{section.label}")
         text_list = section.text.copy()
         section.text.clear()
         if section.path:
@@ -531,7 +536,6 @@ def main() -> None:
                 continue
             print(f"{len(section.text) + 1:06} {line}")
             if line.startswith("!"):
-                repeat: int = 1
                 cmd: str = line[line.find("!") + 1:].strip()
                 result: any = None
                 try:
@@ -549,9 +553,14 @@ def main() -> None:
                     for new_line in result:
                         section.text.append(str(new_line))
                 elif result is not None:
-                    if "#" in line:
-                        line = line[:line.rfind('#')].strip()
-                    line = f"{line} # {result}"
+                    line = line.strip()
+                    if "#" in line and "\"" not in line and "'" not in line:
+                        line = line[:line.index("#")].strip()
+                        line = f"{line} # {result}"
+                    elif "#" in line:
+                        line = f"{line}\n;## {result}"
+                    else:
+                        line = f"{line} # {result}"
                 section.text.append(line)
             elif line.startswith("@"):
                 # saved eval
@@ -569,6 +578,7 @@ def main() -> None:
                     elif isinstance(result, int):
                         line = f"!{var}= {result} # {line}"
                     elif isinstance(result, str):
+                        result = result.replace("\"", "\\\"")
                         line = f"!{var}= \"{result}\" # {line}"
                     else:
                         result = jsonpickle.encode(result, keys=True)
@@ -589,11 +599,40 @@ def main() -> None:
                     line = f"; {result} # {line}"
                     section.text.append(line)
             else:
+                if re.match("(?ism).*?{([a-z0-9.]+)(:.*?)?}", line):
+                    for var in re.findall("(?ism).*?({([a-z0-9.]+)(:.*?)?})", line):
+                        lookup: str = var[0][1:-1]
+                        if ":" in lookup:
+                            lookup = lookup[:lookup.index(":")]
+                        result = eval(lookup, state)
+                        if result is None:
+                            result = ""
+                        else:
+                            result = f":{result}"
+                        line = line.replace(var[0], "{" + f"{lookup}{result}" + "}")
                 section.text.append(line)
         if 'player' in state:
-            needs_healing = eval("player.hp <= player.hit_points_max // 2", state)
-            if needs_healing:
-                section.text.append(f";## ---> PLAYER NEEDS HEALING <---")
+            is_dead = eval("player.hp == 0", state)
+            if is_dead:
+                section.text.append(f";## ---> PLAYER IS DEAD <---")
+                section.text.append(f"")
+            else:
+                has_mana: bool = eval("player.mana > 0", state)
+                moderately_injured: bool = eval("player.hp <= player.hit_points_max // 2", state)
+                severely_injured: bool = eval("player.hp <= player.hit_points_max // 3", state)
+                injured: bool = eval("player.hp <= (player.hit_points_max * 2) // 3", state)
+                lightly_injured: bool = eval("player.hp <= (player.hit_points_max * 4) // 5", state)
+                has_ointment: bool = eval("player.has_item('ointment')", state)
+                has_potion: bool = eval("player.has_item('potion')", state)
+                needs_healing: str = " AND NEEDS HEALING" if has_mana or has_ointment or has_potion else ""
+                if severely_injured:
+                    section.text.append(f";## ---> PLAYER IS GRAVELY WOUNDED{needs_healing} <---")
+                elif moderately_injured:
+                    section.text.append(f";## ---> PLAYER IS BADLY INJURED{needs_healing} <---")
+                elif injured:
+                    section.text.append(f";## ---> PLAYER IS INJURED{needs_healing} <---")
+                elif lightly_injured:
+                    section.text.append(f";## ---> PLAYER IS LIGHTLY INJURED{needs_healing} <---")
                 section.text.append(f"")
 
         # determine child sections and clone environment into children

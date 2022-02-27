@@ -52,8 +52,8 @@ take it to a place of my choosing for a reward beyond just your life."
 """
 
 
-def intervention() -> str:
-    check: int = roll("1d6+1d6+1d6")
+def intervention(check: int | None = None) -> str:
+    check = roll("1d6+1d6+1d6") if check is None else check
     "3,4, 5,6, 7,8, 9,10, 11,12, 13,14, 15,16, 17,18"
     if check <= 4:
         return f"""
@@ -61,7 +61,8 @@ def intervention() -> str:
 {dark_power_intervention_text()}
 """
     if check <= 6:
-        effect: str = random.choice(["Roof collapse.", "Hidden floor pit full of spikes triggers. (3d6 dmg).",
+        effect: str = random.choice(["Roof collapse (3d8 dmg).",  #
+                                     "Hidden floor pit full of spikes triggers. (3d6 dmg).",
                                      "Spontaneous Combustion. (2d8 dmg).",
                                      "Hidden darts trap from wall triggers. (3d4 dmg).",
                                      "Hidden spikes trap from ceiling triggers. (3d8 dmg)"])
@@ -91,7 +92,10 @@ def intervention() -> str:
                f" Player gets an automatic flee success check. " \
                f" Opponents will attack player next round.  ({check})."
     if check <= 16:
-        return f" ({check})"
+        trap: str = random.choice(["Magical Scythe Blades appear then vanish. 4d10 dmg.",
+                                   "Thunderstone Mine. A mine under the floor is triggered. 4d10 dmg.",
+                                   "Huge falling block. 10 ft area. 4d10 dmg."])
+        return f"{trap} ({check})"
     return f"Divine Intervention ({check})."
 
 
@@ -179,19 +183,19 @@ def stat_check(stat: int, bonus: int) -> bool:
     return check >= stat
 
 
-def wander(die: int = 6, yes_if_under: int = 2) -> str:
-    yes: bool = roll(f"1d{die}") < yes_if_under
-    return random_encounter(yes_if_under - 1) if yes else ""
+def wander(die: int = 6, die_count: int = 1) -> str:
+    yes: bool = roll(f"1d{die}") == 1
+    return random_encounter(die_count) if yes else ""
 
 
-def random_encounter(c: int) -> str:
+def random_encounter(die_count: int) -> str:
     choices: list[str] = list()
-    d2: int = roll(f"{c}d2")
-    d3: int = roll(f"{c}d3")
-    d4: int = roll(f"{c}d4")
-    d6: int = roll(f"{c}d6")
-    d8: int = roll(f"{c}d8")
-    d10: int = roll(f"{c}d10")
+    d2: int = roll(f"{die_count}d2-{die_count-1}")
+    d3: int = roll(f"{die_count}d3-{die_count-1}")
+    d4: int = roll(f"{die_count}d4-{die_count-1}")
+    d6: int = roll(f"{die_count}d6-{die_count-1}")
+    d8: int = roll(f"{die_count}d8-{die_count-1}")
+    d10: int = roll(f"{die_count}d10-{die_count-1}")
 
     choices.append(f"{d4} giant beetles")
     choices.append(f"{d3} skeleton warriors")
@@ -209,33 +213,52 @@ def random_encounter(c: int) -> str:
     return random.choice(choices)
 
 
-def initiative(player_bonus = None,  #
-               npc_bonus = None) -> str:
-    player_bonus: int | character_sheet.CharacterSheet | None
-    npc_bonus: int | character_sheet.CharacterSheet | None
+def initiative(player_bonus=None,  #
+               npc_bonus=None) -> str:
+    player_bonus: int | character_sheet.CharacterSheet | list[character_sheet.CharacterSheet] | None
+    npc_bonus: int | character_sheet.CharacterSheet | list[character_sheet.CharacterSheet] | None
     name1: str = "Player"
     name2: str = "NPC"
     if player_bonus is None:
         player_bonus = 0
     if npc_bonus is None:
         npc_bonus = 0
+    if isinstance(player_bonus, list):
+        player_bonus = player_bonus[0]
+    if isinstance(npc_bonus, list):
+        npc_bonus = npc_bonus[0]
     if isinstance(player_bonus, character_sheet.CharacterSheet):
         name1 = player_bonus.name
         player_bonus = player_bonus.rogue
     if isinstance(npc_bonus, character_sheet.CharacterSheet):
         name2 = npc_bonus.name
         npc_bonus = npc_bonus.rogue
-    if roll(f"1d6+{player_bonus}") > roll(f"1d6+{npc_bonus}"):
+    roll1: int = roll(f"1d6+{player_bonus}")
+    roll2: int = roll(f"1d6+{npc_bonus}")
+    if roll1 > roll2:
         return f"First Character ({name1})"
-    if roll(f"1d6+{player_bonus}") < roll(f"1d6+{npc_bonus}"):
+    if roll1 < roll2:
         return f"Second Character ({name2})"
     return initiative(player_bonus, npc_bonus)
 
 
 def initiative_check(player_bonus: int = 0, npc_bonus: int = 0) -> bool:
-    if roll(f"1d6+{player_bonus}") > roll(f"1d6+{npc_bonus}"):
+    player_bonus: int | character_sheet.CharacterSheet | None
+    npc_bonus: int | character_sheet.CharacterSheet | None
+    if player_bonus is None:
+        player_bonus = 0
+    if npc_bonus is None:
+        npc_bonus = 0
+    if isinstance(player_bonus, character_sheet.CharacterSheet):
+        player_bonus = player_bonus.rogue
+    if isinstance(npc_bonus, character_sheet.CharacterSheet):
+        npc_bonus = npc_bonus.rogue
+
+    roll1: int = roll(f"1d6+{player_bonus}")
+    roll2: int = roll(f"1d6+{npc_bonus}")
+    if roll1 > roll2:
         return True
-    if roll(f"1d6+{player_bonus}") < roll(f"1d6+{npc_bonus}"):
+    if roll1 < roll2:
         return False
     return initiative_check(player_bonus, npc_bonus)
 
@@ -261,10 +284,35 @@ def loot(r: random.Random | None = None) -> str:
     items: list[str] = list()
     if r.randint(1, 100) < 75:
         bns = r.randint(1, 3)
-        items.append(f"Amulet of Health, MAX HP: {bns:+}")
+        items.append(f"Amulet of Health, Max HP: {bns:+}")
+        bns = r.randint(1, 3)
+        items.append(f"Belt of Might, Warrior: {bns:+}")
         d100 = r.randint(1, 100)
         bns = 1 if d100 < 75 else 2 if d100 < 96 else 3
-        items.append(f"Armor {bns:+}")
+        d6 = r.randint(1, 6)
+        if d6 < 5:
+            _ = r.randint(1, 6)
+            if _ <= 2:
+                items.append(f"Small Shield {bns:+}")
+            elif _ <= 5:
+                items.append(f"Large Shield {bns:+}")
+            else:
+                items.append(f"Tower Shield {bns:+}")
+        else:
+            _ = r.randint(1, 6)
+            if _ == 1:
+                items.append(f"Leather armor {bns:+}")
+            elif _ == 2:
+                items.append(f"Scale mail armor {bns:+}")
+            elif _ == 3:
+                items.append(f"Lamellar mail armor {bns:+}")
+            elif _ == 4:
+                items.append(f"Chain mail armor {bns:+}")
+            elif _ == 5:
+                items.append(f"Light plate mail armor {bns:+}")
+            else:
+                items.append(f"Heavy plate mail armor {bns:+}")
+
         items.append("Bag of Holding")
         bns = r.randint(1, 3)
         items.append(f"Boots of Striding and Springing, Rogue: {bns:+}")
@@ -292,13 +340,70 @@ def loot(r: random.Random | None = None) -> str:
         items.append("Wand of Magic Missiles, 1d3 uses/day")
         d100 = r.randint(1, 100)
         bns = 1 if d100 < 75 else 2 if d100 < 96 else 3
-        items.append(f"Weapon {bns:+}")
+        d6 = r.randint(1, 6)
+        if d6 <= 3:
+            # Bladed
+            _ = r.randint(1, 6)
+            if _ <= 4:
+                items.append(f"Sword {bns:+}")
+            elif _ == 5:
+                items.append(f"Dagger {bns:+}")
+            else:
+                items.append(f"Two-Handed Sword {bns:+}")
+        elif d6 == 4:
+            # Bludgeon
+            _ = r.randint(1, 6)
+            if _ <= 3:
+                items.append(f"Warhammer {bns:+}")
+            elif _ <= 5:
+                items.append(f"Mace {bns:+}")
+            else:
+                items.append(f"Two-handed Warhammer {bns:+}")
+                items.append(f"Two-handed Mace {bns:+}")
+        elif d6 == 5:
+            # Bow
+            _ = r.randint(1, 6)
+            if _ <= 4:
+                items.append(f"Short bow {bns:+}")
+            else:
+                items.append(f"Long bow {bns:+}")
+        else:
+            # Other
+            _ = r.randint(1, 6)
+            if _ <= 2:
+                items.append(f"Axe {bns:+}")
+            elif _ <= 5:
+                items.append(f"Spear {bns:+}")
+            else:
+                items.append(f"Two-handed axe {bns:+}")
     else:
         bns = - r.randint(1, 3)
         items.append(f"Amulet of Weakness, Max HP: {bns:+}")
         d100 = r.randint(1, 100)
         bns = -1 if d100 < 75 else -2 if d100 < 96 else -3
-        items.append(f"Armor of Slowness, Rogue: {bns:+}")
+        d6 = r.randint(1, 6)
+        if d6 < 5:
+            _ = r.randint(1, 6)
+            if _ <= 2:
+                items.append(f"Small Shield {bns:+}")
+            elif _ <= 5:
+                items.append(f"Large Shield {bns:+}")
+            else:
+                items.append(f"Tower Shield {bns:+}")
+        else:
+            _ = r.randint(1, 6)
+            if _ == 1:
+                items.append(f"Leather armor {bns:+}")
+            elif _ == 2:
+                items.append(f"Scale mail armor {bns:+}")
+            elif _ == 3:
+                items.append(f"Lamellar mail armor {bns:+}")
+            elif _ == 4:
+                items.append(f"Chain mail armor {bns:+}")
+            elif _ == 5:
+                items.append(f"Light plate mail armor {bns:+}")
+            else:
+                items.append(f"Heavy plate mail armor {bns:+}")
         items.append("Bag of Devouring")
         bns = - r.randint(1, 3)
         items.append(f"Boots of Clumsiness, Rogue: {bns:+}")
@@ -312,10 +417,206 @@ def loot(r: random.Random | None = None) -> str:
         items.append(f"Potion of Health Drain. HP: {bns:+}")
         bns = - r.randint(1, 3)
         items.append(f"Ring of Clumsiness, Rogue: {bns:+}")
-        items.append("Ring of Slowness, Defense: -1")
+        items.append("Ring of Slowness, Rogue: -1")
         d100 = r.randint(1, 100)
         bns = -1 if d100 < 75 else -2 if d100 < 96 else -3
-        items.append(f"Cursed Weapon {bns:+}")
+        if d6 <= 3:
+            # Bladed
+            _ = r.randint(1, 6)
+            if _ <= 4:
+                items.append(f"Sword {bns:+}")
+            elif _ == 5:
+                items.append(f"Dagger {bns:+}")
+            else:
+                items.append(f"Two-Handed Sword {bns:+}")
+        elif d6 == 4:
+            # Bludgeon
+            _ = r.randint(1, 6)
+            if _ <= 3:
+                items.append(f"Warhammer {bns:+}")
+            elif _ <= 5:
+                items.append(f"Mace {bns:+}")
+            else:
+                items.append(f"Two-handed Warhammer {bns:+}")
+                items.append(f"Two-handed Mace {bns:+}")
+        elif d6 == 5:
+            # Bow
+            _ = r.randint(1, 6)
+            if _ <= 4:
+                items.append(f"Short bow {bns:+}")
+            else:
+                items.append(f"Long bow {bns:+}")
+        else:
+            # Other
+            _ = r.randint(1, 6)
+            if _ <= 2:
+                items.append(f"Axe {bns:+}")
+            elif _ <= 5:
+                items.append(f"Spear {bns:+}")
+            else:
+                items.append(f"Two-handed axe {bns:+}")
     return r.choice(items)
 
 
+def loot_armor_weapon(r: random.Random | None = None) -> str:
+    if r is None:
+        r = random.Random()
+    items: list[str] = list()
+    if r.randint(1, 100) < 75:
+        bns = r.randint(1, 3)
+        items.append(f"Belt of Might, Warrior: {bns:+}")
+        d100 = r.randint(1, 100)
+        bns = 1 if d100 < 75 else 2 if d100 < 96 else 3
+        d6 = r.randint(1, 6)
+        if d6 < 5:
+            _ = r.randint(1, 6)
+            if _ <= 2:
+                items.append(f"Small Shield {bns:+}")
+            elif _ <= 5:
+                items.append(f"Large Shield {bns:+}")
+            else:
+                items.append(f"Tower Shield {bns:+}")
+        else:
+            _ = r.randint(1, 6)
+            if _ == 1:
+                items.append(f"Leather armor {bns:+}")
+            elif _ == 2:
+                items.append(f"Scale mail armor {bns:+}")
+            elif _ == 3:
+                items.append(f"Lamellar mail armor {bns:+}")
+            elif _ == 4:
+                items.append(f"Chain mail armor {bns:+}")
+            elif _ == 5:
+                items.append(f"Light plate mail armor {bns:+}")
+            else:
+                items.append(f"Heavy plate mail armor {bns:+}")
+
+        items.append(f"Boots of Striding and Springing, Rogue: {bns:+}")
+        bns = r.randint(1, 3)
+        items.append(f"Cloak of Elvenkind, Mage: {bns:+}, Rogue: {bns:+}")
+        bns = r.randint(1, 3)
+        items.append(f"Gauntlets of Ogre Power, Warrior {bns:+}")
+        bns = r.randint(1, 3)
+        items.append(f"Ring of Evasion, Rogue: {bns:+}")
+        bns = r.randint(1, 3)
+        items.append("Ring of Protection, Defense {bns:+}")
+        d100 = r.randint(1, 100)
+        bns = 1 if d100 < 75 else 2 if d100 < 96 else 3
+        d6 = r.randint(1, 6)
+        if d6 <= 3:
+            # Bladed
+            _ = r.randint(1, 6)
+            if _ <= 4:
+                items.append(f"Sword {bns:+}")
+            elif _ == 5:
+                items.append(f"Dagger {bns:+}")
+            else:
+                items.append(f"Two-Handed Sword {bns:+}")
+        elif d6 == 4:
+            # Bludgeon
+            _ = r.randint(1, 6)
+            if _ <= 3:
+                items.append(f"Warhammer {bns:+}")
+            elif _ <= 5:
+                items.append(f"Mace {bns:+}")
+            else:
+                items.append(f"Two-handed Warhammer {bns:+}")
+                items.append(f"Two-handed Mace {bns:+}")
+        elif d6 == 5:
+            # Bow
+            _ = r.randint(1, 6)
+            if _ <= 4:
+                items.append(f"Short bow {bns:+}")
+            else:
+                items.append(f"Long bow {bns:+}")
+        else:
+            # Other
+            _ = r.randint(1, 6)
+            if _ <= 2:
+                items.append(f"Axe {bns:+}")
+            elif _ <= 5:
+                items.append(f"Spear {bns:+}")
+            else:
+                items.append(f"Two-handed axe {bns:+}")
+    else:
+        d100 = r.randint(1, 100)
+        bns = -1 if d100 < 75 else -2 if d100 < 96 else -3
+        d6 = r.randint(1, 6)
+        if d6 < 5:
+            _ = r.randint(1, 6)
+            if _ <= 2:
+                items.append(f"Small Shield {bns:+}")
+            elif _ <= 5:
+                items.append(f"Large Shield {bns:+}")
+            else:
+                items.append(f"Tower Shield {bns:+}")
+        else:
+            _ = r.randint(1, 6)
+            if _ == 1:
+                items.append(f"Leather armor {bns:+}")
+            elif _ == 2:
+                items.append(f"Scale mail armor {bns:+}")
+            elif _ == 3:
+                items.append(f"Lamellar mail armor {bns:+}")
+            elif _ == 4:
+                items.append(f"Chain mail armor {bns:+}")
+            elif _ == 5:
+                items.append(f"Light plate mail armor {bns:+}")
+            else:
+                items.append(f"Heavy plate mail armor {bns:+}")
+        items.append(f"Boots of Clumsiness, Rogue: {bns:+}")
+        bns = - r.randint(1, 3)
+        items.append(f"Gauntlets of Sapping Strength, Warrior: {bns:+}")
+        bns = - r.randint(1, 3)
+        items.append(f"Ring of Clumsiness, Rogue: {bns:+}")
+        items.append("Ring of Slowness, Rogue: -1")
+        d100 = r.randint(1, 100)
+        bns = -1 if d100 < 75 else -2 if d100 < 96 else -3
+        if d6 <= 3:
+            # Bladed
+            _ = r.randint(1, 6)
+            if _ <= 4:
+                items.append(f"Sword {bns:+}")
+            elif _ == 5:
+                items.append(f"Dagger {bns:+}")
+            else:
+                items.append(f"Two-Handed Sword {bns:+}")
+        elif d6 == 4:
+            # Bludgeon
+            _ = r.randint(1, 6)
+            if _ <= 3:
+                items.append(f"Warhammer {bns:+}")
+            elif _ <= 5:
+                items.append(f"Mace {bns:+}")
+            else:
+                items.append(f"Two-handed Warhammer {bns:+}")
+                items.append(f"Two-handed Mace {bns:+}")
+        elif d6 == 5:
+            # Bow
+            _ = r.randint(1, 6)
+            if _ <= 4:
+                items.append(f"Short bow {bns:+}")
+            else:
+                items.append(f"Long bow {bns:+}")
+        else:
+            # Other
+            _ = r.randint(1, 6)
+            if _ <= 2:
+                items.append(f"Axe {bns:+}")
+            elif _ <= 5:
+                items.append(f"Spear {bns:+}")
+            else:
+                items.append(f"Two-handed axe {bns:+}")
+    return r.choice(items)
+
+
+class Macro:
+    @classmethod
+    def heal(cls) -> list[str]:
+        result = list()
+        result.append("")
+        result.append("@cast: 'succeeded' in str(player.cast('Healing Hand')).lower()")
+        result.append("@player.mana: player.mana")
+        result.append("@hp: roll('1d6') if cast else 0")
+        result.append("@player.hp: player.hp + hp")
+        return result

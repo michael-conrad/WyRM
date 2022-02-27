@@ -1,6 +1,5 @@
 import random
 from dataclasses import dataclass
-
 from skills import CharacterSkill
 from skills import CharacterSkillsList
 
@@ -37,72 +36,120 @@ class Shield:
         shields.append(Shield("Tower Shield", 3, 6, 15))
         return shields
 
+    @classmethod
+    def by_name(cls, name: str) -> "Shield":
+        shields = cls.list()
+        for shield in shields:
+            if name.lower() in shield.name.lower():
+                return shield
+        return shields[0]
+
+
+_item_counter: dict[str, int] = dict()
+
+
+def item_counter() -> dict[str, int]:
+    global _item_counter
+    return _item_counter
+
 
 @dataclass(slots=True)
 class Item:
+    _uses: int | None = None
     _name: str = ""
     _desc: str = ""
     location: str = ""
     cost_sp: int = 0
 
+    @classmethod
+    def _counter(cls, name: str) -> str:
+        global _item_counter
+        if name not in _item_counter:
+            _item_counter[name] = 0
+        _item_counter[name] = _item_counter[name] + 1
+        return f"{name} (#{_item_counter[name]})"
+
     def __init__(self, name: str, location: str = "", cost_sp: int = 0):
-        self._name = name
+        global _item_counter
+        self._name = Item._counter(name)
         self._desc = ""
         self.location = location
         self.cost_sp = cost_sp
+        self._uses = None
 
     def __str__(self) -> str:
         return self.name
 
     def set_location(self, location: str) -> "Item":
+        return self.with_location(location)
+
+    def with_location(self, location: str) -> "Item":
         self.location = location
+        return self
+
+    def with_new_name(self, name: str) -> "Item":
+        self._name = self._counter(name)
         return self
 
     @property
     def description(self) -> str:
         if self._desc:
             return f"\n{self.name}\n{self._desc}".replace("\n", '\n;## ')
-        return self.name
+        return f"\n;## {self.name}"
 
     @description.setter
     def description(self, desc: str) -> None:
         self._desc = desc
 
     @property
+    def uses(self) -> int:
+        if self._uses is None:
+            return 0
+        return self._uses
+
+    @uses.setter
+    def uses(self, uses: int) -> None:
+        self._uses = uses
+
+    @property
     def name(self) -> str:
+        x: str = "" if self._uses is None else f" Uses: {self._uses}"
         if hasattr(self, 'location') and self.location:
-            return f"{self._name} <loc:{self.location}>"
-        return self._name
+            return f"{self._name}{x} <loc:{self.location}>"
+        return f"{self._name}{x}"
 
     @name.setter
     def name(self, name: str) -> None:
-        self._name = name
+        if "#" in name:
+            self._name = name
+        else:
+            self._name = Item._counter(name)
 
     @classmethod
     def list(cls) -> list["Item"]:
         items: list["Item"] = list()
-        items.append(Item("Adventurer's Kit", 5))
-        items.append(Item("Backpack", 4))
-        items.append(Item("Cask of Beer", 6))
-        items.append(Item("Cask of Wine", 9))
-        items.append(Item("Donkey", 25))
-        items.append(Item("Iron Rations (1 week)", 14))
-        items.append(Item("Lantern", 5))
-        items.append(Item("Lock Pick", 2))
-        items.append(Item("Noble's Clothing", 12))
-        items.append(Item("Common Clothing", 3))
-        items.append(Item("Ox Cart", 7))
-        items.append(Item("Packhorse", 30))
-        items.append(Item("Pickaxe", 3))
-        items.append(Item("Pole (3 Yard)", 1))
-        items.append(Item("Rations (1 week)", 7))
-        items.append(Item("Riding Horse", 75))
-        items.append(Item("Rope (10 yards)", 2))
-        items.append(Item("Saddle Bags, Saddle, and Bridle", 8))
-        items.append(Item("Torch", 1))
-        items.append(Item("Travel Clothing", 5))
-        items.append(Item("Warhorse", 150))
-        items.append(Item("Spellbook", 20))
+        items.append(Item("Adventurer's Kit", "", 5))
+        items.append(Item("Backpack", "", 4))
+        items.append(Item("Cask of Beer", "", 6))
+        items.append(Item("Cask of Wine", "", 9))
+        items.append(Item("Donkey", "", 25))
+        items.append(Item("Iron Rations (1 week)", "", 14))
+        items.append(Item("Lantern", "", 5))
+        items.append(Item("Lock Pick", "", 2))
+        items.append(Item("Noble's Clothing", "", 12))
+        items.append(Item("Common Clothing", "", 3))
+        items.append(Item("Ox Cart", "", 7))
+        items.append(Item("Packhorse", "", 30))
+        items.append(Item("Pickaxe", "", 3))
+        items.append(Item("Pole (3 Yard)", "", 1))
+        items.append(Item("Rations (1 week)", "", 7))
+        items.append(Item("Riding Horse", "", 75))
+        items.append(Item("Rope (10 yards)", "", 2))
+        items.append(Item("Saddle Bags, Saddle, and Bridle", "", 8))
+        items.append(Item("Torch", "", 1))
+        items.append(Item("Travel Clothing", "", 5))
+        items.append(Item("Warhorse", "", 150))
+        items.append(Item("Spellbook", "", 20))
         return items
 
 
@@ -123,9 +170,9 @@ class Armor:
         self.armor_penalty = armor_penalty
         self.cost_sp = cost_sp
         self.location = ""
-        self.mana_bonus=0
-        self.defense_bonus=0
-        self._desc=""
+        self.mana_bonus = 0
+        self.defense_bonus = 0
+        self._desc = ""
 
     def __str__(self) -> str:
         return self.name
@@ -188,7 +235,7 @@ class Armor:
     def by_name(cls, name: str) -> "Armor":
         armor: Armor
         for armor in cls.list():
-            if name.lower() == armor._name.lower():
+            if name.lower() in armor._name.lower():
                 return armor
         return cls.list()[0]
 

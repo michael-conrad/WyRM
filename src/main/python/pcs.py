@@ -25,4 +25,5 @@ class PCs:
             armor.location = "equipped"
         for item in player.equipment:
             item.location = "backpack"
+        player.save_inv_list()
         return player

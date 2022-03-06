@@ -12,6 +12,10 @@ class Shield:
     armor_penalty: int = 0
     cost_sp: int = 0
 
+    @property
+    def base_name(self) -> str:
+        return self._name
+
     def __init__(self, name: str, defense_bonus: int, armor_penalty: int, cost_sp: int):
         self.name = name
         self.defense_bonus = defense_bonus
@@ -25,6 +29,10 @@ class Shield:
         return name
 
     def set_location(self, location: str) -> "Shield":
+        self.location = location
+        return self
+
+    def with_location(self, location: str) -> "Item":
         self.location = location
         return self
 
@@ -60,6 +68,10 @@ class Item:
     _desc: str = ""
     location: str = ""
     cost_sp: int = 0
+
+    @property
+    def base_name(self) -> str:
+        return self._name
 
     @classmethod
     def _counter(cls, name: str) -> str:
@@ -204,6 +216,10 @@ class Armor:
         self._armor_penalty = penalty
 
     @property
+    def base_name(self) -> str:
+        return self._name
+
+    @property
     def name(self) -> str:
         _: str = f"{self._name}, Defense: +{self.defense}, Mana: -{self.armor_penalty}"
         if hasattr(self, "location") and self.location:
@@ -215,6 +231,10 @@ class Armor:
         self._name = name
 
     def set_location(self, location: str) -> "Armor":
+        self.location = location
+        return self
+
+    def with_location(self, location: str) -> "Item":
         self.location = location
         return self
 
@@ -253,6 +273,10 @@ class Weapon:
     _two_handed: bool = False
 
     def set_location(self, location: str) -> "Weapon":
+        self.location = location
+        return self
+
+    def with_location(self, location: str) -> "Item":
         self.location = location
         return self
 
@@ -327,6 +351,10 @@ class Weapon:
 
         self._attack_bonus = bonus
 
+    @property
+    def base_name(self) -> str:
+        return self._name
+
     def __init__(self, name: str,  #
                  skill: CharacterSkill = CharacterSkillsList.skill_by_name("Unarmed"),  #
                  base_damage: str = "1d4x",  #
@@ -366,7 +394,7 @@ class Weapon:
     def list(cls) -> list["Weapon"]:
         weapons: list["Weapon"] = list()
         weapons.append(Weapon("Axe", CharacterSkillsList.skill_by_name("Axes"), "1d6x", 5))
-        weapons.append(Weapon("Bow", CharacterSkillsList.skill_by_name("Bows"), "1d6x", 4))
+        weapons.append(Weapon("Bow", CharacterSkillsList.skill_by_name("Bows"), "1d6x", 4, two_handed=True))
         weapons.append(Weapon("Crossbow", CharacterSkillsList.skill_by_name("Bows"), "1d6x+3", 8))
         weapons.append(Weapon("Dagger", CharacterSkillsList.skill_by_name("Daggers"), "1d6x-2", 2))
         weapons.append(Weapon("Dragon Pistol", CharacterSkillsList.skill_by_name("Firearms"), "1d6x+4", 18))

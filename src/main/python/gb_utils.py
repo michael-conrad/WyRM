@@ -11,8 +11,8 @@ from equipment import Weapon
 from skills import Difficulty
 
 
-def debug(object: any) -> str:
-    s: str = str(object)
+def debug(thing: any) -> str:
+    s: str = str(thing)
     print(f"DEBUG: {s}")
     return s
 
@@ -213,54 +213,70 @@ def random_encounter(die_count: int) -> str:
     return random.choice(choices)
 
 
-def initiative(player_bonus=None,  #
-               npc_bonus=None) -> str:
-    player_bonus: int | character_sheet.CharacterSheet | list[character_sheet.CharacterSheet] | None
-    npc_bonus: int | character_sheet.CharacterSheet | list[character_sheet.CharacterSheet] | None
-    name1: str = "Player"
-    name2: str = "NPC"
-    if player_bonus is None:
-        player_bonus = 0
-    if npc_bonus is None:
-        npc_bonus = 0
-    if isinstance(player_bonus, list):
-        player_bonus = player_bonus[0]
-    if isinstance(npc_bonus, list):
-        npc_bonus = npc_bonus[0]
-    if isinstance(player_bonus, character_sheet.CharacterSheet):
-        name1 = player_bonus.name
-        player_bonus = player_bonus.rogue
-    if isinstance(npc_bonus, character_sheet.CharacterSheet):
-        name2 = npc_bonus.name
-        npc_bonus = npc_bonus.rogue
-    roll1: int = roll(f"1d6+{player_bonus}")
-    roll2: int = roll(f"1d6+{npc_bonus}")
+def initiative(side_a=None,  #
+               side_b=None) -> str:
+    side_a: int | character_sheet.CharacterSheet | list[character_sheet.CharacterSheet] | None
+    side_b: int | character_sheet.CharacterSheet | list[character_sheet.CharacterSheet] | None
+    name1: str = "First Group"
+    name2: str = "Second Group"
+    if isinstance(side_a, list):
+        _: character_sheet.CharacterSheet | None = None
+        for p in side_a:
+            if p.is_alive:
+                _ = p
+                break
+        side_a = _
+    if isinstance(side_b, list):
+        _: character_sheet.CharacterSheet | None = None
+        for p in side_b:
+            if p.is_alive:
+                _ = p
+                break
+        side_b = _
+    if isinstance(side_a, character_sheet.CharacterSheet):
+        name1 = side_a.name
+        side_a = side_a.rogue
+    if isinstance(side_b, character_sheet.CharacterSheet):
+        name2 = side_b.name
+        side_b = side_b.rogue
+    if side_a is None:
+        side_a = 0
+    if side_b is None:
+        side_b = 0
+    roll1: int = roll(f"1d6+{side_a}")
+    roll2: int = roll(f"1d6+{side_b}")
     if roll1 > roll2:
-        return f"First Character ({name1})"
+        return f"First Group: {name1}"
     if roll1 < roll2:
-        return f"Second Character ({name2})"
-    return initiative(player_bonus, npc_bonus)
+        return f"Second Group: {name2}"
+    return initiative(side_a, side_b)
 
 
-def initiative_check(player_bonus: int = 0, npc_bonus: int = 0) -> bool:
-    player_bonus: int | character_sheet.CharacterSheet | None
-    npc_bonus: int | character_sheet.CharacterSheet | None
-    if player_bonus is None:
-        player_bonus = 0
-    if npc_bonus is None:
-        npc_bonus = 0
-    if isinstance(player_bonus, character_sheet.CharacterSheet):
-        player_bonus = player_bonus.rogue
-    if isinstance(npc_bonus, character_sheet.CharacterSheet):
-        npc_bonus = npc_bonus.rogue
+def initiative_check(side_a: int = 0, side_b: int = 0) -> bool:
+    if side_a is None:
+        side_a = 0
+    if side_b is None:
+        side_b = 0
+    if type(side_a).__name__ == "MobUnit":
+        side_a = side_a.rogue
+    if type(side_a).__name__ == "MobUnit":
+        side_b = side_b.rogue
+    if isinstance(side_a, list):
+        side_a = side_a[0].rogue
+    if isinstance(side_b, list):
+        side_b = side_b[0].rogue
+    if isinstance(side_a, character_sheet.CharacterSheet):
+        side_a = side_a.rogue
+    if isinstance(side_b, character_sheet.CharacterSheet):
+        side_b = side_b.rogue
 
-    roll1: int = roll(f"1d6+{player_bonus}")
-    roll2: int = roll(f"1d6+{npc_bonus}")
+    roll1: int = roll(f"1d6+{side_a}")
+    roll2: int = roll(f"1d6+{side_b}")
     if roll1 > roll2:
         return True
     if roll1 < roll2:
         return False
-    return initiative_check(player_bonus, npc_bonus)
+    return initiative_check(side_a, side_b)
 
 
 def loot_box(qty: int = 1, seed: int | None = None) -> list[str]:
@@ -328,7 +344,9 @@ def loot(r: random.Random | None = None) -> str:
         items.append(f"Keoghtom's Ointment, doses: {bns}, heals 2d8+2")
         items.append("Potion of Flying")
         items.append("Potion of Invisibility")
-        items.append("Potion of Vitality")
+        points = r.randint(1,8)+r.randint(1,8)+r.randint(1,8)
+        items.append(f"Potion of Vitality ({points:+})")
+        items.append(f"Potion of Mana Restoration ({points:+})")
         bns = r.randint(1, 3)
         items.append(f"Ring of Evasion, Rogue: {bns:+}")
         items.append("Ring of Protection, BASE ARMOR +1")
@@ -415,6 +433,7 @@ def loot(r: random.Random | None = None) -> str:
         items.append(f"Keoghtaz's Ointment, doses: {bns}, damages 2d8+2")
         bns = - (r.randint(1, 4) + r.randint(1, 4))
         items.append(f"Potion of Health Drain. HP: {bns:+}")
+        items.append(f"Potion of Mana Drain. Mana: ({bns:+})")
         bns = - r.randint(1, 3)
         items.append(f"Ring of Clumsiness, Rogue: {bns:+}")
         items.append("Ring of Slowness, Rogue: -1")

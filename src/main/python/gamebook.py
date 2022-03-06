@@ -8,8 +8,6 @@ exec python "$0" "$@"
 exit $?
 ''"""
 import argparse
-import datetime
-import inspect
 import os.path
 import random
 import re
@@ -19,6 +17,8 @@ from dataclasses import dataclass
 from dataclasses import field
 
 import jsonpickle
+
+from character_sheet import CharacterSheet
 
 
 def gamebook_file() -> str:
@@ -40,6 +40,7 @@ class Choice:
 class Section:
     name: str = ""
     label: str = ""
+    _location: str = ""
     parents: list[str] = field(default_factory=list)
     text: list[str] = field(default_factory=list)
     choices: list[Choice] = field(default_factory=list)
@@ -47,6 +48,14 @@ class Section:
     _state: str = "{}"
     path: list[str] = field(default_factory=list)
     rooms: str | None = None
+
+    @property
+    def location(self) -> str:
+        return self._location
+
+    @location.setter
+    def location(self, location: str) -> None:
+        self._location = location
 
     @property
     def state(self) -> dict[str, any] | None:
@@ -384,28 +393,38 @@ def main() -> None:
 
     for section in sections:
         if section.choices:
-            for choice in section.choices:
+            for _, choice in enumerate(section.choices):
                 if choice.label not in section_labels:
                     known_labels.add(choice.label)
                     section_labels.add(choice.label)
                     new_section: Section = Section()
                     new_section.label = choice.label
                     new_section.name = choice.text
+                    auto_go: str
+                    if ":" in new_section.name:
+                        section.choices[_].text=choice.text[:choice.text.index(":")]
+                        auto_go = new_section.name[new_section.name.index(":")+1:].strip()
+                        if auto_go[-1] in ".?!":
+                            auto_go = auto_go[:-1]
+                    else:
+                        auto_go = ""
+                    new_section.text.append(f"!NPC.set_section_tag(\"{section.label}\")")
                     new_section.text.append(f"")
                     new_section.text.append(f"@turn: turn + 1")
                     new_section.text.append(f"@'' if turn % 20 != 0 else 'Torch starts guttering'")
+                    new_section.text.append(f"")
+                    if auto_go:
+                        new_section.text.append(f"!room.go(\"{auto_go}\")")
+                    else:
+                        new_section.text.append(f"!room.info_directions")
+                        new_section.text.append(f";!room.go(\"\")")
                     new_section.text.append(f"")
                     new_section.text.append(f"@wander(6, 1) if turn < 10 else ''")
                     new_section.text.append(f"@wander(6, 2) if turn >= 10 and turn < 20 else ''")
                     new_section.text.append(f"@wander(6, 3) if turn >= 20 and turn < 30 else ''")
                     new_section.text.append(f"@wander(6, 4) if turn >= 30 else ''")
                     new_section.text.append(f"")
-                    new_section.text.append(f"!str([location, facing])")
-                    new_section.text.append(f"; @facing: \"\"")
-                    new_section.text.append(f"; @location: \"\"")
-                    new_section.text.append(f"!room=rooms(location)")
-                    new_section.text.append(f"!room")
-                    new_section.text.append(f"")
+
                     new_sections.append(new_section)
     print(f"Sections to add: {len(new_sections):,}")
 
@@ -423,6 +442,7 @@ def main() -> None:
             if choice.label == first_label:
                 continue
             sections_dict[choice.label].parents.append(section.label)
+            sections_dict[choice.label].name=choice.text
 
     # Reorder sections to ensure parent environments are created first
     old_list: list[Section] = [old_section for old_section in sections_dict.values()]
@@ -490,28 +510,52 @@ def main() -> None:
 
         state = section.state
         if state is None:
-            print(f"NO PARENT FOR SECTION: [{section.name}|{section.label}]")
-            state = sections_by_label[section.parents[0]].state
+            continue
+        text_list: list[str] = list()
+        for line in section.text:
+            if "\n" in line:
+                for split in line.split("\n"):
+                    text_list.append(split.strip())
+            else:
+                text_list.append(line)
+        section.text.clear()
+
         for lib in meta_header.libs:
             exec(f"from {lib} import *", state)
+        # always reset section tag to None at start of each section run
+        exec("NPC.set_section_tag(None)", state)
         if section.rooms:
             exec(f"restore_rooms({section.rooms})", state)
         # make sure certain variables are always available
-        exec("locations=list() if 'locations' not in locals() else locations", state)
-        exec("location='start' if 'location' not in locals() else location", state)
-        exec("if not locations or locations[-1] != location: locations.append(location)", state)
-        exec("turn=1 if 'turn' not in locals() else turn", state)
-        exec("facing='?' if 'facing' not in locals() else facing", state)
+        if "locations" not in state:
+            state["locations"] = list()
+        if "location" not in state:
+            state["location"] = "start"
+        locations: list[str] = state["locations"]
+        if not locations or locations[-1] != state["location"]:
+            locations.append(state["location"])
+        if "turn" not in state:
+            state["turn"] = 1
+        if "facing" not in state:
+            state["facing"]="?"
         exec("room=rooms(location)", state)
-        exec("notes=list() if 'notes' not in locals() else notes", state)
-        exec("note=list() if 'note' not in locals() else note", state)
-        exec(f"section=\"{section.label}\"", state)
-        exec(f"if 'player' in locals(): player.massive_attack=True", state) # always reset at start of each turn
-        exec("if 'vitality' not in locals(): vitality = 0", state)
-        exec(f"if vitality > 0 and 'player' in locals(): player.hp += 1; vitality-=1", state) # special for vitality potion drinking or other vitality item usage
+        if "notes" not in state:
+            state["notes"] = list()
+        if "note" not in state:
+            state["note"] = list()
+        state["section"] = section.label
+        # special for vitality potion drinking or other vitality item usage
+        if "vitality" not in state:
+            state["vitality"] = 0
+        if "player" in state:
+            player: CharacterSheet = state["player"]
+            player.massive_attack = True
+            vitality: int = state["vitality"]
+            if vitality:
+                if player.hp < player.hit_points_max:
+                    player.hp += min(2, vitality)
+                state["vitality"] = max(0, vitality-2)
 
-        text_list = section.text.copy()
-        section.text.clear()
         if section.path:
             for path in section.path:
                 section.text.append(f";## -> {path}")
@@ -524,9 +568,12 @@ def main() -> None:
         locations: set[str] = eval("locations", state)
         if locations:
             section.text.append(f";## VISITED: {locations}")
-        note: str = eval("note", state)
+        note: str = state["note"]
         if note:
             section.text.append(f";## Note: {note}")
+        if state['vitality'] and state['player']:
+            section.text.append(f";## Vitality remaining: {state['vitality']}")
+            section.text.append(f";## Player HP: {state['player'].hp}")
         section.text.append(";## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13")
         section.text.append(f"")
         section.text.append(eval("rooms_status()", state))
@@ -536,16 +583,15 @@ def main() -> None:
                 continue
             print(f"{len(section.text) + 1:06} {line}")
             if line.startswith("!"):
-                cmd: str = line[line.find("!") + 1:].strip()
+                cmd: str = line[1:].strip()
                 result: any = None
                 try:
                     result = eval(cmd, state)
                 except SyntaxError:
                     try:
                         result = exec(cmd, state)
-                    except RuntimeError as e:
-                        print(f"{e}")
-                        print(f"{line}")
+                    except Exception as e:
+                        raise e
                 if result is not None and isinstance(result, list):
                     line = ";;; " + line
                     section.text.append(line)
@@ -570,22 +616,26 @@ def main() -> None:
                     cmd = cmd[cmd.find(":") + 1:].lstrip()
                     result: any = eval(cmd, state)
                     if isinstance(result, list):
-                        line = ";;; " + line
+                        pickled = jsonpickle.encode(result, use_base85=True, indent=None) \
+                            .replace("\\", "\\\\") \
+                            .replace("'", "\'")
+                        line = f"!{var}= unpickle('{pickled}') # {line}"
                         section.text.append(line)
+                        section.text.append(f";;; !{var}")
+                        for l in result:
+                            section.text.append(l)
                         line = ""
-                        for new_line in result:
-                            section.text.append(str(new_line))
                     elif isinstance(result, int):
                         line = f"!{var}= {result} # {line}"
                     elif isinstance(result, str):
                         result = result.replace("\"", "\\\"")
                         line = f"!{var}= \"{result}\" # {line}"
                     else:
-                        result = jsonpickle.encode(result, keys=True)
-                        result = result.replace("\\", "\\\\")
-                        result = result.replace("'", "\\'")
-                        result = result.replace("\"", "\\\"")
-                        line = f"!{var}= unpickle(\"{result}\") # {line}"
+                        result = jsonpickle.encode(result, use_base85=True, indent=None) \
+                            .replace("\\", "\\\\") \
+                            .replace("'", "\\'")
+                        result = f"'{result}'"
+                        line = f"!{var}= unpickle({result}) # {line}"
                     try:
                         exec(line[1:], state)
                     except NameError as e:
@@ -611,28 +661,31 @@ def main() -> None:
                             result = f":{result}"
                         line = line.replace(var[0], "{" + f"{lookup}{result}" + "}")
                 section.text.append(line)
+
         if 'player' in state:
             is_dead = eval("player.hp == 0", state)
             if is_dead:
                 section.text.append(f";## ---> PLAYER IS DEAD <---")
                 section.text.append(f"")
             else:
-                has_mana: bool = eval("player.mana > 0", state)
-                moderately_injured: bool = eval("player.hp <= player.hit_points_max // 2", state)
-                severely_injured: bool = eval("player.hp <= player.hit_points_max // 3", state)
-                injured: bool = eval("player.hp <= (player.hit_points_max * 2) // 3", state)
-                lightly_injured: bool = eval("player.hp <= (player.hit_points_max * 4) // 5", state)
-                has_ointment: bool = eval("player.has_item('ointment')", state)
-                has_potion: bool = eval("player.has_item('potion')", state)
-                needs_healing: str = " AND NEEDS HEALING" if has_mana or has_ointment or has_potion else ""
+                player: CharacterSheet = state["player"]
+                has_mana: bool = player.mana > 0
+                moderately_injured: bool = player.hp <= player.hit_points_max // 2
+                severely_injured: bool = player.hp <= player.hit_points_max // 3
+                injured: bool = player.hp <= (player.hit_points_max * 2) // 3
+                lightly_injured: bool = player.hp <= (player.hit_points_max * 4) // 5
+                has_item: bool = player.has_item('ointment')
+                has_item = player.has_item('heal') or has_item
+                has_item = player.has_item('vitality') or has_item
+                needs_healing: str = f" AND NEEDS HEALING [mana: {has_mana}, item: {has_item}]" if has_mana or has_item else ""
                 if severely_injured:
-                    section.text.append(f";## ---> PLAYER IS GRAVELY WOUNDED{needs_healing} <---")
+                    section.text.append(f";## ---> PLAYER IS GRAVELY WOUNDED{needs_healing} (HP: {player.hp}) <---")
                 elif moderately_injured:
-                    section.text.append(f";## ---> PLAYER IS BADLY INJURED{needs_healing} <---")
+                    section.text.append(f";## ---> PLAYER IS BADLY INJURED{needs_healing} (HP: {player.hp}) <---")
                 elif injured:
-                    section.text.append(f";## ---> PLAYER IS INJURED{needs_healing} <---")
+                    section.text.append(f";## ---> PLAYER IS INJURED{needs_healing} (HP: {player.hp}) <---")
                 elif lightly_injured:
-                    section.text.append(f";## ---> PLAYER IS LIGHTLY INJURED{needs_healing} <---")
+                    section.text.append(f";## ---> PLAYER IS LIGHTLY INJURED{needs_healing} (HP: {player.hp}) <---")
                 section.text.append(f"")
 
         # determine child sections and clone environment into children
@@ -640,12 +693,19 @@ def main() -> None:
             if choice.label not in sections_by_label:
                 raise Exception(f"{choice.label} not in sections_by_label")
             if choice.label in sections_by_label:
+                location: str = ""
+                if 'location' in state:
+                    location = state['location']
+                location = f" ({location})" if location else ''
                 child_section = sections_by_label[choice.label]
                 child_section.rooms = eval(f"save_rooms()", state)
                 child_section.path = section.path.copy()
-                child_section.path.append(f"{section.name}|{section.label}")
+                child_section.path.append(f"{section.name}|{section.label}{location}")
                 child_section.state = state
 
+    # sections[1:] = sorted(sections[1:], key=lambda x: (1 if x.choices else 2, x.label))
+    have_choices: int = 0
+    not_have_choices: int =0
     with open(gb_file, "w") as w:
         w.write(str(meta_header))
         sections_have.clear()
@@ -654,9 +714,20 @@ def main() -> None:
                 continue
             sections_have.add(section.label)
             w.write(str(section))
+            if section.choices:
+                have_choices += 1
+            else:
+                not_have_choices += 1
         new_sections.sort(key=lambda x: x.label)
         for section in new_sections:
             w.write(str(section))
+    print()
+    total_choices = have_choices + not_have_choices
+    have_pct: int = (100*have_choices) // total_choices
+    not_have_pct: int = (100 * not_have_choices) // total_choices
+    print(f"Have choices: {have_choices:,} ({have_pct:02}%)."
+          f" Need choices added: {not_have_choices:,} ({not_have_pct:02}%).")
+    print()
 
     with open(html_file, "w") as w:
         w.write("<html><meta charset='utf-8'/>\n")
@@ -675,3 +746,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    print()

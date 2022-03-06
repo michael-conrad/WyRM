@@ -1,31 +1,69 @@
 import copy
+import types
 
-import jsonpickle
+import dice
 
 from character_sheet import CharacterSheet
 from dnd5e_monsters import CharacterSheet5
 from dnd5e_monsters import from_dnd5e
 from equipment import Armor
 from equipment import Weapon
-from gb_utils import roll
 from skills import CharacterSkillsList
 from skills import SkillAttribute
+
+_npc_section_tag: str | None = ""
+
+
+def npc_section_tag(tag: str) -> str:
+    global _npc_section_tag
+    _npc_section_tag = tag
+    return _npc_section_tag
 
 
 class NPC:
     _counter_: dict[str, int] = dict()
 
     @classmethod
+    def spawn(cls, creature: types.FunctionType, count: str | int = 1, location: str | None = None) -> list[str]:
+        result: list[str] = list()
+        if isinstance(count,str):
+            count = int(dice.roll(count))
+        for _ in range(count):
+            if location:
+                result.append(f"!rooms(\"{location}\").add_item(NPC.{creature.__name__}())")
+            else:
+                result.append(f"!room.add_item(NPC.{creature.__name__}())")
+        return result
+
+    @classmethod
+    @property
+    def section_tag(cls) -> str:
+        global _npc_section_tag
+        return _npc_section_tag
+
+    @classmethod
+    def set_section_tag(cls, tag: str | None) -> None:
+        global _npc_section_tag
+        _npc_section_tag = tag
+
+    @classmethod
     def _counter(cls, name: str) -> str:
+        global _npc_section_tag
+        if _npc_section_tag and _npc_section_tag.lower() not in name.lower():
+            name += f" {_npc_section_tag}"
         if name not in cls._counter_:
             cls._counter_[name] = 0
         cls._counter_[name] = cls._counter_[name] + 1
         return f"{name} (#{cls._counter_[name]})"
 
     @classmethod
-    def giant_beetle(cls) -> CharacterSheet:
+    def giant_beetle(cls, extra_name: str | None = None) -> CharacterSheet:
         sheet = CharacterSheet()
-        sheet.name = NPC._counter("Giant Beetle")
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
+        sheet.name = NPC._counter(f"Giant Beetle{extra_name}")
         sheet.warrior_base = 4
         sheet.rogue_base = 4
         sheet.mage_base = 0
@@ -63,9 +101,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def skeleton_archer(cls) -> CharacterSheet:
+    def skeleton_archer(cls, extra_name: str | None = None) -> CharacterSheet:
         sheet = CharacterSheet()
-        sheet.name = NPC._counter("Skeleton Archer")
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
+        sheet.name = NPC._counter(f"Skeleton Archer{extra_name}")
         sheet.description = "Rusted armor. Bow. 10 Arrows."
         sheet.warrior_base = 3
         sheet.rogue_base = 3
@@ -103,9 +145,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def giant_rat(cls) -> CharacterSheet:
+    def giant_rat(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         sheet = CharacterSheet()
-        sheet.name = NPC._counter("Giant Rat")
+        sheet.name = NPC._counter(f"Giant Rat{extra_name}")
         sheet.description = "Bites. 1d6."
         sheet.warrior_base = 4
         sheet.rogue_base = 2
@@ -121,10 +167,16 @@ class NPC:
         return sheet
 
     @classmethod
-    def giant_spider(cls) -> CharacterSheet:
+    def giant_spider(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         sheet = CharacterSheet()
-        sheet.name = NPC._counter("Giant Spider")
-        sheet.description = "Venomous Bite. 1d6+2."
+        sheet.name = NPC._counter(f"Giant Spider{extra_name}")
+        sheet.description = "!spider_parts=['head'," \
+                            " 'thorax', 'legs', 'Pedipalps', 'Eyes', 'Abdomen'," \
+                            " 'Spinnerets', 'Lungs', 'Fangs', 'Mouth', 'Sternum']"
         sheet.warrior_base = 6
         sheet.rogue_base = 6
         sheet.mage_base = 0
@@ -143,9 +195,13 @@ class NPC:
     # Imprecise conversions from DnD 5e follow:
 
     @classmethod
-    def awakened_shrub(cls) -> CharacterSheet:
+    def awakened_shrub(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name =  NPC._counter("Awakened Shrub")
+        dnd.name = NPC._counter(f"Awakened Shrub{extra_name}")
         dnd.armor_class = 9
         dnd.str = 3
         dnd.dex = 8
@@ -171,9 +227,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def giant_fire_beetle(cls) -> CharacterSheet:
+    def giant_fire_beetle(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name= NPC._counter("Giant Fire Beetle")
+        dnd.name = NPC._counter(f"Giant Fire Beetle {extra_name}")
         dnd.armor_class = 13
         dnd.str = 8
         dnd.dex = 10
@@ -191,15 +251,19 @@ class NPC:
         bite: Weapon = Weapon("Bite", base_damage="1d6x")
         bite.attack_bonus = 1
         bite.damage_bonus = -1
-        dnd.weapon=bite
+        dnd.weapon = bite
 
         sheet = from_dnd5e(dnd)
         return sheet
 
     @classmethod
-    def blink_dog(cls) -> CharacterSheet:
+    def blink_dog(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name =  NPC._counter("Blink Dog")
+        dnd.name = NPC._counter(f"Blink Dog{extra_name}")
         dnd.armor_class = 13
         dnd.str = 12
         dnd.dex = 17
@@ -223,9 +287,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def giant_lizard(cls) -> CharacterSheet:
+    def giant_lizard(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name =  NPC._counter("Giant Lizard")
+        dnd.name = NPC._counter(f"Giant Lizard{extra_name}")
         dnd.armor_class = 12
         dnd.str = 15
         dnd.dex = 12
@@ -245,9 +313,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def giant_rat2(cls) -> CharacterSheet:
+    def giant_rat2(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name =  NPC._counter("Giant Rat")
+        dnd.name = NPC._counter(f"Giant Rat{extra_name}")
         dnd.armor_class = 12
         dnd.str = 7
         dnd.dex = 15
@@ -265,9 +337,12 @@ class NPC:
         return sheet
 
     @classmethod
-    def giant_weasel(cls) -> CharacterSheet:
+    def giant_weasel(cls, extra_name: str | None = None) -> CharacterSheet:
         dnd = CharacterSheet5()
-        dnd.name = NPC._counter("Giant Weasel")
+        if extra_name is None:
+            dnd.name = NPC._counter("Giant Weasel")
+        else:
+            dnd.name = NPC._counter(f"Giant Weasel {extra_name}")
         dnd.armor_class = 13
         dnd.str = 11
         dnd.dex = 16
@@ -285,9 +360,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def gnoll_warrior(cls) -> CharacterSheet:
+    def gnoll_warrior(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name = NPC._counter("Gnoll Warrior")
+        dnd.name = NPC._counter(f"Gnoll Warrior{extra_name}")
         dnd.armor_class = 15
         dnd.str = 14
         dnd.dex = 12
@@ -305,9 +384,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def gnoll_archer(cls) -> CharacterSheet:
+    def gnoll_archer(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name = NPC._counter("Gnoll Archer")
+        dnd.name = NPC._counter(f"Gnoll Archer{extra_name}")
         dnd.armor_class = 15
         dnd.str = 14
         dnd.dex = 12
@@ -325,12 +408,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def goblin_warrior(cls, alt_name: str | None = None) -> CharacterSheet:
-        dnd = CharacterSheet5()
-        if alt_name is None:
-            dnd.name = NPC._counter("Goblin Warrior")
+    def goblin_warrior(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
         else:
-            dnd.name = NPC._counter(alt_name)
+            extra_name = f" {extra_name.strip()}"
+        dnd = CharacterSheet5()
+        dnd.name = NPC._counter(f"Goblin Warrior{extra_name}")
         dnd.armor_class = 15
         dnd.str = 8
         dnd.dex = 14
@@ -349,9 +433,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def goblin_archer(cls) -> CharacterSheet:
+    def goblin_archer(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name = NPC._counter("Goblin Archer")
+        dnd.name = NPC._counter(f"Goblin Archer{extra_name}")
         dnd.armor_class = 15
         dnd.str = 8
         dnd.dex = 14
@@ -370,9 +458,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def hobgoblin_warrior(cls) -> CharacterSheet:
+    def hobgoblin_warrior(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name = NPC._counter("Hobgoblin Warrior")
+        dnd.name = NPC._counter(f"Hobgoblin Warrior{extra_name}")
         dnd.armor_class = 18
         dnd.str = 8
         dnd.dex = 14
@@ -391,9 +483,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def hobgoblin_archer(cls) -> CharacterSheet:
+    def hobgoblin_archer(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name = NPC._counter("Hobgoblin Archer")
+        dnd.name = NPC._counter(f"Hobgoblin Archer{extra_name}")
         dnd.armor_class = 18
         dnd.str = 8
         dnd.dex = 14
@@ -412,9 +508,12 @@ class NPC:
         return sheet
 
     @classmethod
-    def kobold_warrior(cls) -> CharacterSheet:
+    def kobold_warrior(cls, extra_name: str | None = None) -> CharacterSheet:
         dnd = CharacterSheet5()
-        dnd.name = NPC._counter("Kobold Warrior")
+        if extra_name is None:
+            dnd.name = NPC._counter("Kobold Warrior")
+        else:
+            dnd.name = NPC._counter(f"Kobold Warrior {extra_name}")
         dnd.armor_class = 12
         dnd.str = 7
         dnd.dex = 15
@@ -433,9 +532,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def skeleton_warrior2(cls) -> CharacterSheet:
+    def skeleton_warrior2(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name = NPC._counter("Skeleton Warrior")
+        dnd.name = NPC._counter(f"Skeleton Warrior{extra_name}")
         dnd.armor_class = 13
         dnd.str = 10
         dnd.dex = 14
@@ -453,9 +556,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def skeleton_archer2(cls) -> CharacterSheet:
+    def skeleton_archer2(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name = NPC._counter("Skeleton Warrior")
+        dnd.name = NPC._counter(f"Skeleton Warrior{extra_name}")
         dnd.armor_class = 13
         dnd.str = 10
         dnd.dex = 14
@@ -473,9 +580,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def worg(cls) -> CharacterSheet:
+    def worg(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name = NPC._counter("Worg")
+        dnd.name = NPC._counter(f"Worg{extra_name}")
         dnd.armor_class = 13
         dnd.str = 16
         dnd.dex = 13
@@ -494,9 +605,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def zombie2(cls) -> CharacterSheet:
+    def zombie2(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name = NPC._counter("Zombie")
+        dnd.name = NPC._counter(f"Zombie{extra_name}")
         dnd.armor_class = 8
         dnd.str = 13
         dnd.dex = 6
@@ -515,9 +630,13 @@ class NPC:
         return sheet
 
     @classmethod
-    def earth_elemental(cls) -> CharacterSheet:
+    def earth_elemental(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
         dnd = CharacterSheet5()
-        dnd.name = NPC._counter("Earth Elemental")
+        dnd.name = NPC._counter(f"Earth Elemental{extra_name}")
         dnd.armor_class = 17
         dnd.hp = 126
         dnd.str = 20

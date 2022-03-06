@@ -66,6 +66,37 @@ class CharacterSheet:
 
     _massive_attack: bool = False
 
+    _saved_inv: list[str] = field(default_factory=list)
+
+    def save_inv_list(self) -> None:
+        for item in self.armor_worn:
+            self._saved_inv.append(item.base_name)
+        for item in self.weapons:
+            self._saved_inv.append(item.base_name)
+        for item in self.equipment:
+            self._saved_inv.append(item.base_name)
+
+    @property
+    def found_items(self) -> str:
+        _ = ""
+        for item in self.armor_worn:
+            if item.base_name not in self._saved_inv:
+                _ += f"\n;## {item.name}"
+        for item in self.weapons:
+            if item.base_name not in self._saved_inv:
+                _ += f"\n;## {item.name}"
+        for item in self.equipment:
+            if item.base_name not in self._saved_inv:
+                _ += f"\n;## {item.name}"
+        return _
+
+    @property
+    def starting_items(self) -> str:
+        _ = ""
+        for item in self._saved_inv:
+            _ += f"\n;## {item}"
+        return _
+
     @property
     def warrior_mod(self) -> int:
         return self._warrior_mod
@@ -115,6 +146,12 @@ class CharacterSheet:
             _ += f"\n;## {armor}"
         return _
 
+    def add_item(self, item: Shield | Armor | Item | Weapon | str) -> str:
+        if isinstance(item, str):
+            item = Item(item)
+        self.equipment.append(item)
+        return f"{item.name}"
+
     @property
     def name(self) -> str:
         if self.location:
@@ -128,6 +165,10 @@ class CharacterSheet:
             self._name = name + self._name[self._name.index(" (#"):]
         else:
             self._name = name
+
+    @property
+    def base_name(self) -> str:
+        return self._name
 
     @property
     def warrior(self) -> int:
@@ -193,7 +234,7 @@ class CharacterSheet:
 
     @property
     def damage(self) -> str:
-        damage: str = "1d2"
+        damage: str = "1d2x"
         if self.weapons:
             weapon: Weapon = self.weapons[0]
             damage = weapon.damage
@@ -212,9 +253,9 @@ class CharacterSheet:
     def hit_points(self, hit_points: int):
         self._hit_points = min(self.hit_points_max, hit_points)
 
-    def hit_points_add(self, hit_points: int) -> int:
-        self.hit_points = self.hit_points + hit_points
-        return self.hit_points
+    def hp_add(self, hp: int) -> int:
+        self.hp = self.hp + hp
+        return self.hp
 
     @property
     def weapon(self) -> Weapon:
@@ -392,17 +433,24 @@ class CharacterSheet:
     def cast(self, spell_name: str, mana_burn: bool = False) -> list[str]:
         if not self.spells:
             return list("; No spells.")
+        spell_name = spell_name.lower()
         for spell in self.spells:
-            if spell.name.lower() == spell_name.lower():
+            if spell.name.lower().startswith(spell_name):
                 if self.mana < spell.mana_cost:
                     return [f"; Not enough mana ({self.mana}) for {spell.name} ({spell.mana_cost})"]
                 check: int = dice.roll(f"1d6 + {self.mage}")
                 if check < spell.difficulty.value:
                     return [f"; Cast failed. {check} < {spell.difficulty.name} {spell.difficulty.value}"]
+                result: list[str] = list()
                 self.mana -= spell.mana_cost
                 pc_id: str = f"player" if "Player" in self.name else f"room.npc(\"{self._name}\")"
-                update: str = f"!{pc_id}.mana={self.mana}"
-                return [f"; Cast succeeded. {spell.name}: {spell.description}", f"{update}"]
+                result.append(f"; Cast succeeded. {spell.name}: {spell.description}");
+                if spell.macro:
+                    for macro in spell.macro:
+                        result.append(macro.replace("pc_id", f"{pc_id}"))
+                else:
+                    result.append(f"@{pc_id}.mana: {pc_id}.mana - {spell.mana_cost}")
+                return result
         return ["; That spell is not available."]
 
     @property
@@ -523,10 +571,10 @@ class CharacterSheet:
                         npc.hit_points = pc.damage_opponent(npc)
                         if npc.hit_points < 1:
                             combat_log.append(
-                                f"; {pc._name} hits for {hp - npc.hit_points} points and {npc._name} dies")
+                                    f"; {pc._name} hits for {hp - npc.hit_points} points and {npc._name} dies")
                         else:
                             combat_log.append(
-                                f"; {pc._name} hits {npc.name} for {hp - npc.hit_points} points of damage")
+                                    f"; {pc._name} hits {npc.name} for {hp - npc.hit_points} points of damage")
                         if "Player" in npc._name:
                             var = "player"
                         else:
@@ -560,10 +608,10 @@ class CharacterSheet:
                         pc.hit_points = npc.damage_opponent(pc)
                         if pc.hit_points < 1:
                             combat_log.append(
-                                f"; {npc._name} hits for {hp - pc.hit_points} points and kills {pc._name}")
+                                    f"; {npc._name} hits for {hp - pc.hit_points} points and kills {pc._name}")
                         else:
                             combat_log.append(
-                                f"; {npc._name} hits {pc._name} for {hp - pc.hit_points} points of damage")
+                                    f"; {npc._name} hits {pc._name} for {hp - pc.hit_points} points of damage")
                         var: str = "_"
                         if "Player" in pc._name:
                             var = "player"
@@ -714,6 +762,40 @@ class CharacterSheet:
 
     @property
     def equipment_list(self) -> str:
+        # try and combine moneys
+        cp: int = 0
+        sp: int = 0
+        ep: int = 0
+        gp: int = 0
+        pp: int = 0
+        item: Item
+        for item in self.equipment.copy():
+            if item.name.startswith("CP: "):
+                cp += int(item.name[4:item.name.index(" ", 4)])
+                self.equipment.remove(item)
+            if item.name.startswith("SP: "):
+                sp += int(item.name[4:item.name.index(" ", 4)])
+                self.equipment.remove(item)
+            if item.name.startswith("EP: "):
+                ep += int(item.name[4:item.name.index(" ", 4)])
+                self.equipment.remove(item)
+            if item.name.startswith("GP: "):
+                gp += int(item.name[4:item.name.index(" ", 4)])
+                self.equipment.remove(item)
+            if item.name.startswith("PP: "):
+                pp += int(item.name[4:item.name.index(" ", 4)])
+                self.equipment.remove(item)
+        if cp:
+            self.equipment.append(Item(f"CP: {cp:,}"))
+        if sp:
+            self.equipment.append(Item(f"SP: {sp:,}"))
+        if ep:
+            self.equipment.append(Item(f"EP: {ep:,}"))
+        if gp:
+            self.equipment.append(Item(f"GP: {gp:,}"))
+        if pp:
+            self.equipment.append(Item(f"PP: {pp:,}"))
+
         _ = ""
         for armor in self.armor_worn:
             _ += f"\n;## {armor.name}"

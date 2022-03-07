@@ -342,7 +342,7 @@ class RoomDescription:
     def info_directions(self) -> str:
         result:str = ""
         if self.directions:
-            result += f"\n;## "
+            result += f"\n;## [{self.name}"
             directions = [k for k in self.directions.keys()]
             directions.sort()
             for direction in directions:
@@ -588,8 +588,8 @@ _.directions["w"] = "3way"
 _.directions["search"] = "2-wall"
 
 _ = rooms("2-wall")
-_._desc1 = "As you continue searching the walls, a spectral hand suddenly reaches out, grabs you, and pulls you into " \
-          "the now insubstantial wall. You are never heard from again. "
+_._desc1 = "As you search, a spectral hand suddenly reaches out, grabs you, and pulls you into " \
+          "the now insubstantial wall. You are never heard from again."
 
 _ = rooms("3")
 _._desc1 = "You enter a 90ft x 40ft room full of wine and ale casks. Many are open. You don't see any other doors or " \

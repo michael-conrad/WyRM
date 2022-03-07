@@ -6,11 +6,19 @@ from skills import CharacterSkillsList
 
 @dataclass(slots=True)
 class Shield:
-    name: str = ""
+    _name: str = ""
     location: str = ""
     defense_bonus: int = 0
     armor_penalty: int = 0
     cost_sp: int = 0
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
 
     @property
     def base_name(self) -> str:
@@ -25,14 +33,14 @@ class Shield:
     def __str__(self) -> str:
         name: str = f"{self.name}, Defense: +{self.defense_bonus}, Mana: -{self.armor_penalty}"
         if hasattr(self, 'location') and self.location:
-            return f"{name} ({self.location})"
+            return f"{name} <{self.location}>"
         return name
 
     def set_location(self, location: str) -> "Shield":
         self.location = location
         return self
 
-    def with_location(self, location: str) -> "Item":
+    def with_location(self, location: str) -> "Shield":
         self.location = location
         return self
 

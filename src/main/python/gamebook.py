@@ -411,12 +411,15 @@ def main() -> None:
                     new_section.text.append(f"!NPC.set_section_tag(\"{section.label}\")")
                     new_section.text.append(f"")
                     new_section.text.append(f"@turn: turn + 1")
-                    new_section.text.append(f"@'' if turn % 20 != 0 else 'Torch starts guttering'")
+                    new_section.text.append(f"@''"
+                                            f" if (player.darkvision or turn % 20 != 0)"
+                                            f" else 'Torch starts sputtering'")
                     new_section.text.append(f"")
                     if auto_go:
+                        new_section.text.append(f"!room.info_directions")
                         new_section.text.append(f"!room.go(\"{auto_go}\")")
                     else:
-                        new_section.text.append(f"!room.info_directions")
+                        new_section.text.append(f"!room.info")
                         new_section.text.append(f";!room.go(\"\")")
                     new_section.text.append(f"")
                     new_section.text.append(f"@wander(6, 1) if turn < 10 else ''")

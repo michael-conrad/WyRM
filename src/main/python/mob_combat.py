@@ -112,6 +112,7 @@ class MobUnit:
             return None
 
         combat_log: list[str] = list()
+        combat_log.append("!room.npc_list")
         if have_initiative is None:
             have_initiative = self.initiative_check(opponent_mob)
 
@@ -139,6 +140,7 @@ class MobUnit:
                         combat_log.append(f"!player.fate={unit.fate}")
                     else:
                         combat_log.append(f"!room.npc(\"{name}\").fate={unit.fate}")
+        combat_log.append("!room.npc_list")
         return combat_log
 
     def initiative_check(self, opponent_mob: "MobUnit", have_initiative: bool | None = None) -> bool:

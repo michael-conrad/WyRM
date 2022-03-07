@@ -1370,7 +1370,7 @@ soles inside one of the empty casks.
 :Stow boots then head upstairs.|41e9986e
 
 
-[Stow boots then head upstairs.|41e9986e] (51a0c57c) - End Game: False =================================================
+[Stow boots then head upstairs.|41e9986e] (51a0c57c) - End Game: True ==================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -12062,7 +12062,7 @@ Looking over, you see the shredded remains of three bushes, two skeleton
 archers taking aim at you, and two zombies rushing forwards to devour you.
 
 !initiative(player, room.npc("#4"))
-;## Second Group: Second Group
+;## First Group: First Group
 
 ;;; !player.run_combat(room.npc_group("zombie"))
 
@@ -37753,9 +37753,9 @@ towards you at great speed.
 !room=rooms(location).with_facing(facing)
 !room # 
 ;## ROOM: 2-wall (1)
-;## As you continue searching the walls, a spectral hand suddenly reaches
-;## out, grabs you, and pulls you into the now insubstantial wall. You are
-;## never heard from again.
+;## As you search, a spectral hand suddenly reaches out, grabs you, and
+;## pulls you into the now insubstantial wall. You are never heard from
+;## again.
 
 As you continue searching the walls, a spectral hand suddenly reaches out,
 grabs you, and pulls you into the now insubstantial wall. You are never heard
@@ -38012,9 +38012,9 @@ towards you.
 !room=rooms(location).with_facing(facing)
 !room # 
 ;## ROOM: 2-wall (1)
-;## As you continue searching the walls, a spectral hand suddenly reaches
-;## out, grabs you, and pulls you into the now insubstantial wall. You are
-;## never heard from again.
+;## As you search, a spectral hand suddenly reaches out, grabs you, and
+;## pulls you into the now insubstantial wall. You are never heard from
+;## again.
 
 As you continue searching the walls, a spectral hand suddenly reaches out,
 grabs you, and pulls you into the now insubstantial wall. You are never heard
@@ -39865,11 +39865,12 @@ you are on the hillside with the ruins of the abbey a short ways above.
 ; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
-!player.found_items # 
-;## Lit torch (#1) <loc:hand>
-;## Boots of Striding, Rogue +2 (#1) <loc:feet>
-;## SP: 122 (#13)
-;## Belt of Might, Warrior: +2 (#1)
+;;; !player.found_items #
+
+* Lit torch (#1)
+* Boots of Striding, Rogue +2 (#1)
+* SP: 122 (#13)
+* Belt of Might, Warrior: +2 (#1)
 
 * Boots of Striding, Rogue +2
 * Belt of Might, Warrior: +2
@@ -42635,10 +42636,11 @@ You make your way downhill and then trek back to town. You take the time to
 rest and heal overnight at the inn. Early the next morning you head to the
 various shops in town to discover what loot you have gained.
 
-!player.found_items # 
-;## Lit torch (#1) <loc:hand>
-;## Longbow +1/+1 (#1) <loc:backpack>
-;## SP: 122 (#9)
+;;; !player.found_items #
+
+* Lit torch (#1)
+* Longbow +1/+1 (#1)
+* SP: 122 (#9)
 
 * Longbow +1/+1 (#1) <loc:backpack>
 
@@ -43661,12 +43663,13 @@ various shops in town to discover what loot you have gained.
 ; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
-!player.found_items # 
-;## Lit torch (#1) <loc:hand>
-;## Boots of Striding, Rogue +2 (#1) <loc:feet>
-;## SP: 122 (#13)
-;## Goggles of dark vision (#1)
-;## Belt of Might, Warrior: +1 (#2) <loc:backpack>
+;;; !player.found_items #
+
+* Lit torch (#1)
+* Boots of Striding, Rogue +2 (#1)
+* SP: 122 (#13)
+* Goggles of dark vision (#1)
+* Belt of Might, Warrior: +1 (#2)
 
 * Boots of Striding, Rogue +2
 * Goggles of dark vision
@@ -45174,7 +45177,7 @@ to your front.
 :Go straight through.|3fb85c9c
 
 
-[Go straight through.|3fb85c9c] (4c91ff5a) - End Game: False ===========================================================
+[Go straight through.|3fb85c9c] (4c91ff5a) - End Game: True ============================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -45658,12 +45661,13 @@ various shops in town to discover what loot you have gained.
 ; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
-!player.found_items # 
-;## Lit torch (#1) <loc:hand>
-;## Boots of Striding, Rogue +2 (#1) <loc:feet>
-;## SP: 122 (#13)
-;## Goggles of dark vision (#1)
-;## Ring of Protection, Armor +1 (#2)
+;;; !player.found_items #
+
+* Lit torch (#1)
+* Boots of Striding, Rogue +2 (#1)
+* SP: 122 (#13)
+* Goggles of dark vision (#1)
+* Ring of Protection, Armor +1 (#2)
 
 * Boots of Striding, Rogue +2
 * Goggles of dark vision
@@ -45843,11 +45847,12 @@ various shops in town to discover what loot you have gained.
 ; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
-!player.found_items # 
-;## Lit torch (#1) <loc:hand>
-;## Boots of Striding, Rogue +2 (#1) <loc:feet>
-;## SP: 122 (#13)
-;## Goggles of dark vision (#1)
+;;; !player.found_items #
+
+* Lit torch (#1)
+* Boots of Striding, Rogue +2 (#1)
+* SP: 122 (#13)
+* Goggles of dark vision (#1)
 
 * Boots of Striding, Rogue +2
 * Goggles of dark vision
@@ -47101,7 +47106,7 @@ You loot the corpses:
 * CP: 62
 
 !room.info_directions # 
-;##  to your right→5a behind you→4way
+;## [5 to your right→5a behind you→4way
 
 :Examine empty alcove.|57f52cfa
 :Return to 4-way.|787ec967
@@ -47191,14 +47196,15 @@ chest in front of you is in the far corner of the room.
 !room.add_item(l)
 
 You walk over to the chest and find a pair of goggles.
-!player.found_items # 
-;## Axe (Dark Enchanted) (+1/+1). Two-handed.
-;## Boots of Striding, Rogue +2 (#1) <loc:feet>
-;## SP: 122 (#13)
-;## Goggles of dark vision (#1)
-;## SP: 14 (#1)
-;## EP: 10 (#3)
-;## GP: 42 (#1)
+;;; !player.found_items #
+
+* Axe (Dark Enchanted)
+* Boots of Striding, Rogue +2 (#1)
+* SP: 122 (#13)
+* Goggles of dark vision (#1)
+* SP: 14 (#1)
+* EP: 10 (#3)
+* GP: 42 (#1)
 
 The look identical to the pair you already have. You put them away with the
 others in your backpack.
@@ -47739,11 +47745,12 @@ You enter the tunnel. The ground slopes downwards.
 ; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
-!player.found_items # 
-;## Lit torch (#1) <loc:hand>
-;## Boots of Striding, Rogue +2 (#1) <loc:feet>
-;## SP: 122 (#13)
-;## Belt of Might, Warrior: +2 (#1)
+;;; !player.found_items #
+
+* Lit torch (#1)
+* Boots of Striding, Rogue +2 (#1)
+* SP: 122 (#13)
+* Belt of Might, Warrior: +2 (#1)
 
 * Boots of Striding, Rogue +2
 * Belt of Might, Warrior: +2
@@ -47753,7 +47760,7 @@ Two decent items! But surely you can do better!
 :Start Over.|start
 
 
-[Examine empty alcove.|a6c245e9] (8a093ebe) - End Game: False ==========================================================
+[Examine empty alcove.|a6c245e9] (8a093ebe) - End Game: True ===========================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -47832,7 +47839,7 @@ inside, you see a small black felt back that appears to be empty.
 :Stow bag and return to crypt.|5016fab3
 
 
-[Stow bag and return to crypt.|5016fab3] (a6c245e9) - End Game: False ==================================================
+[Stow bag and return to crypt.|5016fab3] (a6c245e9) - End Game: True ===================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -47914,7 +47921,7 @@ behind you.
 :Loot alcoves.|90abca18
 
 
-[Go through portcullis to your left.|471dfacf] (5016fab3) - End Game: False ============================================
+[Go through portcullis to your left.|471dfacf] (5016fab3) - End Game: True =============================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -48089,7 +48096,7 @@ to your left.
 :Climb the stairs.|f6e54031
 
 
-[Go straight ahead.|773e7abf] (471dfacf) - End Game: False =============================================================
+[Go straight ahead.|773e7abf] (471dfacf) - End Game: True ==============================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -48175,7 +48182,7 @@ stairs heading down. The room full of casks is down the stairs in front of you.
 :Go left.|0abfe7d0
 
 
-[Go left.|0abfe7d0] (773e7abf) - End Game: False =======================================================================
+[Go left.|0abfe7d0] (773e7abf) - End Game: True ========================================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -48271,7 +48278,7 @@ You see three skeleton warriors and a zombie step into view.
 :Rush in, kill the undead, take the axe.|38113fea
 
 
-[Rush in, kill the undead, take the axe.|38113fea] (0abfe7d0) - End Game: False ========================================
+[Rush in, kill the undead, take the axe.|38113fea] (0abfe7d0) - End Game: True =========================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -48319,7 +48326,7 @@ You see three skeleton warriors and a zombie step into view.
 ; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
 
 !room.info_directions # 
-;##  search→2-wall behind you→3way
+;## [2 search→2-wall behind you→3way
 ;!room.go("")
 
 ; "" # @wander(6, 1) if turn < 10 else ''
@@ -48349,7 +48356,9 @@ You loot the undead.
 
 ;;; !room.mob.player_loot
 !player.add_item('CP: 62') # CP: 62 (#2)
+;## CP: 62 (#2)
 !player.add_item('SP: 8') # SP: 8 (#1)
+;## SP: 8 (#1)
 
 * CP: 62
 * SP: 8
@@ -48384,11 +48393,11 @@ You see nothing else of immediate value.
 
 !room.complete=True
 
-:Return to intersection|abc9a8fd
-:Search walls|7fe36a4c
+:Return to intersection.|abc9a8fd
+:Search walls.|7fe36a4c
 
 
-[Rush in, grab the axe, kill the undead.|7e5add2e] (0abfe7d0) - End Game: False - TODO: CHOICES ========================
+[Rush in, grab the axe, kill the undead.|7e5add2e] (0abfe7d0) - End Game: False ========================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -48436,7 +48445,7 @@ You see nothing else of immediate value.
 ; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
 
 !room.info_directions # 
-;##  search→2-wall behind you→3way
+;## [2 search→2-wall behind you→3way
 ;!room.go("")
 
 ; "" # @wander(6, 1) if turn < 10 else ''
@@ -48446,8 +48455,41 @@ You see nothing else of immediate value.
 
 ; "First Group: Player (HP: 11, XP: 0)" # @initiative(player, room.npcs)
 
+You rush in, set your torch and existing weapon down, pick up the two-handed
+axe, and attack.
 
-[Search walls|7fe36a4c] (38113fea) - End Game: False - TODO: CHOICES ===================================================
+!room.add_item(player.drop("torch").with_new_name("Used torch").with_location(None))
+!room.add_item(player.drop("axe"))
+!player.equip_weapon(room.pop_item("dark")) # Axe (Dark Enchanted) (+1/+1). Two-handed.
+;## Axe (Dark Enchanted) (+1/+1). Two-handed.
+
+;;; !room.mob.combat(player)
+; Skeleton Warrior 35169113 (#1) MobUnit#0 has initiative
+;!player.hp=0 # -11 HP, DIED.
+; Player MobUnit#1 lost 1 units. No units remaining. - Wiped out.
+
+The first skeleton you approach performs a dazzling block and parry and shoves
+directly towards your heart with its sword!
+
+FATE -1. FATE POINTS REMAINING: 1.
+
+; 4 Zombies show up and attacks opponent(s). Player gets an automatic flee success check.  Creatures will attack player if they run out of opponents. (8)
+!player.fate=1
+
+;;; !NPC.spawn(NPC.zombie,4)
+!room.add_item(NPC.zombie())
+!room.add_item(NPC.zombie())
+!room.add_item(NPC.zombie())
+!room.add_item(NPC.zombie())
+
+Suddenly there is a jostling in the group which throws its aim far enough off
+to be a complete miss. More zombies are crowding in!
+
+:Press the attack.|fbf533cc
+:Take advantage and flee.|87f7d333
+
+
+[Search walls.|7fe36a4c] (38113fea) - End Game: True ===================================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -48467,7 +48509,7 @@ You see nothing else of immediate value.
 ;## -> Go straight ahead.|773e7abf (3way)
 ;## -> Go left.|0abfe7d0 (2)
 ;## -> Rush in, kill the undead, take the axe.|38113fea (2)
-;## -> Search walls|7fe36a4c
+;## -> Search walls.|7fe36a4c
 
 ;## Location: 2
 ;## Facing: e
@@ -48489,6 +48531,7 @@ You see nothing else of immediate value.
 ;## 5a *** COMPLETED: 
 ;## start (visited): 
 ;## town: 
+
 !NPC.set_section_tag("38113fea")
 
 !turn= 19 # @turn: turn + 1
@@ -48499,20 +48542,102 @@ You see nothing else of immediate value.
 !facing="search"
 !location="2-wall"
 !room=rooms(location).with_facing(facing)
-!room
-
+!room # 
 ;## ROOM: 2-wall (1)
-;## As you continue searching the walls, a spectral hand suddenly reaches
-;## out, grabs you, and pulls you into the now insubstantial wall. You are
-;## never heard from again.
+;## As you search, a spectral hand suddenly reaches out, grabs you, and
+;## pulls you into the now insubstantial wall. You are never heard from
+;## again.
+
+As you search the walls, a spectral hand suddenly reaches out, grabs you, and
+pulls you into the now insubstantial wall. You are never heard from again.
 
 ; "" # @wander(6, 1) if turn < 10 else ''
 ; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
 ; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
+:Start Over.|start
 
-[Loot alcoves.|90abca18] (5016fab3) - End Game: False ==================================================================
+
+[Take advantage and flee.|87f7d333] (7e5add2e) - End Game: False =======================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Go through portcullis to your left.|471dfacf (4way)
+;## -> Go straight ahead.|773e7abf (3way)
+;## -> Go left.|0abfe7d0 (2)
+;## -> Rush in, grab the axe, kill the undead.|7e5add2e (2)
+;## -> Take advantage and flee.|87f7d333
+
+;## Location: 2
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '3way', '2']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2 (visited): 
+;## 2-wall: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("7e5add2e")
+
+!turn= 19 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+;;; !room.go("back")
+
+!facing="w"
+!location="3way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 3way (4)
+;## You return to the three way. You see passageways behind you, to your
+;## right, and to your left. The passage to your left ends after 10ft at a
+;## flight of stairs heading down. The room full of casks is down the
+;## stairs to your left.
+
+;## behind you [E]: 2
+;## to your right [N]: 4way
+;## to your left [S]: 3 ***
+
+You return to the three way. You see passageways behind you, to your right, and
+to your left. The passage to your left ends after 10ft at a flight of stairs
+heading down. The room full of casks is down the stairs to your left.
+
+!room.add_desc("The cave with plinth is /E/.")
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+:Go right.|cc421e97
+
+
+[Loot alcoves.|90abca18] (5016fab3) - End Game: True ===================================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -48604,7 +48729,7 @@ An opening appears in their attack.
 :Take advantage and flee through the portcullis.|6b843204
 
 
-[Take advantage and flee through the portcullis.|6b843204] (90abca18) - End Game: False ================================
+[Take advantage and flee through the portcullis.|6b843204] (90abca18) - End Game: True =================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -48701,7 +48826,7 @@ You see five dead giant beetles.
 :Go straight.|e3d226a0
 
 
-[Go left.|2664604b] (6b843204) - End Game: False =======================================================================
+[Go left.|2664604b] (6b843204) - End Game: True ========================================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -48772,7 +48897,7 @@ to your left.
 :Climb stairs.|3b88dbc8
 
 
-[Climb stairs.|3b88dbc8] (2664604b) - End Game: False - TODO: CHOICES ==================================================
+[Climb stairs.|3b88dbc8] (2664604b) - End Game: True ===================================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -48820,16 +48945,926 @@ to your left.
 ; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
 
 !room.info_directions # 
-;##  to your left→1b up→1b behind you→4way
-;!room.go("")
+;## [1 to your left→1b up→1b behind you→4way
+;;; !room.go("up")
+
+!facing="up"
+!location="1b"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 1b (1)
+;## You are in the ruins of the abbey next to a flight of stairs heading
+;## down into the earth.
+
+;## down: 1
+;## town: town
+
+You are in the ruins of the abbey next to a flight of stairs heading down into
+the earth.
 
 ; "" # @wander(6, 1) if turn < 10 else ''
 ; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
 ; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
+:Go down stairs.|583d287f
+:Return to town.|72f108d9
 
-[Press the attack.|77c80c38] (90abca18) - End Game: False - TODO: CHOICES ==============================================
+
+[Go down stairs.|583d287f] (3b88dbc8) - End Game: True =================================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f
+
+;## Location: 1b
+;## Facing: up
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("3b88dbc8")
+
+!turn= 19 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+;;; !room.go("1")
+
+!facing="down"
+!location="1"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 1 (3)
+;## You travel down a 100ft passage and come to a bend. A flight of stairs
+;## leads up /N/.
+
+;## n: 1b
+;## up: 1b
+;## w: 4way
+
+You reach the bottom of flight of stairs that. There is a passage heading off
+into darkness.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+;;; !room.go("4way")
+
+!facing="w"
+!location="4way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 4way (6)
+;## You are at a four way intersection. The passage behind you leads to
+;## the ruins above. The crypt full of undead is to your right.
+
+;## [1] DEAD Giant Beetle (#16) (HP: 0, XP: 0)
+;## [2] DEAD Giant Beetle (#17) (HP: 0, XP: 0)
+;## [3] DEAD Giant Beetle (#18) (HP: 0, XP: 0)
+;## [4] DEAD Giant Beetle (#19) (HP: 0, XP: 0)
+;## [5] DEAD Giant Beetle (#20) (HP: 0, XP: 0)
+
+;## behind you [E]: 1
+;## to your right [N]: 5
+;## to your left [S]: 3way
+;## in front of you [W]: 4
+
+You walk 100ft and arrive at a four way intersection. The passage behind you
+leads to the ruins above. The crypt full of undead is to your right.
+
+You see five dead giant beetles.
+
+:Go left.|23e48d62
+:Go right.|0f72a398
+:Go straight through.|0ccd4512
+
+
+[Go straight through.|0ccd4512] (583d287f) - End Game: True ============================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go straight through.|0ccd4512
+
+;## Location: 4way
+;## Facing: w
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("583d287f")
+
+!turn= 20 # @turn: turn + 1
+; "Torch starts guttering" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+;;; !room.go("front")
+
+!facing="w"
+!location="4"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 4 (2)
+;## You are in the cave with a pond in the middle. There is a large crack
+;## in the wall to your left. The cave entrance is behind you.
+
+;## [1] Giant Spider (#4) (HP: 24, XP: 0)
+;## [2] Giant Spider (#5) (HP: 24, XP: 0)
+;## [3] Giant Spider (#6) (HP: 24, XP: 0)
+
+;## behind you [E]: 4way
+;## pond: 4-pond
+;## to your left [S]: 4a
+
+You are in the cave with a pond in the middle. There is a large crack in the
+wall to your left. The cave entrance is behind you.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+You are set on by three familiar looking giant spiders.
+
+;;; !room.mob.combat(player)
+; Giant Spider (#4) MobUnit#0 has initiative
+!room.npc("Giant Spider (#4)").hp=20 # -4 HP
+;!player.hp=0 # -11 HP, DIED.
+; Player MobUnit#1 lost 1 units. No units remaining. - Wiped out.
+
+The spiders rush you, about to turn you into dinner.
+
+FATE -1. NO FATE POINTS REMAINING.
+
+; 3 Giant Spiders show up and attacks opponent(s). Player gets an automatic flee success check.  Creatures will attack player if they run out of opponents. (7)
+!player.fate=0
+
+Suddenly three more giant spiders rush in from crack and start hissing at your
+attackers. Your attackers pause and start hissing back.
+
+;;; !NPC.spawn(NPC.giant_spider, 3)
+!room.add_item(NPC.giant_spider())
+!room.add_item(NPC.giant_spider())
+!room.add_item(NPC.giant_spider())
+
+:Fight.|69d1c232
+:Flee.|421e514d
+
+
+[Go right.|0f72a398] (583d287f) - End Game: False ======================================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go right.|0f72a398
+
+;## Location: 4way
+;## Facing: w
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("583d287f")
+
+!turn= 20 # @turn: turn + 1
+; "Torch starts guttering" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+;;; !room.go("right")
+
+!facing="n"
+!location="5"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 5 (3)
+;## You return to the crypt. The portcullis is behind you. The empty
+;## alcove is to your right.
+
+;## [1] Skeleton Warrior (#45) (HP: 6, XP: 0)
+;## [2] Skeleton Warrior (#46) (HP: 7, XP: 0)
+;## [3] Skeleton Warrior (#47) (HP: 9, XP: 0)
+;## [4] Zombie (#70) (HP: 12, XP: 0)
+;## [5] Zombie (#71) (HP: 8, XP: 0)
+
+;## to your right [E]: 5a ***
+;## behind you [S]: 4way
+
+You return to the crypt. The portcullis is behind you. The empty alcove is to
+your right.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+!room.complete=True
+
+The occupents of the alcoves seem restless. Several of them stand up and rush
+you attacking.
+
+;;; !room.mob.combat(player)
+; Skeleton Warrior (#45) MobUnit#0 has initiative
+!room.npc("Skeleton Warrior (#46)").hp=3 # -4 HP
+!room.npc("Skeleton Warrior (#46)").hp=2 # -1 HP
+!room.npc("Skeleton Warrior (#45)").hp=0 # -6 HP, DIED.
+!room.npc("Skeleton Warrior (#47)").hp=7 # -2 HP
+; Skeleton Warrior (#45) MobUnit#0 lost 1 units. 4 units remaining. (HP: 29) - Moderate casualties.
+!room.npc("Skeleton Warrior (#47)").hp=2 # -5 HP
+!room.npc("Zombie (#71)").hp=6 # -2 HP
+!room.npc("Skeleton Warrior (#46)").hp=0 # -2 HP, DIED.
+!room.npc("Zombie (#71)").hp=1 # -5 HP
+; Skeleton Warrior (#45) MobUnit#0 lost 1 units. 3 units remaining. (HP: 15) - Moderate casualties.
+!room.npc("Skeleton Warrior (#47)").hp=0 # -2 HP, DIED.
+!room.npc("Zombie (#70)").hp=9 # -3 HP
+; Skeleton Warrior (#45) MobUnit#0 lost 1 units. 2 units remaining. (HP: 10) - Moderate casualties.
+!room.npc("Zombie (#70)").hp=7 # -2 HP
+!room.npc("Zombie (#70)").hp=4 # -3 HP
+!room.npc("Zombie (#71)").hp=0 # -1 HP, DIED.
+; Skeleton Warrior (#45) MobUnit#0 lost 1 units. 1 units remaining. (HP: 4) - Moderate casualties.
+!room.npc("Zombie (#70)").hp=0 # -4 HP, DIED.
+; Skeleton Warrior (#45) MobUnit#0 lost 1 units. No units remaining. - Wiped out.
+
+You work to end their existence. -4 HP, -1 HP, -6 HP. A skeleton drops. -2 HP,
+-5 HP, -2 HP, -2 HP. Another skeleton drops. -5 HP, -2 HP. A third skeleton
+drops. -3 HP, -2 HP, -3 HP, -1 HP. You behead a zombie. -4 HP. The last zombie
+falls.
+
+You loot the corpses.
+
+;;; !room.mob.player_loot
+!player.add_item('CP: 70') # CP: 70 (#1)
+;## CP: 70 (#1)
+!player.add_item('EP: 12') # EP: 12 (#1)
+;## EP: 12 (#1)
+
+* CP: 70
+* EP: 12
+
+You search the remaining alcoves but find nothing else of interest.
+
+!room.complete=True
+
+:Return to the 4-way.|a2d7e557
+
+
+[Go left.|23e48d62] (583d287f) - End Game: False =======================================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go left.|23e48d62
+
+;## Location: 4way
+;## Facing: w
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("583d287f")
+
+!turn= 20 # @turn: turn + 1
+; "Torch starts guttering" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+Your torch start sputtering and going out. You light a replacement then discard
+the old one.
+
+!room.add_item(player.drop('torch').with_new_name('Used torch'))
+
+;;; !room.go("left")
+
+!facing="s"
+!location="3way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 3way (3)
+;## You return to the three way. You see passageways to your left, behind
+;## you, and in front of you. The passage in front of you ends after 10ft
+;## at a flight of stairs heading down.
+
+;## to your left [E]: 2
+;## behind you [N]: 4way
+;## in front of you [S]: 3 ***
+
+You return to the three way. You see passageways to your left, behind you, and
+in front of you. The passage in front of you ends after 10ft at a flight of
+stairs heading down.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+!room.add_desc("The room full of empty casks is /S/.")
+
+:Go left.|e83c9099
+
+
+[Flee.|421e514d] (0ccd4512) - End Game: True ===========================================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go straight through.|0ccd4512 (4)
+;## -> Flee.|421e514d
+
+;## Location: 4
+;## Facing: w
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way', '4']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("0ccd4512")
+
+!turn= 21 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+;;; !room.go("4way")
+
+!facing="e"
+!location="4way"
+!room=rooms(location).with_facing(facing)
+
+!room # 
+;## ROOM: 4way (7)
+;## You are at a four way intersection. The passage in front of you leads
+;## to the ruins above. The crypt full of undead is to your left.
+
+;## [1] DEAD Giant Beetle (#16) (HP: 0, XP: 0)
+;## [2] DEAD Giant Beetle (#17) (HP: 0, XP: 0)
+;## [3] DEAD Giant Beetle (#18) (HP: 0, XP: 0)
+;## [4] DEAD Giant Beetle (#19) (HP: 0, XP: 0)
+;## [5] DEAD Giant Beetle (#20) (HP: 0, XP: 0)
+
+;## in front of you [E]: 1
+;## to your left [N]: 5
+;## to your right [S]: 3way
+;## behind you [W]: 4
+
+You are at a four way intersection. The passage in front of you leads to the
+ruins above. The crypt full of undead is to your left.
+
+You see five dead giant beetles.
+
+!room.add_desc("The cave /W/ is full of giant spiders.")
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "2 hobgoblin warriors" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+;;; !NPC.spawn(NPC.hobgoblin_warrior, 2)
+!room.add_item(NPC.hobgoblin_warrior())
+!room.add_item(NPC.hobgoblin_warrior())
+
+You are bushwhacked by two hobgolins in wait!
+
+;;; !room.mob.combat(player)
+; Hobgoblin Warrior 0ccd4512 (#1) MobUnit#0 has initiative
+!room.npc("Hobgoblin Warrior 0ccd4512 (#2)").hp=7 # -1 HP
+!room.npc("Hobgoblin Warrior 0ccd4512 (#2)").hp=5 # -2 HP
+!room.npc("Hobgoblin Warrior 0ccd4512 (#2)").hp=0 # -5 HP, DIED.
+; Hobgoblin Warrior 0ccd4512 (#1) MobUnit#0 lost 1 units. 1 units remaining. (HP: 8) - Moderate casualties.
+!room.npc("Hobgoblin Warrior 0ccd4512 (#1)").hp=7 # -1 HP
+!room.npc("Hobgoblin Warrior 0ccd4512 (#1)").hp=6 # -1 HP
+!room.npc("Hobgoblin Warrior 0ccd4512 (#1)").hp=2 # -4 HP
+!room.npc("Hobgoblin Warrior 0ccd4512 (#1)").hp=0 # -2 HP, DIED.
+; Hobgoblin Warrior 0ccd4512 (#1) MobUnit#0 lost 1 units. No units remaining. - Wiped out.
+
+Such insolence! -1 HP, -2 HP, -5 HP. You hack and slash the first offender. -1
+HP, -1 HP, - HP, -2 HP. You end the second one's suffering.
+
+You loot the corpses.
+
+;;; !room.mob_group("hobgoblin").player_loot
+!player.add_item('CP: 22') # CP: 22 (#1)
+;## CP: 22 (#1)
+!player.add_item('GP: 10') # GP: 10 (#2)
+;## GP: 10 (#2)
+
+* CP: 22
+* GP: 10
+
+:Continue straight through.|5409d1c1
+:Go left.|4b4cd29b
+:Go right.|dfcf5fa2
+
+
+[Go left.|4b4cd29b] (421e514d) - End Game: True ========================================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go straight through.|0ccd4512 (4)
+;## -> Flee.|421e514d (4way)
+;## -> Go left.|4b4cd29b
+
+;## Location: 4way
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way', '4', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("421e514d")
+
+!turn= 22 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4way in front of you→1 to your left→5 to your right→3way behind you→4
+;;; !room.go("left")
+
+!facing="n"
+!location="5"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 5 (3)
+;## You return to the crypt. The portcullis is behind you. The empty
+;## alcove is to your right.
+
+;## [1] Skeleton Warrior (#45) (HP: 6, XP: 0)
+;## [2] Skeleton Warrior (#46) (HP: 7, XP: 0)
+;## [3] Skeleton Warrior (#47) (HP: 9, XP: 0)
+;## [4] Zombie (#70) (HP: 12, XP: 0)
+;## [5] Zombie (#71) (HP: 8, XP: 0)
+
+;## to your right [E]: 5a ***
+;## behind you [S]: 4way
+
+You return to the crypt. The portcullis is behind you. The empty alcove is to
+your right.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+Suddenly zombies and skeleton warriors pour into the room from the alcoves and
+attack!
+
+;;; !room.mob.combat(player)
+; Skeleton Warrior (#45) MobUnit#0 has initiative
+!room.npc("Skeleton Warrior (#45)").hp=4 # -2 HP
+!room.npc("Skeleton Warrior (#46)").hp=2 # -5 HP
+!room.npc("Skeleton Warrior (#45)").hp=0 # -4 HP, DIED.
+!room.npc("Skeleton Warrior (#46)").hp=0 # -2 HP, DIED.
+!room.npc("Zombie (#71)").hp=6 # -2 HP
+; Skeleton Warrior (#45) MobUnit#0 lost 2 units. 3 units remaining. (HP: 27) - Moderate casualties.
+!player.hp=3 # -8 HP
+!room.npc("Zombie (#70)").hp=11 # -1 HP
+!player.hp=0 # -3 HP, DIED.
+; Player MobUnit#1 lost 1 units. No units remaining. - Wiped out.
+
+You start swinging wildly into the undead horde with your axe. -2 HP, -5 HP, -4
+HP. A skeleton drops. -2 HP. Another drops. You sink your axe into a zombie. -2
+HP. It retaliates by chewing into your arm. -8 HP. You pull your axe from its
+chest. -1 HP. Another zombie grabs you from beind and bites down through your
+armor. -3 HP. You die.
+
+You are a zombie.
+
+;## ---> PLAYER IS DEAD <---
+
+:Start Over.|start
+
+
+[Continue straight through.|5409d1c1] (421e514d) - End Game: False =====================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go straight through.|0ccd4512 (4)
+;## -> Flee.|421e514d (4way)
+;## -> Continue straight through.|5409d1c1
+
+;## Location: 4way
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way', '4', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("421e514d")
+
+!turn= 22 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4way in front of you→1 to your left→5 to your right→3way behind you→4
+;;; !room.go("forward")
+
+!facing="e"
+!location="1"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 1 (4)
+;## You travel down a 100ft passage and come to a bend. A flight of stairs
+;## leads up to your left.
+
+;## to your left [N]: 1b
+;## up: 1b
+;## behind you [W]: 4way
+
+You travel down a 100ft passage and come to a bend. A flight of stairs leads up
+to your left.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+:Climb the stairs.|d43d0c0f
+
+
+[Fight.|69d1c232] (0ccd4512) - End Game: True ==========================================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go straight through.|0ccd4512 (4)
+;## -> Fight.|69d1c232
+
+;## Location: 4
+;## Facing: w
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way', '4']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("0ccd4512")
+
+!turn= 21 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4 behind you→4way pond→4-pond to your left→4a
+;!room.go("")
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "4 giant rats" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+;;; !NPC.spawn(NPC.giant_rat, 4)
+!room.add_item(NPC.giant_rat())
+!room.add_item(NPC.giant_rat())
+!room.add_item(NPC.giant_rat())
+!room.add_item(NPC.giant_rat())
+
+;;; !room.mob.combat(player)
+; Player MobUnit#2 has initiative
+!player.hp=0 # -11 HP, DIED.
+; Player MobUnit#2 lost 1 units. No units remaining. - Wiped out.
+
+!room.npc_list # 
+;## Giant Spider (#4) (HP: 20, XP: 0)
+;## Giant Spider (#5) (HP: 24, XP: 0)
+;## Giant Spider (#6) (HP: 24, XP: 0)
+;## Giant Spider 583d287f (#1) (HP: 24, XP: 0)
+;## Giant Spider 583d287f (#2) (HP: 24, XP: 0)
+;## Giant Spider 583d287f (#3) (HP: 24, XP: 0)
+;## Giant Rat 0ccd4512 (#1) (HP: 12, XP: 0)
+;## Giant Rat 0ccd4512 (#2) (HP: 12, XP: 0)
+;## Giant Rat 0ccd4512 (#3) (HP: 12, XP: 0)
+;## Giant Rat 0ccd4512 (#4) (HP: 12, XP: 0)
+
+The six spiders make little work of you and quickly prepare you for storage in
+their larder.
+
+;## ---> PLAYER IS DEAD <---
+
+:Start Over.|start
+
+
+[Return to town.|72f108d9] (3b88dbc8) - End Game: True =================================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Return to town.|72f108d9
+
+;## Location: 1b
+;## Facing: up
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("3b88dbc8")
+
+!turn= 19 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+;;; !room.go("town")
+
+!facing="town"
+!location="town"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: town (1)
+;## You make your way downhill and then trek back to town. You take the
+;## time to rest and heal overnight at the inn. Early the next morning you
+;## head to the various shops in town to discover what loot you have
+;## gained.
+
+You make your way downhill and then trek back to town. You take the time to
+rest and heal overnight at the inn. Early the next morning you head to the
+various shops in town to discover what loot you have gained.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+;;; !player.found_items #
+
+* Lit torch (#1)
+* Boots of Striding, Rogue +2 (#1)
+* SP: 122 (#13)
+* Bag of Holding (#3)
+
+* Boots of Striding, Rogue +2
+* Bag of Holding
+
+Not that impressive.
+
+:Start Over.|start
+
+
+[Press the attack.|77c80c38] (90abca18) - End Game: True ===============================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -48907,6 +49942,8 @@ the room from the alcoves!
 ;!player.hp=0 # -11 HP, DIED.
 ; Player MobUnit#1 lost 1 units. No units remaining. - Wiped out.
 
+You get two quick hits in, but none of the undead fall. -4 HP, -1 HP.
+
 FATE -1. NO FATE POINTS REMAINING.
 
 ; 3 Giant Spiders show up and attacks opponent(s). Player gets an automatic flee success check.  Creatures will attack player if they run out of opponents. (8)
@@ -48917,8 +49954,131 @@ FATE -1. NO FATE POINTS REMAINING.
 !room.add_item(NPC.giant_spider())
 !room.add_item(NPC.giant_spider())
 
+Suddenly the press of undead flesh around you lessons, and you see three giant
+spiders attacking the undead!
 
-[Go right.|8dbd85f7] (6b843204) - End Game: False - TODO: CHOICES ======================================================
+:Flee.|f2ca1530
+:Wait and attack winners.|3a45e299
+
+
+[Wait and attack winners.|3a45e299] (77c80c38) - End Game: True ========================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Press the attack.|77c80c38 (5)
+;## -> Wait and attack winners.|3a45e299
+
+;## Location: 5
+;## Facing: w
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("77c80c38")
+
+!turn= 17 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info # 
+;## ROOM: 5 (Visited: True)
+;## You return to the crypt. The portcullis is to your left. The empty alcove is
+;## behind you.
+;##
+;## [1] Skeleton Warrior (#45) (HP: 6, XP: 0)
+;## [2] Skeleton Warrior (#46) (HP: 7, XP: 0)
+;## [3] Skeleton Warrior (#47) (HP: 9, XP: 0)
+;## [4] Zombie (#70) (HP: 8, XP: 0)
+;## [5] Zombie (#71) (HP: 8, XP: 0)
+;## [6] Skeleton Warrior 90abca18 (#1) (HP: 8, XP: 50)
+;## [7] Skeleton Warrior 90abca18 (#2) (HP: 9, XP: 50)
+;## [8] Skeleton Warrior 90abca18 (#3) (HP: 9, XP: 50)
+;## [9] Giant Spider 90abca18 (#1) (HP: 24, XP: 0)
+;## [10] Giant Spider 90abca18 (#2) (HP: 24, XP: 0)
+;## [11] Giant Spider 90abca18 (#3) (HP: 24, XP: 0)
+;##  behind you→5a* to your left→4way
+;!room.go("")
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+You watch the battle unfold.
+
+!spiders = room.mob_group("spider")
+!undead = room.mob_group("skeleton")
+!undead.add_units(room.mob_group("zombie")) # Skeleton Warrior (#45) MobUnit#0
+;## Skeleton Warrior (#45) MobUnit#0
+
+;;; !spiders.combat(undead)
+; Skeleton Warrior (#45) MobUnit#0 has initiative
+!room.npc("Skeleton Warrior (#47)").hp=0 # -9 HP, DIED.
+!room.npc("Skeleton Warrior 90abca18 (#3)").hp=8 # -1 HP
+!room.npc("Zombie (#70)").hp=0 # -8 HP, DIED.
+; Skeleton Warrior (#45) MobUnit#0 lost 2 units. 6 units remaining. (HP: 46) - Moderate casualties.
+!room.npc("Skeleton Warrior (#46)").hp=0 # -7 HP, DIED.
+!room.npc("Skeleton Warrior 90abca18 (#2)").hp=3 # -6 HP
+; Skeleton Warrior (#45) MobUnit#0 lost 1 units. 5 units remaining. (HP: 33) - Moderate casualties.
+!room.npc("Skeleton Warrior (#45)").hp=2 # -4 HP
+!room.npc("Skeleton Warrior 90abca18 (#1)").hp=0 # -8 HP, DIED.
+!room.npc("Skeleton Warrior 90abca18 (#2)").hp=0 # -3 HP, DIED.
+!room.npc("Skeleton Warrior 90abca18 (#3)").hp=0 # -8 HP, DIED.
+; Skeleton Warrior (#45) MobUnit#0 lost 3 units. 2 units remaining. (HP: 10) - Heavy casualties.
+!room.npc("Giant Spider 90abca18 (#1)").hp=17 # -7 HP
+!room.npc("Skeleton Warrior (#45)").hp=0 # -2 HP, DIED.
+!room.npc("Zombie (#71)").hp=0 # -8 HP, DIED.
+; Skeleton Warrior (#45) MobUnit#0 lost 2 units. No units remaining. - Wiped out.
+
+The spiders lay into the undead with zeal. -9 HP. A skeleton falls. -1 HP, -8
+HP. A zombie follows suit. -7 HP. Another skeleton. -6 HP. -4 HP, -8 HP. Another
+skeleton. -3 HP. And another. -8 HP. And another. A skeleton gets a lucky shot
+in on one of the spiders. -7 HP. It and the final zombie are quickly defeated
+however. -2 HP, -8 HP.
+
+You rush forwards to finish off the spiders.
+
+;;; !room.mob_group("spider").combat(player)
+; Giant Spider 90abca18 (#1) MobUnit#0 has initiative
+!player.hp=0 # -11 HP, DIED.
+; Player MobUnit#1 lost 1 units. No units remaining. - Wiped out.
+
+You don't get far before they are upon you, filling you full of their digestive
+enzymes.
+
+;## ---> PLAYER IS DEAD <---
+
+:Start Over.|start
+
+
+[Go right.|8dbd85f7] (6b843204) - End Game: False ======================================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -49001,15 +50161,172 @@ You are attacked by three familiar looking giant spiders.
 !player.hp=0 # -11 HP, DIED.
 ; Player MobUnit#2 lost 1 units. No units remaining. - Wiped out.
 
+You attack and begin dealing damage. -2 HP, -11 HP, -7 HP, -2 HP.
+
 FATE -1. NO FATE POINTS REMAINING.
+
+The spiders seem unfazed and look ready to end you in just a moment.
 
 ; 2 Fire Beetles show up and attacks opponent(s). Player gets an automatic flee success check.  Creatures will attack player if they run out of opponents. (7)
 !player.fate=0
 
+Suddenly the spiders turn from you and attack to glowing beetles which made the
+mistake of showing up near hungry arachnids.
+
+;;; !NPC.spawn(NPC.giant_fire_beetle, 2)
+!room.add_item(NPC.giant_fire_beetle())
+!room.add_item(NPC.giant_fire_beetle())
+
 ;## ---> PLAYER IS DEAD <---
 
+:Flee.|bc7f8f24
+:Wait and attack winners.|f18bd22c
 
-[Go left.|a74c7f0f] (3fb85c9c) - End Game: False =======================================================================
+
+[Return to the 4-way.|a2d7e557] (0f72a398) - End Game: False ===========================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go right.|0f72a398 (5)
+;## -> Return to the 4-way.|a2d7e557
+
+;## Location: 5
+;## Facing: n
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way', '5']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 *** COMPLETED: 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("0f72a398")
+
+!turn= 21 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+;;; !room.go("4way")
+
+!facing="s"
+!location="4way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 4way (7)
+;## You are at a four way intersection. The passage to your left leads to
+;## the ruins above. The crypt full of undead is behind you.
+
+;## [1] DEAD Giant Beetle (#16) (HP: 0, XP: 0)
+;## [2] DEAD Giant Beetle (#17) (HP: 0, XP: 0)
+;## [3] DEAD Giant Beetle (#18) (HP: 0, XP: 0)
+;## [4] DEAD Giant Beetle (#19) (HP: 0, XP: 0)
+;## [5] DEAD Giant Beetle (#20) (HP: 0, XP: 0)
+
+;## to your left [E]: 1
+;## behind you [N]: 5 ***
+;## in front of you [S]: 3way
+;## to your right [W]: 4
+
+You are at a four way intersection. The passage to your left leads to the ruins
+above. The crypt full of undead is behind you.
+
+You see five dead giant beetles.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "11 awakened shrubs" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+;;; !NPC.spawn(NPC.awakened_shrub, 11)
+!room.add_item(NPC.awakened_shrub())
+!room.add_item(NPC.awakened_shrub())
+!room.add_item(NPC.awakened_shrub())
+!room.add_item(NPC.awakened_shrub())
+!room.add_item(NPC.awakened_shrub())
+!room.add_item(NPC.awakened_shrub())
+!room.add_item(NPC.awakened_shrub())
+!room.add_item(NPC.awakened_shrub())
+!room.add_item(NPC.awakened_shrub())
+!room.add_item(NPC.awakened_shrub())
+!room.add_item(NPC.awakened_shrub())
+
+Suddenly you hear rustling noises from all around and see animated shrubs
+piling in from all directions! They seem most unpleased with you.
+
+;;; !room.mob.combat(player)
+; Player MobUnit#1 has initiative
+!room.npc("Awakened Shrub 0f72a398 (#9)").hp=3 # -4 HP
+!room.npc("Awakened Shrub 0f72a398 (#6)").hp=0 # -7 HP, DIED.
+!room.npc("Awakened Shrub 0f72a398 (#11)").hp=3 # -4 HP
+; Awakened Shrub 0f72a398 (#1) MobUnit#0 lost 1 units. 10 units remaining. (HP: 62) - Moderate casualties.
+!room.npc("Awakened Shrub 0f72a398 (#8)").hp=2 # -5 HP
+!room.npc("Awakened Shrub 0f72a398 (#3)").hp=6 # -1 HP
+!room.npc("Awakened Shrub 0f72a398 (#9)").hp=0 # -3 HP, DIED.
+; Awakened Shrub 0f72a398 (#1) MobUnit#0 lost 1 units. 9 units remaining. (HP: 53) - Moderate casualties.
+!room.npc("Awakened Shrub 0f72a398 (#8)").hp=0 # -2 HP, DIED.
+; Awakened Shrub 0f72a398 (#1) MobUnit#0 lost 1 units. 8 units remaining. (HP: 51) - Moderate casualties.
+!room.npc("Awakened Shrub 0f72a398 (#2)").hp=6 # -1 HP
+!room.npc("Awakened Shrub 0f72a398 (#4)").hp=2 # -5 HP
+!room.npc("Awakened Shrub 0f72a398 (#3)").hp=3 # -3 HP
+!room.npc("Awakened Shrub 0f72a398 (#3)").hp=1 # -2 HP
+!room.npc("Awakened Shrub 0f72a398 (#11)").hp=2 # -1 HP
+!room.npc("Awakened Shrub 0f72a398 (#10)").hp=6 # -1 HP
+!room.npc("Awakened Shrub 0f72a398 (#1)").hp=4 # -3 HP
+!room.npc("Awakened Shrub 0f72a398 (#5)").hp=5 # -2 HP
+!room.npc("Awakened Shrub 0f72a398 (#4)").hp=0 # -2 HP, DIED.
+!room.npc("Awakened Shrub 0f72a398 (#5)").hp=0 # -5 HP, DIED.
+!room.npc("Awakened Shrub 0f72a398 (#7)").hp=6 # -1 HP
+!room.npc("Awakened Shrub 0f72a398 (#10)").hp=0 # -6 HP, DIED.
+!room.npc("Awakened Shrub 0f72a398 (#11)").hp=0 # -2 HP, DIED.
+; Awakened Shrub 0f72a398 (#1) MobUnit#0 lost 4 units. 4 units remaining. (HP: 17) - Moderate casualties.
+!room.npc("Awakened Shrub 0f72a398 (#1)").hp=0 # -4 HP, DIED.
+; Awakened Shrub 0f72a398 (#1) MobUnit#0 lost 1 units. 3 units remaining. (HP: 13) - Moderate casualties.
+!room.npc("Awakened Shrub 0f72a398 (#2)").hp=2 # -4 HP
+!room.npc("Awakened Shrub 0f72a398 (#2)").hp=0 # -2 HP, DIED.
+!room.npc("Awakened Shrub 0f72a398 (#3)").hp=0 # -1 HP, DIED.
+!room.npc("Awakened Shrub 0f72a398 (#7)").hp=0 # -6 HP, DIED.
+; Awakened Shrub 0f72a398 (#1) MobUnit#0 lost 3 units. No units remaining. - Wiped out.
+
+You start wielding your axe like an bezerk lumberjack chef as you slice, dice,
+chop, and mince the shrubs to pieces. -4 HP, -7 HP. A shrub falls apart. -4 HP,
+-5 HP, -1 HP, -3 HP. Another bites the dust. -2 HP, -1 HP, -5 HP, -3 HP, -2 HP,
+-1 HP, -1 HP, -3 HP, -2 HP, -2 HP. Finally! Another one is done for. -5 HP. The
+next strike ends a bush's movements. -1 HP, -6 HP. Two strikes and another stops
+moving. -2 HP, -4 HP. Two more are minced. -4 HP, -2 HP, -1 HP, -6 HP. The last
+three bushes stop moving.
+
+:Go left.|f6ac5982
+:Go right.|d153702e
+:Go straight through.|ed52337a
+
+
+[Go left.|a74c7f0f] (3fb85c9c) - End Game: True ========================================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -49107,7 +50424,7 @@ You see three skeleton warriors and a zombie step into view.
 :Rush in, kill the undead, claim the axe.|5209583a
 
 
-[Rush in, kill the undead, claim the axe.|5209583a] (a74c7f0f) - End Game: False - TODO: CHOICES =======================
+[Rush in, kill the undead, claim the axe.|5209583a] (a74c7f0f) - End Game: True ========================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -49190,8 +50507,131 @@ You see three skeleton warriors and a zombie step into view.
 !room.npc("Skeleton Warrior 35169113 (#1)").hp=0 # -2 HP, DIED.
 ; Skeleton Warrior 35169113 (#1) MobUnit#0 lost 1 units. No units remaining. - Wiped out.
 
+You swing wildly into the horde. -5 HP, -2 HP, -9 HP. A skeleton falls. -12 HP.
+You decapitate a zombie. -1 HP, -4 HP. Another skeleton falls. -1 HP, -3 HP, -2
+HP. The final skeleton stops moving.
 
-[Rush in, grab the axe, kill the undead.|9a0e9e77] (a74c7f0f) - End Game: False - TODO: CHOICES ========================
+You loot the corpses.
+
+;;; !room.mob.player_loot
+!player.add_item('CP: 27') # CP: 27 (#1)
+;## CP: 27 (#1)
+!player.add_item('SP: 15') # SP: 15 (#1)
+;## SP: 15 (#1)
+!player.add_item('EP: 12') # EP: 12 (#2)
+;## EP: 12 (#2)
+
+* CP: 27
+* SP: 15
+* EP: 12
+
+You walk over to the plinth, set your axe and torch down, then pick up and
+examine the two-handed beauty.
+
+!room.add_item(player.drop("axe"))
+!room.add_item(player.drop("torch").with_new_name("Used torch"))
+!player.equip_weapon(room.pop_item("dark")) # Axe (Dark Enchanted) (+1/+1). Two-handed.
+;## Axe (Dark Enchanted) (+1/+1). Two-handed.
+!player.weapon.description # 
+;## Axe (Dark Enchanted) (+1/+1). Two-handed.
+;## 
+;## The blades are a solid black with red etchings following along their cutting edges.
+;## The hand grip is wrapped in a black leather that is stamped with dark blood red arcane symbols.
+;## The top of the hand grip has a circle of dark blood red leather as does the bottom of the hand grip.
+;## From the edge of the hasp dangles a dark blood red leather strip loop.
+;## Attack Bonus: +1, Damage Bonus: +1, Grants dark sight 60ft.
+;## The blade edges become wreathed in flame when attacking. The +1 effects are from the flames. 
+;## 
+The blades are a solid black with red etchings following along their cutting
+edges. The hand grip is wrapped in a black leather that is stamped with dark
+blood red arcane symbols. The top of the hand grip has a circle of dark blood
+red leather as does the bottom of the hand grip. From the edge of the hasp
+dangles a dark blood red leather strip loop.
+
+You notice right away that you can see into all the dark recesses of the room.
+Fantastic! You no longer need to carry around a lit torch.
+
+!room.complete=True
+
+:Return to intersection.|cf32d47d
+:Search.|8d7d5826
+
+
+[Search.|8d7d5826] (5209583a) - End Game: True =========================================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Equip goggles then fight.|a5eac449 (4)
+;## -> Attack the winners.|4f71e249 (4)
+;## -> Take advantage and flee back to the 4-way.|90d9ae12 (4way)
+;## -> Go left.|28da0604 (5)
+;## -> Examine empty alcove.|46f3675d (5a)
+;## -> Equip ring, return to crypt.|2c2f5a9b (5)
+;## -> Return to 4-way.|4c91ff5a (4way)
+;## -> Go straight through.|3fb85c9c (3way)
+;## -> Go left.|a74c7f0f (2)
+;## -> Rush in, kill the undead, claim the axe.|5209583a (2)
+;## -> Search.|8d7d5826
+
+;## Location: 2
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '3way', '2']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2 *** COMPLETED: 
+;## 2-wall: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("5209583a")
+
+!turn= 21 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [2 search→2-wall behind you→3way
+;;; !room.go("search")
+
+!facing="search"
+!location="2-wall"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 2-wall (1)
+;## As you search, a spectral hand suddenly reaches out, grabs you, and
+;## pulls you into the now insubstantial wall. You are never heard from
+;## again.
+
+As you search, a spectral hand suddenly reaches out, grabs you, and pulls you
+into the now insubstantial wall. You are never heard from again.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+:Start Over.|start
+
+
+[Rush in, grab the axe, kill the undead.|9a0e9e77] (a74c7f0f) - End Game: True =========================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -49260,6 +50700,127 @@ You see three skeleton warriors and a zombie step into view.
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
 ; "First Group: First Group" # @initiative(player, room.npcs)
+
+!room.add_item(player.drop("axe"))
+!room.add_item(player.drop("torch").with_new_name("Used torch"))
+!player.equip_weapon(room.pop_item("dark")) # Axe (Dark Enchanted) (+1/+1). Two-handed.
+;## Axe (Dark Enchanted) (+1/+1). Two-handed.
+
+You make it to the plinth, set your torch and axe down, then pick up the two-
+handed weapon.
+
+The undead horde is upon you.
+
+;;; !room.mob.combat(player)
+; Skeleton Warrior 35169113 (#1) MobUnit#0 has initiative
+!room.npc("Skeleton Warrior 35169113 (#3)").hp=4 # -5 HP
+!room.npc("Skeleton Warrior 35169113 (#3)").hp=0 # -4 HP, DIED.
+!room.npc("Zombie 35169113 (#1)").hp=8 # -4 HP
+; Skeleton Warrior 35169113 (#1) MobUnit#0 lost 1 units. 3 units remaining. (HP: 26) - Moderate casualties.
+!room.npc("Skeleton Warrior 35169113 (#1)").hp=0 # -9 HP, DIED.
+!room.npc("Skeleton Warrior 35169113 (#2)").hp=0 # -9 HP, DIED.
+; Skeleton Warrior 35169113 (#1) MobUnit#0 lost 2 units. 1 units remaining. (HP: 8) - Heavy casualties.
+!player.hp=10 # -1 HP
+!room.npc("Zombie 35169113 (#1)").hp=0 # -8 HP, DIED.
+; Skeleton Warrior 35169113 (#1) MobUnit#0 lost 1 units. No units remaining. - Wiped out.
+
+You start scything into the undead back and forth with broad strokes. -5 HP, -4
+HP. A skeleton drops. -4 HP, -9 HP. Another skeleton drops. -9 HP. A third one
+drops. -1 HP. A skeleton gets a lucky stab in. -8 HP. You behead the final
+zombie.
+
+You loot the undead horde.
+
+;;; !room.mob.player_loot
+!player.add_item('SP: 20') # SP: 20 (#1)
+;## SP: 20 (#1)
+!player.add_item('EP: 5') # EP: 5 (#3)
+;## EP: 5 (#3)
+!player.add_item('GP: 6') # GP: 6 (#1)
+;## GP: 6 (#1)
+
+* SP: 20
+* EP: 5
+* GP: 6
+
+!room.complete=True
+
+:Return to intersection.|e211ec3b
+:Search.|687d0a32
+
+
+[Search.|687d0a32] (9a0e9e77) - End Game: True =========================================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Equip goggles then fight.|a5eac449 (4)
+;## -> Attack the winners.|4f71e249 (4)
+;## -> Take advantage and flee back to the 4-way.|90d9ae12 (4way)
+;## -> Go left.|28da0604 (5)
+;## -> Examine empty alcove.|46f3675d (5a)
+;## -> Equip ring, return to crypt.|2c2f5a9b (5)
+;## -> Return to 4-way.|4c91ff5a (4way)
+;## -> Go straight through.|3fb85c9c (3way)
+;## -> Go left.|a74c7f0f (2)
+;## -> Rush in, grab the axe, kill the undead.|9a0e9e77 (2)
+;## -> Search.|687d0a32
+
+;## Location: 2
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '3way', '2']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2 *** COMPLETED: 
+;## 2-wall: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("9a0e9e77")
+
+!turn= 21 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [2 search→2-wall behind you→3way
+;;; !room.go("search")
+
+!facing="search"
+!location="2-wall"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 2-wall (1)
+;## As you search, a spectral hand suddenly reaches out, grabs you, and
+;## pulls you into the now insubstantial wall. You are never heard from
+;## again.
+
+As you search, a spectral hand suddenly reaches out, grabs you, and pulls you
+into the now insubstantial wall. You are never heard from again.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "26 awakened shrubs" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+:Start Over.|start
 
 
 [Wear headband then enter crack.|a75abd3a] (27b87f6d) - End Game: True =================================================
@@ -49555,11 +51116,12 @@ various shops in town to discover what loot you have gained.
 ; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
-!player.found_items # 
-;## Lit torch (#1) <loc:hand>
-;## Longbow +1/+1 (#1) <loc:backpack>
-;## SP: 122 (#9)
-;## Headband of Dull Thinking, Mage: -1 (#1)
+;;; !player.found_items #
+
+* Lit torch (#1)
+* Longbow +1/+1 (#1)
+* SP: 122 (#9)
+* Headband of Dull Thinking, Mage: -1 (#1)
 
 * Longbow +1/+1
 * Cursed Headband of Dull Thinking, Mage: -1
@@ -49569,7 +51131,7 @@ What a disappointing haul! Maybe better luck next time!
 :Start Over.|start
 
 
-[Go back into tunnel.|33dcab4f] (3cebf9db) - End Game: False - TODO: CHOICES ===========================================
+[Go back into tunnel.|33dcab4f] (3cebf9db) - End Game: False ===========================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -49633,13 +51195,966 @@ What a disappointing haul! Maybe better luck next time!
 ;## in front of you [N]: 4
 ;## behind you [S]: 4b
 
+You enter a very large crack in the cave wall. The ground is sloped here. Down
+is in front of you.
+
+You see a skeleton warrior in pieces on the ground.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+:Continue following the passage.|60d74a70
+
+
+[Continue following the passage.|60d74a70] (33dcab4f) - End Game: False ================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Search room.|30be69f1 (3)
+;## -> Head up the stairs.|3ba57935 (3way)
+;## -> Continue straight ahead.|2e45f89b (4way)
+;## -> Follow left passageway.|4ac001fa (4)
+;## -> Explore crack.|4db79799 (4a)
+;## -> Take the opportunity and flee back to the cave and pond.|77935a6a (4)
+;## -> Search pond.|7b743eee (4-pond)
+;## -> Drop sack and fight.|27b87f6d (4-pond)
+;## -> Wear headband then enter crack.|a75abd3a (4a)
+;## -> Continue upslope.|3cebf9db (4b)
+;## -> Go back into tunnel.|33dcab4f (4a)
+;## -> Continue following the passage.|60d74a70
+
+;## Location: 4a
+;## Facing: n
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4', '4-pond', '4a', '4b', '4a']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: 1 dead zombie. 1 dead giant rat. Looted.
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond *** COMPLETED: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("33dcab4f")
+
+!turn= 17 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4a in front of you→4 behind you→4b
+;;; !room.go("4")
+
+!facing="n"
+!location="4"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 4 (3)
+;## You are in the cave with a pond in the middle. There is a large crack
+;## in the wall behind you. The cave entrance is to your right.
+
+;## to your right [E]: 4way
+;## pond: 4-pond ***
+;## behind you [S]: 4a
+
+You are in the cave with a pond in the middle. There is a large crack in the
+wall behind you. The cave entrance is to your right.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "Chain mail armor +2" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+You see something sticking up out of the end of the pond you don't remember
+before.
+
+Walking over to it, you pull out a set of final crafted chain mail armor. Not a
+single spot of tarnish, let alone rust, indicates it is magical, maybe even
+cursed.
+
+!armor=Armor.by_name("chain")
+!armor.defense_bonus = 2
+!armor.name # Chain, Defense: +7, Mana: -4
+!room.add_item(armor)
+
+:Leave armor then go right.|071a534b
+:Swap armor then go right.|1fd56e45
+
+
+[Leave armor then go right.|071a534b] (60d74a70) - End Game: False =====================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Search room.|30be69f1 (3)
+;## -> Head up the stairs.|3ba57935 (3way)
+;## -> Continue straight ahead.|2e45f89b (4way)
+;## -> Follow left passageway.|4ac001fa (4)
+;## -> Explore crack.|4db79799 (4a)
+;## -> Take the opportunity and flee back to the cave and pond.|77935a6a (4)
+;## -> Search pond.|7b743eee (4-pond)
+;## -> Drop sack and fight.|27b87f6d (4-pond)
+;## -> Wear headband then enter crack.|a75abd3a (4a)
+;## -> Continue upslope.|3cebf9db (4b)
+;## -> Go back into tunnel.|33dcab4f (4a)
+;## -> Continue following the passage.|60d74a70 (4)
+;## -> Leave armor then go right.|071a534b
+
+;## Location: 4
+;## Facing: n
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4', '4-pond', '4a', '4b', '4a', '4']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: 1 dead zombie. 1 dead giant rat. Looted.
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond *** COMPLETED: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("60d74a70")
+
+!turn= 18 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4 to your right→4way pond→4-pond* behind you→4a
+;;; !room.go("right")
+
+!facing="e"
+!location="4way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 4way (4)
+;## You are at a four way intersection. The passage in front of you leads
+;## to the ruins above.
+
+;## in front of you [E]: 1
+;## to your left [N]: 5
+;## to your right [S]: 3way
+;## behind you [W]: 4
+
+You are at a four way intersection. The passage in front of you leads to the
+ruins above.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+!room.add_desc("The cave with pond is /W/.")
+!room.add_desc("There is a 3-way /S/.")
+
+:Go left.|e202d79b
+:Go right.|60d1a800
+:Go straight through.|0ee1007d
+
+
+[Go straight through.|0ee1007d] (071a534b) - End Game: False ===========================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Search room.|30be69f1 (3)
+;## -> Head up the stairs.|3ba57935 (3way)
+;## -> Continue straight ahead.|2e45f89b (4way)
+;## -> Follow left passageway.|4ac001fa (4)
+;## -> Explore crack.|4db79799 (4a)
+;## -> Take the opportunity and flee back to the cave and pond.|77935a6a (4)
+;## -> Search pond.|7b743eee (4-pond)
+;## -> Drop sack and fight.|27b87f6d (4-pond)
+;## -> Wear headband then enter crack.|a75abd3a (4a)
+;## -> Continue upslope.|3cebf9db (4b)
+;## -> Go back into tunnel.|33dcab4f (4a)
+;## -> Continue following the passage.|60d74a70 (4)
+;## -> Leave armor then go right.|071a534b (4way)
+;## -> Go straight through.|0ee1007d
+
+;## Location: 4way
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4', '4-pond', '4a', '4b', '4a', '4', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: 1 dead zombie. 1 dead giant rat. Looted.
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond *** COMPLETED: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("071a534b")
+
+!turn= 19 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4way in front of you→1 to your left→5 to your right→3way behind you→4
+;;; !room.go("forward")
+
+!facing="e"
+!location="1"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 1 (2)
+;## You travel down a 100ft passage and come to a bend. A flight of stairs
+;## leads up to your left.
+
+;## to your left [N]: 1b
+;## up: 1b
+;## behind you [W]: 4way
+
+You travel down a 100ft passage and come to a bend. A flight of stairs leads up
+to your left.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+:Climb stairs.|24cec18a
+
+
+[Swap armor then go right.|1fd56e45] (60d74a70) - End Game: False ======================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Search room.|30be69f1 (3)
+;## -> Head up the stairs.|3ba57935 (3way)
+;## -> Continue straight ahead.|2e45f89b (4way)
+;## -> Follow left passageway.|4ac001fa (4)
+;## -> Explore crack.|4db79799 (4a)
+;## -> Take the opportunity and flee back to the cave and pond.|77935a6a (4)
+;## -> Search pond.|7b743eee (4-pond)
+;## -> Drop sack and fight.|27b87f6d (4-pond)
+;## -> Wear headband then enter crack.|a75abd3a (4a)
+;## -> Continue upslope.|3cebf9db (4b)
+;## -> Go back into tunnel.|33dcab4f (4a)
+;## -> Continue following the passage.|60d74a70 (4)
+;## -> Swap armor then go right.|1fd56e45
+
+;## Location: 4
+;## Facing: n
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4', '4-pond', '4a', '4b', '4a', '4']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: 1 dead zombie. 1 dead giant rat. Looted.
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond *** COMPLETED: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("60d74a70")
+
+!turn= 18 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4 to your right→4way pond→4-pond* behind you→4a
+;;; !room.go("right")
+
+You quickly exchange armor then proceed on.
+!room.complete=True
+!old = player.drop("chain")
+!player.equip_armor(room.pop_item("chain")) # Total defense: 14, Mana Penalty: 4, Mana: 0
+;## Total defense: 14, Mana Penalty: 4, Mana: 0
+!room.add_item(old)
+
+!facing="e"
+!location="4way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 4way (4)
+;## You are at a four way intersection. The passage in front of you leads
+;## to the ruins above.
+
+;## in front of you [E]: 1
+;## to your left [N]: 5
+;## to your right [S]: 3way
+;## behind you [W]: 4 ***
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+:Go left.|3e591213
+:Go right.|435d8279
+
+
+[Climb stairs.|24cec18a] (0ee1007d) - End Game: False - TODO: CHOICES ==================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Search room.|30be69f1 (3)
+;## -> Head up the stairs.|3ba57935 (3way)
+;## -> Continue straight ahead.|2e45f89b (4way)
+;## -> Follow left passageway.|4ac001fa (4)
+;## -> Explore crack.|4db79799 (4a)
+;## -> Take the opportunity and flee back to the cave and pond.|77935a6a (4)
+;## -> Search pond.|7b743eee (4-pond)
+;## -> Drop sack and fight.|27b87f6d (4-pond)
+;## -> Wear headband then enter crack.|a75abd3a (4a)
+;## -> Continue upslope.|3cebf9db (4b)
+;## -> Go back into tunnel.|33dcab4f (4a)
+;## -> Continue following the passage.|60d74a70 (4)
+;## -> Leave armor then go right.|071a534b (4way)
+;## -> Go straight through.|0ee1007d (1)
+;## -> Climb stairs.|24cec18a
+
+;## Location: 1
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4', '4-pond', '4a', '4b', '4a', '4', '4way', '1']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: 1 dead zombie. 1 dead giant rat. Looted.
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond *** COMPLETED: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("0ee1007d")
+
+!turn= 20 # @turn: turn + 1
+; "Torch starts sputtering" # @'' if (player.darkvision or turn % 20 != 0) else 'Torch starts sputtering'
+
+!room.info_directions # 
+;## [1 to your left→1b up→1b behind you→4way
+;;; !room.go("up")
+
+!facing="up"
+!location="1b"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 1b (1)
+;## You are in the ruins of the abbey next to a flight of stairs heading
+;## down into the earth.
+
+;## down: 1
+;## town: town
+
 ; "" # @wander(6, 1) if turn < 10 else ''
 ; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
 ; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
 
-[Continue straight ahead.|a762dfc0] (41e9986e) - End Game: False =======================================================
+[Go left.|3e591213] (1fd56e45) - End Game: False =======================================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Search room.|30be69f1 (3)
+;## -> Head up the stairs.|3ba57935 (3way)
+;## -> Continue straight ahead.|2e45f89b (4way)
+;## -> Follow left passageway.|4ac001fa (4)
+;## -> Explore crack.|4db79799 (4a)
+;## -> Take the opportunity and flee back to the cave and pond.|77935a6a (4)
+;## -> Search pond.|7b743eee (4-pond)
+;## -> Drop sack and fight.|27b87f6d (4-pond)
+;## -> Wear headband then enter crack.|a75abd3a (4a)
+;## -> Continue upslope.|3cebf9db (4b)
+;## -> Go back into tunnel.|33dcab4f (4a)
+;## -> Continue following the passage.|60d74a70 (4)
+;## -> Swap armor then go right.|1fd56e45 (4way)
+;## -> Go left.|3e591213
+
+;## Location: 4way
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4', '4-pond', '4a', '4b', '4a', '4', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: 1 dead zombie. 1 dead giant rat. Looted.
+;## 3way (visited): 
+;## 4 *** COMPLETED: 
+;## 4-pond *** COMPLETED: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("1fd56e45")
+
+!turn= 19 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4way in front of you→1 to your left→5 to your right→3way behind you→4*
+;;; !room.go("left")
+
+!facing="n"
+!location="5"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 5 (1)
+;## You come to a portcullis. Beyond you see a 90ft x 40ft room with
+;## alcoves in the walls. You can't see into the alcoves from here. You
+;## push the portcullis open with the sound of rusted screeching metal and
+;## step into the room. You can now see into the alcoves and notice they
+;## are filled with the skeletons and corpses of monks, except one in the
+;## wall to your right in the near corner.
+
+;## 1d3 Skeletons, 1d4 Zombies
+
+;## to your right [E]: 5a
+;## behind you [S]: 4way
+
+You come to a portcullis. Beyond you see a 90ft x 40ft room with alcoves in the
+walls. You can't see into the alcoves from here. You push the portcullis open
+with the sound of rusted screeching metal and step into the room. You can now
+see into the alcoves and notice they are filled with the skeletons and corpses
+of monks, except one in the wall to your right in the near corner.
+
+!room.notes=""
+;;; !NPC.spawn(NPC.skeleton_warrior, "1d3")
+!room.add_item(NPC.skeleton_warrior())
+!room.add_item(NPC.skeleton_warrior())
+
+;;; !NPC.spawn(NPC.zombie, "1d4")
+!room.add_item(NPC.zombie())
+!room.add_item(NPC.zombie())
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+:Examine empty alcove.|3ed1d146
+:Loot alcoves.|1226614a
+
+
+[Loot alcoves.|1226614a] (3e591213) - End Game: False - TODO: CHOICES ==================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Search room.|30be69f1 (3)
+;## -> Head up the stairs.|3ba57935 (3way)
+;## -> Continue straight ahead.|2e45f89b (4way)
+;## -> Follow left passageway.|4ac001fa (4)
+;## -> Explore crack.|4db79799 (4a)
+;## -> Take the opportunity and flee back to the cave and pond.|77935a6a (4)
+;## -> Search pond.|7b743eee (4-pond)
+;## -> Drop sack and fight.|27b87f6d (4-pond)
+;## -> Wear headband then enter crack.|a75abd3a (4a)
+;## -> Continue upslope.|3cebf9db (4b)
+;## -> Go back into tunnel.|33dcab4f (4a)
+;## -> Continue following the passage.|60d74a70 (4)
+;## -> Swap armor then go right.|1fd56e45 (4way)
+;## -> Go left.|3e591213 (5)
+;## -> Loot alcoves.|1226614a
+
+;## Location: 5
+;## Facing: n
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4', '4-pond', '4a', '4b', '4a', '4', '4way', '5']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: 1 dead zombie. 1 dead giant rat. Looted.
+;## 3way (visited): 
+;## 4 *** COMPLETED: 
+;## 4-pond *** COMPLETED: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("3e591213")
+
+!turn= 20 # @turn: turn + 1
+; "Torch starts sputtering" # @'' if (player.darkvision or turn % 20 != 0) else 'Torch starts sputtering'
+
+!room.info # 
+;## ROOM: 5 (Visited: True)
+;## You return to the crypt. The portcullis is behind you. The empty alcove is to
+;## your right.
+;##
+;## [1] Skeleton Warrior 1fd56e45 (#1) (HP: 9, XP: 0)
+;## [2] Skeleton Warrior 1fd56e45 (#2) (HP: 9, XP: 0)
+;## [3] Zombie 1fd56e45 (#1) (HP: 12, XP: 0)
+;## [4] Zombie 1fd56e45 (#2) (HP: 12, XP: 0)
+;##  to your right→5a behind you→4way
+;!room.go("")
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+
+[Examine empty alcove.|3ed1d146] (3e591213) - End Game: False - TODO: CHOICES ==========================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Search room.|30be69f1 (3)
+;## -> Head up the stairs.|3ba57935 (3way)
+;## -> Continue straight ahead.|2e45f89b (4way)
+;## -> Follow left passageway.|4ac001fa (4)
+;## -> Explore crack.|4db79799 (4a)
+;## -> Take the opportunity and flee back to the cave and pond.|77935a6a (4)
+;## -> Search pond.|7b743eee (4-pond)
+;## -> Drop sack and fight.|27b87f6d (4-pond)
+;## -> Wear headband then enter crack.|a75abd3a (4a)
+;## -> Continue upslope.|3cebf9db (4b)
+;## -> Go back into tunnel.|33dcab4f (4a)
+;## -> Continue following the passage.|60d74a70 (4)
+;## -> Swap armor then go right.|1fd56e45 (4way)
+;## -> Go left.|3e591213 (5)
+;## -> Examine empty alcove.|3ed1d146
+
+;## Location: 5
+;## Facing: n
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4', '4-pond', '4a', '4b', '4a', '4', '4way', '5']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: 1 dead zombie. 1 dead giant rat. Looted.
+;## 3way (visited): 
+;## 4 *** COMPLETED: 
+;## 4-pond *** COMPLETED: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("3e591213")
+
+!turn= 20 # @turn: turn + 1
+; "Torch starts sputtering" # @'' if (player.darkvision or turn % 20 != 0) else 'Torch starts sputtering'
+
+!room.info_directions # 
+;## [5 to your right→5a behind you→4way
+;;; !room.go("right")
+
+!facing="e"
+!location="5a"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 5a (1)
+;## You walk over to the alcove and discover a cleverly disguised door.
+;## Opening it and stepping in, you find yourself in a 40ft x 30ft room.
+;## All the walls are covered with depictions of evil and bloody looking
+;## acts. On the far  wall you see a mummified corpse that is tied with
+;## barbed wire to a wooden X. A small open chest in front of you is  in
+;## the far corner of the room.
+
+;## [1] Open chest (#1)
+
+;## behind you [W]: 5
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+
+[Go right.|435d8279] (1fd56e45) - End Game: False ======================================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Search room.|30be69f1 (3)
+;## -> Head up the stairs.|3ba57935 (3way)
+;## -> Continue straight ahead.|2e45f89b (4way)
+;## -> Follow left passageway.|4ac001fa (4)
+;## -> Explore crack.|4db79799 (4a)
+;## -> Take the opportunity and flee back to the cave and pond.|77935a6a (4)
+;## -> Search pond.|7b743eee (4-pond)
+;## -> Drop sack and fight.|27b87f6d (4-pond)
+;## -> Wear headband then enter crack.|a75abd3a (4a)
+;## -> Continue upslope.|3cebf9db (4b)
+;## -> Go back into tunnel.|33dcab4f (4a)
+;## -> Continue following the passage.|60d74a70 (4)
+;## -> Swap armor then go right.|1fd56e45 (4way)
+;## -> Go right.|435d8279
+
+;## Location: 4way
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4', '4-pond', '4a', '4b', '4a', '4', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: 1 dead zombie. 1 dead giant rat. Looted.
+;## 3way (visited): 
+;## 4 *** COMPLETED: 
+;## 4-pond *** COMPLETED: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("1fd56e45")
+
+!turn= 19 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4way in front of you→1 to your left→5 to your right→3way behind you→4*
+;;; !room.go("right")
+
+!facing="s"
+!location="3way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 3way (3)
+;## You return to the three way. You see passageways to your left, behind
+;## you, and in front of you. The passage in front of you ends after 10ft
+;## at a flight of stairs heading down.
+
+;## to your left [E]: 2
+;## behind you [N]: 4way
+;## in front of you [S]: 3 ***
+
+You return to the three way. You see passageways to your left, behind you, and
+in front of you. The passage in front of you ends after 10ft at a flight of
+stairs heading down.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+:Go left.|75f9b6ef
+
+
+[Go right.|60d1a800] (071a534b) - End Game: False ======================================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Search room.|30be69f1 (3)
+;## -> Head up the stairs.|3ba57935 (3way)
+;## -> Continue straight ahead.|2e45f89b (4way)
+;## -> Follow left passageway.|4ac001fa (4)
+;## -> Explore crack.|4db79799 (4a)
+;## -> Take the opportunity and flee back to the cave and pond.|77935a6a (4)
+;## -> Search pond.|7b743eee (4-pond)
+;## -> Drop sack and fight.|27b87f6d (4-pond)
+;## -> Wear headband then enter crack.|a75abd3a (4a)
+;## -> Continue upslope.|3cebf9db (4b)
+;## -> Go back into tunnel.|33dcab4f (4a)
+;## -> Continue following the passage.|60d74a70 (4)
+;## -> Leave armor then go right.|071a534b (4way)
+;## -> Go right.|60d1a800
+
+;## Location: 4way
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4', '4-pond', '4a', '4b', '4a', '4', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: 1 dead zombie. 1 dead giant rat. Looted.
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond *** COMPLETED: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("071a534b")
+
+!turn= 19 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4way in front of you→1 to your left→5 to your right→3way behind you→4
+;;; !room.go("right")
+
+!facing="s"
+!location="3way"
+!room=rooms(location).with_facing(facing)
+!room.add_desc("Only empty casks wait /S/.")
+!room # 
+;## ROOM: 3way (3)
+;## You return to the three way. You see passageways to your left, behind
+;## you, and in front of you. The passage in front of you ends after 10ft
+;## at a flight of stairs heading down. Only empty casks wait in front of
+;## you.
+
+;## to your left [E]: 2
+;## behind you [N]: 4way
+;## in front of you [S]: 3 ***
+
+You return to the three way. You see passageways to your left, behind you, and
+in front of you. The passage in front of you ends after 10ft at a flight of
+stairs heading down.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+:Go left.|7016d654
+
+
+[Go left.|7016d654] (60d1a800) - End Game: False - TODO: CHOICES =======================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Search room.|30be69f1 (3)
+;## -> Head up the stairs.|3ba57935 (3way)
+;## -> Continue straight ahead.|2e45f89b (4way)
+;## -> Follow left passageway.|4ac001fa (4)
+;## -> Explore crack.|4db79799 (4a)
+;## -> Take the opportunity and flee back to the cave and pond.|77935a6a (4)
+;## -> Search pond.|7b743eee (4-pond)
+;## -> Drop sack and fight.|27b87f6d (4-pond)
+;## -> Wear headband then enter crack.|a75abd3a (4a)
+;## -> Continue upslope.|3cebf9db (4b)
+;## -> Go back into tunnel.|33dcab4f (4a)
+;## -> Continue following the passage.|60d74a70 (4)
+;## -> Leave armor then go right.|071a534b (4way)
+;## -> Go right.|60d1a800 (3way)
+;## -> Go left.|7016d654
+
+;## Location: 3way
+;## Facing: s
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4', '4-pond', '4a', '4b', '4a', '4', '4way', '3way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: 1 dead zombie. 1 dead giant rat. Looted.
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond *** COMPLETED: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("60d1a800")
+
+!turn= 20 # @turn: turn + 1
+; "Torch starts sputtering" # @'' if (player.darkvision or turn % 20 != 0) else 'Torch starts sputtering'
+
+!room.info_directions # 
+;## [3way to your left→2 behind you→4way in front of you→3*
+;;; !room.go("left")
+
+!facing="e"
+!location="2"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 2 (1)
+;## You follow the passage for 50ft and come to a cave with a tiled floor.
+;## You see a stone plinth on the far side holding a two handed war axe.
+;## Even from this distance you can tell that it is a finely crafted
+;## weapon. Next to the plinth on the floor you see the remains of a monk
+;## with several arrows in its back. It looks like the monk was trying to
+;## reach the axe before being struck down. As you look beyond the dead
+;## monk you see figures moving into the torchlight.
+
+;## [1] Axe (Dark Enchanted) (+1/+1). Two-handed.
+;## [2] Dead monk with arrows in back next to plinth. (#1)
+;## [3] Skeleton Warrior 35169113 (#1) (HP: 9, XP: 0)
+;## [4] Skeleton Warrior 35169113 (#2) (HP: 9, XP: 0)
+;## [5] Skeleton Warrior 35169113 (#3) (HP: 9, XP: 0)
+;## [6] Zombie 35169113 (#1) (HP: 12, XP: 0)
+
+;## search: 2-wall
+;## behind you [W]: 3way
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+
+[Go left.|75f9b6ef] (435d8279) - End Game: False - TODO: CHOICES =======================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Search room.|30be69f1 (3)
+;## -> Head up the stairs.|3ba57935 (3way)
+;## -> Continue straight ahead.|2e45f89b (4way)
+;## -> Follow left passageway.|4ac001fa (4)
+;## -> Explore crack.|4db79799 (4a)
+;## -> Take the opportunity and flee back to the cave and pond.|77935a6a (4)
+;## -> Search pond.|7b743eee (4-pond)
+;## -> Drop sack and fight.|27b87f6d (4-pond)
+;## -> Wear headband then enter crack.|a75abd3a (4a)
+;## -> Continue upslope.|3cebf9db (4b)
+;## -> Go back into tunnel.|33dcab4f (4a)
+;## -> Continue following the passage.|60d74a70 (4)
+;## -> Swap armor then go right.|1fd56e45 (4way)
+;## -> Go right.|435d8279 (3way)
+;## -> Go left.|75f9b6ef
+
+;## Location: 3way
+;## Facing: s
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4', '4-pond', '4a', '4b', '4a', '4', '4way', '3way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: 1 dead zombie. 1 dead giant rat. Looted.
+;## 3way (visited): 
+;## 4 *** COMPLETED: 
+;## 4-pond *** COMPLETED: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("435d8279")
+
+!turn= 20 # @turn: turn + 1
+; "Torch starts sputtering" # @'' if (player.darkvision or turn % 20 != 0) else 'Torch starts sputtering'
+
+!room.info_directions # 
+;## [3way to your left→2 behind you→4way in front of you→3*
+;;; !room.go("left")
+
+!facing="e"
+!location="2"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 2 (1)
+;## You follow the passage for 50ft and come to a cave with a tiled floor.
+;## You see a stone plinth on the far side holding a two handed war axe.
+;## Even from this distance you can tell that it is a finely crafted
+;## weapon. Next to the plinth on the floor you see the remains of a monk
+;## with several arrows in its back. It looks like the monk was trying to
+;## reach the axe before being struck down. As you look beyond the dead
+;## monk you see figures moving into the torchlight.
+
+;## [1] Axe (Dark Enchanted) (+1/+1). Two-handed.
+;## [2] Dead monk with arrows in back next to plinth. (#1)
+;## [3] Skeleton Warrior 35169113 (#1) (HP: 9, XP: 0)
+;## [4] Skeleton Warrior 35169113 (#2) (HP: 9, XP: 0)
+;## [5] Skeleton Warrior 35169113 (#3) (HP: 9, XP: 0)
+;## [6] Zombie 35169113 (#1) (HP: 12, XP: 0)
+
+;## search: 2-wall
+;## behind you [W]: 3way
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+
+[Continue straight ahead.|a762dfc0] (41e9986e) - End Game: True ========================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -49770,9 +52285,9 @@ You return to the crypt. The portcullis is to your rear. The empty alcove is to
 your right.
 !room.notes=""
 !roll("1d3") # 2
-;## 2
+;## 1
 !roll("1d4") # 1
-;## 2
+;## 1
 ;;; !3 room.add_item(NPC.skeleton_warrior())
 !room.add_item(NPC.skeleton_warrior())
 !room.add_item(NPC.skeleton_warrior())
@@ -49786,7 +52301,7 @@ your right.
 :Loot alcoves.|bc96ee4d
 
 
-[Follow left passageway.|8caf337a] (a762dfc0) - End Game: False ========================================================
+[Follow left passageway.|8caf337a] (a762dfc0) - End Game: True =========================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -49865,7 +52380,7 @@ covered in what appears to be a dark green scummy algae.
 :Search pond.|1571adc3
 
 
-[Explore crack.|03d32643] (8caf337a) - End Game: False =================================================================
+[Explore crack.|03d32643] (8caf337a) - End Game: True ==================================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -50074,7 +52589,7 @@ forwards.
 :Fight.|5b107e8d
 
 
-[Flee further up slope.|4c76b4cd] (03d32643) - End Game: False - TODO: CHOICES =========================================
+[Flee further up slope.|4c76b4cd] (03d32643) - End Game: True ==========================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -50142,13 +52657,89 @@ forwards.
 ;## behind you [N]: 4a
 ;## town: town
 
+You continue up slope and come to an opening. Stepping through you find that
+you are on the hillside with the ruins of the abbey a short ways above. You have
+discovered another way in and out of the complex.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+:Return to the tunnel.|43199e28
+:Return to town.|664f7d2d
+
+
+[Return to the tunnel.|43199e28] (4c76b4cd) - End Game: False - TODO: CHOICES ==========================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Stow boots then head upstairs.|41e9986e (3way)
+;## -> Continue straight ahead.|a762dfc0 (4way)
+;## -> Follow left passageway.|8caf337a (4)
+;## -> Explore crack.|03d32643 (4a)
+;## -> Flee further up slope.|4c76b4cd (4b)
+;## -> Return to the tunnel.|43199e28
+
+;## Location: 4b
+;## Facing: s
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4b']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("4c76b4cd")
+
+!turn= 12 # @turn: turn + 1
+; "" # @'' if (player.darkvision or turn % 20 != 0) else 'Torch starts sputtering'
+
+!room.info_directions # 
+;## [4b down→town behind you→4a town→town
+;;; !room.go("4a")
+
+!facing="n"
+!location="4a"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 4a (2)
+;## You enter a very large crack in the cave wall. The ground is sloped
+;## here. Down is in front of you.
+
+;## [1] Giant Spider (#38) (HP: 24, XP: 0)
+;## [2] Giant Spider (#39) (HP: 24, XP: 0)
+;## [3] DEAD Skeleton Warrior 03d32643 (#1) (HP: 0, XP: 0)
+;## [4] DEAD Skeleton Warrior 03d32643 (#2) (HP: 0, XP: 0)
+;## [5] DEAD Skeleton Warrior 03d32643 (#3) (HP: 0, XP: 0)
+;## [6] DEAD Skeleton Warrior 03d32643 (#4) (HP: 0, XP: 0)
+
+;## in front of you [N]: 4
+;## behind you [S]: 4b
+
 ; "" # @wander(6, 1) if turn < 10 else ''
 ; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
 ; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
 
-[Fight.|5b107e8d] (1571adc3) - End Game: False - TODO: CHOICES =========================================================
+[Fight.|5b107e8d] (1571adc3) - End Game: False =========================================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -50207,21 +52798,113 @@ forwards.
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
 ;;; !room.mob.combat(player)
+!room.npc_list # 
+;## Giant Spider (#38) (HP: 24, XP: 0)
+;## Giant Spider (#39) (HP: 24, XP: 0)
 ; Giant Spider (#38) MobUnit#0 has initiative
-!room.npc("Giant Spider (#39)").hp=19 # -5 HP
 !player.hp=3 # -8 HP
 !player.hp=0 # -3 HP, DIED.
-; Player MobUnit#2 lost 1 units. No units remaining. - Wiped out.
+; Player MobUnit#1 lost 1 units. No units remaining. - Wiped out.
+
+The spiders quickly reach you and sink their fangs in. -8 HP.
 
 FATE -1. FATE POINTS REMAINING: 1.
 
-; 3 Zombies show up and attacks opponent(s). Player gets an automatic flee success check.  Creatures will attack player if they run out of opponents. (8)
+; Hidden spikes trap from ceiling triggers. (3d8 dmg) (6).
 !player.fate=1
+
+Suddenly, several long sharp iron spikes fall from above and skewer the beasts.
+
+;;; !room.mob_group("spider").take_damage_each("3d8")
+!room.npc("Giant Spider (#38)").hp=15 # -9 HP
+!room.npc("Giant Spider (#39)").hp=14 # -10 HP
+
+!room.npc_list # 
+;## Giant Spider (#38) (HP: 15, XP: 0)
+;## Giant Spider (#39) (HP: 14, XP: 0)
+
+They are pulling themselves free.
 
 ;## ---> PLAYER IS DEAD <---
 
+:Flee the room.|fed83291
+:Kill the weakened creatures.|f13fd578
 
-[Flee back to pond.|97c6f511] (03d32643) - End Game: False - TODO: CHOICES =============================================
+
+[Return to town.|664f7d2d] (4c76b4cd) - End Game: True =================================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Stow boots then head upstairs.|41e9986e (3way)
+;## -> Continue straight ahead.|a762dfc0 (4way)
+;## -> Follow left passageway.|8caf337a (4)
+;## -> Explore crack.|03d32643 (4a)
+;## -> Flee further up slope.|4c76b4cd (4b)
+;## -> Return to town.|664f7d2d
+
+;## Location: 4b
+;## Facing: s
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4b']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("4c76b4cd")
+
+!turn= 12 # @turn: turn + 1
+; "" # @'' if (player.darkvision or turn % 20 != 0) else 'Torch starts sputtering'
+
+!room.info_directions # 
+;## [4b down→town behind you→4a town→town
+;;; !room.go("town")
+
+!facing="town"
+!location="town"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: town (1)
+;## You make your way downhill and then trek back to town. You take the
+;## time to rest and heal overnight at the inn. Early the next morning you
+;## head to the various shops in town to discover what loot you have
+;## gained.
+
+You make your way downhill and then trek back to town. You take the time to
+rest and heal overnight at the inn. Early the next morning you head to the
+various shops in town to discover what loot you have gained.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+;;; !player.found_items
+
+* Boots of Striding, Rogue +2 (#1)
+
+Just the one item? Shucks. Aren't you so special!
+
+:Start Over.|start
+
+
+[Flee back to pond.|97c6f511] (03d32643) - End Game: False =============================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -50273,20 +52956,161 @@ FATE -1. FATE POINTS REMAINING: 1.
 ;## [5] DEAD Skeleton Warrior 03d32643 (#3) (HP: 0, XP: 0)
 ;## [6] DEAD Skeleton Warrior 03d32643 (#4) (HP: 0, XP: 0)
 ;##  behind you→4 in front of you→4b
+!room.complete=True
 
 ;;; !room.go("4")
 
 !facing="n"
 !location="4"
 !room=rooms(location).with_facing(facing)
+!room.add_desc("Giant spiders are in the crack /S/.")
 !room # 
 ;## ROOM: 4 (2)
 ;## You are in the cave with a pond in the middle. There is a large crack
-;## in the wall behind you. The cave entrance is to your right.
+;## in the wall behind you. The cave entrance is to your right. Giant
+;## spiders are in the crack behind you.
 
 ;## to your right [E]: 4way
 ;## pond: 4-pond
-;## behind you [S]: 4a
+;## behind you [S]: 4a ***
+You are in the cave with a pond in the middle. There is a large crack in the
+wall behind you. The cave entrance is to your right. Giant spiders are in the
+crack behind you.
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+;;; !player.found_items
+
+:Exit the cave|8c067cb0
+:Search the pond|1aa19a9c
+
+
+[Search the pond|1aa19a9c] (97c6f511) - End Game: False - TODO: CHOICES ================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Stow boots then head upstairs.|41e9986e (3way)
+;## -> Continue straight ahead.|a762dfc0 (4way)
+;## -> Follow left passageway.|8caf337a (4)
+;## -> Explore crack.|03d32643 (4a)
+;## -> Flee back to pond.|97c6f511 (4)
+;## -> Search the pond|1aa19a9c
+
+;## Location: 4
+;## Facing: n
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a *** COMPLETED: 
+;## 4b: 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+!NPC.set_section_tag("97c6f511")
+
+!turn= 12 # @turn: turn + 1
+; "" # @'' if (player.darkvision or turn % 20 != 0) else 'Torch starts sputtering'
+
+!room.info_directions # 
+;## [4 to your right→4way pond→4-pond behind you→4a*
+;;; !room.go("pond")
+
+!facing="pond"
+!location="4-pond"
+!room=rooms(location).with_facing(facing)
+!room
+
+;## ROOM: 4-pond (1)
+;## You step into the pond and grope around feeling along its rough
+;## bottom. When you reach the center you notice the texture suddenly
+;## becomes very smooth. Feeling around a little more you find an edge you
+;## can pull up on. You pull up on the edge and a large metal plate comes
+;## to the surface in your grasp. You toss the plate aside and feel down
+;## where it was. You find a shallow depression with a sack in it.
+
+;## :Set the sack down and fight :Loot sack and equip anything found before fighting
+
+;## out: 4
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+
+[Exit the cave|8c067cb0] (97c6f511) - End Game: False - TODO: CHOICES ==================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Stow boots then head upstairs.|41e9986e (3way)
+;## -> Continue straight ahead.|a762dfc0 (4way)
+;## -> Follow left passageway.|8caf337a (4)
+;## -> Explore crack.|03d32643 (4a)
+;## -> Flee back to pond.|97c6f511 (4)
+;## -> Exit the cave|8c067cb0
+
+;## Location: 4
+;## Facing: n
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a *** COMPLETED: 
+;## 4b: 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+!NPC.set_section_tag("97c6f511")
+
+!turn= 12 # @turn: turn + 1
+; "" # @'' if (player.darkvision or turn % 20 != 0) else 'Torch starts sputtering'
+
+!room.info_directions # 
+;## [4 to your right→4way pond→4-pond behind you→4a*
+;;; !room.go("right")
+
+!facing="e"
+!location="4way"
+!room=rooms(location).with_facing(facing)
+!room
+
+;## ROOM: 4way (4)
+;## You are at a four way intersection. The passage in front of you leads
+;## to the ruins above.
+
+;## in front of you [E]: 1
+;## to your left [N]: 5
+;## to your right [S]: 3way
+;## behind you [W]: 4
 
 ; "" # @wander(6, 1) if turn < 10 else ''
 ; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
@@ -51311,10 +54135,11 @@ You make your way downhill and then trek back to town. You take the time to
 rest and heal overnight at the inn. Early the next morning you head to the
 various shops in town to discover what loot you have gained.
 
-!player.found_items # 
-;## Lit torch (#1) <loc:hand>
-;## Boots of Striding, Rogue +2 (#1) <loc:feet>
-;## SP: 122 (#13)
+;;; !player.found_items #
+
+* Lit torch (#1)
+* Boots of Striding, Rogue +2 (#1)
+* SP: 122 (#13)
 
 * Boots of Striding, Rogue +2
 
@@ -51385,7 +54210,7 @@ Only the one item? You suck at this!
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
 
-[Return to intersection|abc9a8fd] (38113fea) - End Game: False - TODO: CHOICES =========================================
+[Return to intersection.|abc9a8fd] (38113fea) - End Game: False - TODO: CHOICES ========================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
 ;## -> Go right.|35169113 (5)
@@ -51405,7 +54230,7 @@ Only the one item? You suck at this!
 ;## -> Go straight ahead.|773e7abf (3way)
 ;## -> Go left.|0abfe7d0 (2)
 ;## -> Rush in, kill the undead, take the axe.|38113fea (2)
-;## -> Return to intersection|abc9a8fd
+;## -> Return to intersection.|abc9a8fd
 
 ;## Location: 2
 ;## Facing: e
@@ -51427,6 +54252,7 @@ Only the one item? You suck at this!
 ;## 5a *** COMPLETED: 
 ;## start (visited): 
 ;## town: 
+
 !NPC.set_section_tag("38113fea")
 
 !turn= 19 # @turn: turn + 1
@@ -51437,8 +54263,7 @@ Only the one item? You suck at this!
 !facing="w"
 !location="3way"
 !room=rooms(location).with_facing(facing)
-!room
-
+!room # 
 ;## ROOM: 3way (4)
 ;## You return to the three way. You see passageways behind you, to your
 ;## right, and to your left. The passage to your left ends after 10ft at a
@@ -51896,7 +54721,7 @@ the old one.
 ;## to your left. The passage to your left ends after 10ft at a flight of stairs
 ;## heading down.
 ;##
-;## [1] Used torch (#14)
+;## [1] Used torch (#18)
 ;##  behind you→2* to your right→4way to your left→3*
 ;;; !room.go("right")
 
@@ -54892,6 +57717,82 @@ You shove the potion into a pocket.
 ;## ---> PLAYER IS DEAD <---
 
 
+[Flee.|bc7f8f24] (8dbd85f7) - End Game: False - TODO: CHOICES ==========================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go right.|8dbd85f7 (4)
+;## -> Flee.|bc7f8f24
+
+;## Location: 4
+;## Facing: w
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '4']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("8dbd85f7")
+
+!turn= 18 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+;;; !room.go("4way")
+
+!facing="e"
+!location="4way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 4way (6)
+;## You are at a four way intersection. The passage in front of you leads
+;## to the ruins above. The crypt full of undead is to your left.
+
+;## [1] DEAD Giant Beetle (#16) (HP: 0, XP: 0)
+;## [2] DEAD Giant Beetle (#17) (HP: 0, XP: 0)
+;## [3] DEAD Giant Beetle (#18) (HP: 0, XP: 0)
+;## [4] DEAD Giant Beetle (#19) (HP: 0, XP: 0)
+;## [5] DEAD Giant Beetle (#20) (HP: 0, XP: 0)
+
+;## in front of you [E]: 1
+;## to your left [N]: 5
+;## to your right [S]: 3way
+;## behind you [W]: 4
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "1 worgs" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+;## ---> PLAYER IS DEAD <---
+
+
 [Loot alcoves.|bc96ee4d] (6ad6630c) - End Game: False - TODO: CHOICES ==================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
@@ -55969,9 +58870,9 @@ FATE -1. FATE POINTS REMAINING: 1.
 !room=rooms(location).with_facing(facing)
 !room # 
 ;## ROOM: 2-wall (1)
-;## As you continue searching the walls, a spectral hand suddenly reaches
-;## out, grabs you, and pulls you into the now insubstantial wall. You are
-;## never heard from again.
+;## As you search, a spectral hand suddenly reaches out, grabs you, and
+;## pulls you into the now insubstantial wall. You are never heard from
+;## again.
 
 ; "" # @wander(6, 1) if turn < 10 else ''
 ; "3 zombies" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
@@ -56388,9 +59289,9 @@ towards you at a high speed.
 !room=rooms(location).with_facing(facing)
 !room # 
 ;## ROOM: 2-wall (1)
-;## As you continue searching the walls, a spectral hand suddenly reaches
-;## out, grabs you, and pulls you into the now insubstantial wall. You are
-;## never heard from again.
+;## As you search, a spectral hand suddenly reaches out, grabs you, and
+;## pulls you into the now insubstantial wall. You are never heard from
+;## again.
 
 As you continue searching the walls, a spectral hand suddenly reaches out,
 grabs you, and pulls you into the now insubstantial wall. You are never heard
@@ -63318,6 +66219,65 @@ left of interest down there.
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
 
+[Go right.|cc421e97] (87f7d333) - End Game: False - TODO: CHOICES ======================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Go through portcullis to your left.|471dfacf (4way)
+;## -> Go straight ahead.|773e7abf (3way)
+;## -> Go left.|0abfe7d0 (2)
+;## -> Rush in, grab the axe, kill the undead.|7e5add2e (2)
+;## -> Take advantage and flee.|87f7d333 (3way)
+;## -> Go right.|cc421e97
+
+;## Location: 3way
+;## Facing: w
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '3way', '2', '3way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2 (visited): 
+;## 2-wall: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("87f7d333")
+
+!turn= 20 # @turn: turn + 1
+; "Torch starts guttering" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [3way behind you→2 to your right→4way to your left→3*
+;!room.go("")
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+
 [Attack the winners.|cca4f7a4] (7d9a297a) - End Game: False - TODO: CHOICES ============================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
@@ -67212,6 +70172,79 @@ You perish.
 ;## ---> PLAYER IS INJURED (HP: 7) <---
 
 
+[Return to intersection.|cf32d47d] (5209583a) - End Game: False - TODO: CHOICES ========================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Equip goggles then fight.|a5eac449 (4)
+;## -> Attack the winners.|4f71e249 (4)
+;## -> Take advantage and flee back to the 4-way.|90d9ae12 (4way)
+;## -> Go left.|28da0604 (5)
+;## -> Examine empty alcove.|46f3675d (5a)
+;## -> Equip ring, return to crypt.|2c2f5a9b (5)
+;## -> Return to 4-way.|4c91ff5a (4way)
+;## -> Go straight through.|3fb85c9c (3way)
+;## -> Go left.|a74c7f0f (2)
+;## -> Rush in, kill the undead, claim the axe.|5209583a (2)
+;## -> Return to intersection.|cf32d47d
+
+;## Location: 2
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '3way', '2']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2 *** COMPLETED: 
+;## 2-wall: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("5209583a")
+
+!turn= 21 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [2 search→2-wall behind you→3way
+;;; !room.go("back")
+
+!facing="w"
+!location="3way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 3way (4)
+;## You return to the three way. You see passageways behind you, to your
+;## right, and to your left. The passage to your left ends after 10ft at a
+;## flight of stairs heading down. Nothing else of interest is down there.
+
+;## behind you [E]: 2 ***
+;## to your right [N]: 4way
+;## to your left [S]: 3 ***
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+
 [Fight the spider.|cf81c364] (33e9e6c4) - End Game: True ===============================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
@@ -67528,6 +70561,83 @@ You are spider fodder.
 ;## to your right [W]: 4 ***
 
 ;## ---> PLAYER IS INJURED AND NEEDS HEALING [mana: False, item: True] (HP: 7) <---
+
+
+[Go right.|d153702e] (a2d7e557) - End Game: False - TODO: CHOICES ======================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go right.|0f72a398 (5)
+;## -> Return to the 4-way.|a2d7e557 (4way)
+;## -> Go right.|d153702e
+
+;## Location: 4way
+;## Facing: s
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way', '5', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 *** COMPLETED: 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("a2d7e557")
+
+!turn= 22 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4way to your left→1 behind you→5* in front of you→3way to your right→4
+;;; !room.go("right")
+
+!facing="w"
+!location="4"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 4 (2)
+;## You are in the cave with a pond in the middle. There is a large crack
+;## in the wall to your left. The cave entrance is behind you.
+
+;## [1] Giant Spider (#4) (HP: 24, XP: 0)
+;## [2] Giant Spider (#5) (HP: 24, XP: 0)
+;## [3] Giant Spider (#6) (HP: 24, XP: 0)
+
+;## behind you [E]: 4way
+;## pond: 4-pond
+;## to your left [S]: 4a
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
 
 
 [Follow left passage.|d17cd1fb] (2527543f) - End Game: False - TODO: CHOICES ===========================================
@@ -68127,6 +71237,79 @@ You are spider fodder.
 ;##  behind you→4way pond→4-pond to your left→4a
 
 ;!room.go("")
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+
+[Climb the stairs.|d43d0c0f] (5409d1c1) - End Game: False - TODO: CHOICES ==============================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go straight through.|0ccd4512 (4)
+;## -> Flee.|421e514d (4way)
+;## -> Continue straight through.|5409d1c1 (1)
+;## -> Climb the stairs.|d43d0c0f
+
+;## Location: 1
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way', '4', '4way', '1']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("5409d1c1")
+
+!turn= 23 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [1 to your left→1b up→1b behind you→4way
+;;; !room.go("up")
+
+!facing="up"
+!location="1b"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 1b (2)
+;## You are in the ruins of the abbey next to a flight of stairs heading
+;## down into the earth.
+
+;## down: 1
+;## town: town
 
 ; "" # @wander(6, 1) if turn < 10 else ''
 ; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
@@ -81484,6 +84667,80 @@ it back into the sack and prepare to face the onslaught.
 ;## out: 4
 
 
+[Go right.|dfcf5fa2] (421e514d) - End Game: False - TODO: CHOICES ======================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go straight through.|0ccd4512 (4)
+;## -> Flee.|421e514d (4way)
+;## -> Go right.|dfcf5fa2
+
+;## Location: 4way
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way', '4', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("421e514d")
+
+!turn= 22 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4way in front of you→1 to your left→5 to your right→3way behind you→4
+;;; !room.go("right")
+
+!facing="s"
+!location="3way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 3way (3)
+;## You return to the three way. You see passageways to your left, behind
+;## you, and in front of you. The passage in front of you ends after 10ft
+;## at a flight of stairs heading down.
+
+;## to your left [E]: 2
+;## behind you [N]: 4way
+;## in front of you [S]: 3 ***
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+
 [Fight.|e0498bbe] (3c3efda2) - End Game: False - TODO: CHOICES =========================================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
@@ -81800,7 +85057,7 @@ it back into the sack and prepare to face the onslaught.
 ; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
 
 !room.info_directions # 
-;##  behind you→5a* to your left→4way
+;## [5 behind you→5a* to your left→4way
 ;!room.go("")
 
 ; "" # @wander(6, 1) if turn < 10 else ''
@@ -82757,6 +86014,154 @@ it you see the picture of a human heart.
 
 ;## to your right [E]: 5a
 ;## behind you [S]: 4way
+
+
+[Go left.|e202d79b] (071a534b) - End Game: False - TODO: CHOICES =======================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Search room.|30be69f1 (3)
+;## -> Head up the stairs.|3ba57935 (3way)
+;## -> Continue straight ahead.|2e45f89b (4way)
+;## -> Follow left passageway.|4ac001fa (4)
+;## -> Explore crack.|4db79799 (4a)
+;## -> Take the opportunity and flee back to the cave and pond.|77935a6a (4)
+;## -> Search pond.|7b743eee (4-pond)
+;## -> Drop sack and fight.|27b87f6d (4-pond)
+;## -> Wear headband then enter crack.|a75abd3a (4a)
+;## -> Continue upslope.|3cebf9db (4b)
+;## -> Go back into tunnel.|33dcab4f (4a)
+;## -> Continue following the passage.|60d74a70 (4)
+;## -> Leave armor then go right.|071a534b (4way)
+;## -> Go left.|e202d79b
+
+;## Location: 4way
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4a', '4', '4-pond', '4a', '4b', '4a', '4', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: 1 dead zombie. 1 dead giant rat. Looted.
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond *** COMPLETED: :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a (visited): 
+;## 4b (visited): 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("071a534b")
+
+!turn= 19 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4way in front of you→1 to your left→5 to your right→3way behind you→4
+;;; !room.go("left")
+
+!facing="n"
+!location="5"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 5 (1)
+;## You come to a portcullis. Beyond you see a 90ft x 40ft room with
+;## alcoves in the walls. You can't see into the alcoves from here. You
+;## push the portcullis open with the sound of rusted screeching metal and
+;## step into the room. You can now see into the alcoves and notice they
+;## are filled with the skeletons and corpses of monks, except one in the
+;## wall to your right in the near corner.
+
+;## 1d3 Skeletons, 1d4 Zombies
+
+;## to your right [E]: 5a
+;## behind you [S]: 4way
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "6 giant beetles" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+
+[Return to intersection.|e211ec3b] (9a0e9e77) - End Game: False - TODO: CHOICES ========================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Equip goggles then fight.|a5eac449 (4)
+;## -> Attack the winners.|4f71e249 (4)
+;## -> Take advantage and flee back to the 4-way.|90d9ae12 (4way)
+;## -> Go left.|28da0604 (5)
+;## -> Examine empty alcove.|46f3675d (5a)
+;## -> Equip ring, return to crypt.|2c2f5a9b (5)
+;## -> Return to 4-way.|4c91ff5a (4way)
+;## -> Go straight through.|3fb85c9c (3way)
+;## -> Go left.|a74c7f0f (2)
+;## -> Rush in, grab the axe, kill the undead.|9a0e9e77 (2)
+;## -> Return to intersection.|e211ec3b
+
+;## Location: 2
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '3way', '2']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2 *** COMPLETED: 
+;## 2-wall: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("9a0e9e77")
+
+!turn= 21 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [2 search→2-wall behind you→3way
+;;; !room.go("back")
+
+!facing="w"
+!location="3way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 3way (4)
+;## You return to the three way. You see passageways behind you, to your
+;## right, and to your left. The passage to your left ends after 10ft at a
+;## flight of stairs heading down. Nothing else of interest is down there.
+
+;## behind you [E]: 2 ***
+;## to your right [N]: 4way
+;## to your left [S]: 3 ***
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "3 skeleton warriors" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
 
 
 [Go to the 4-way intersection.|e2f30a75] (541b150d) - End Game: False ==================================================
@@ -84949,10 +88354,11 @@ You put the ring on.
 * SP: 64
 * GP: 14
 
-!player.found_items # 
-;## Lit torch (#1) <loc:hand>
-;## SP: 122 (#187)
-;## Ring of Protection, BASE ARMOR +1 (#1) <loc:left hand f1>
+;;; !player.found_items #
+
+* Lit torch (#1)
+* SP: 122 (#187)
+* Ring of Protection, BASE ARMOR +1 (#1)
 
 !rooms("5a").complete=True
 !room.complete=True
@@ -85176,6 +88582,87 @@ You put the ring on.
 ;## to your left [S]: 3 ***
 
 ;## ---> PLAYER IS BADLY INJURED (HP: 5) <---
+
+
+[Go left.|e83c9099] (23e48d62) - End Game: False - TODO: CHOICES =======================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go left.|23e48d62 (3way)
+;## -> Go left.|e83c9099
+
+;## Location: 3way
+;## Facing: s
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way', '3way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("23e48d62")
+
+!turn= 21 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+;;; !room.go("left")
+
+!facing="e"
+!location="2"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 2 (1)
+;## You follow the passage for 50ft and come to a cave with a tiled floor.
+;## You see a stone plinth on the far side holding a two handed war axe.
+;## Even from this distance you can tell that it is a finely crafted
+;## weapon. Next to the plinth on the floor you see the remains of a monk
+;## with several arrows in its back. It looks like the monk was trying to
+;## reach the axe before being struck down. As you look beyond the dead
+;## monk you see figures moving into the torchlight.
+
+;## [1] Axe (Dark Enchanted) (+1/+1). Two-handed.
+;## [2] Dead monk with arrows in back next to plinth. (#1)
+;## [3] Skeleton Warrior 35169113 (#1) (HP: 9, XP: 0)
+;## [4] Skeleton Warrior 35169113 (#2) (HP: 9, XP: 0)
+;## [5] Skeleton Warrior 35169113 (#3) (HP: 9, XP: 0)
+;## [6] Zombie 35169113 (#1) (HP: 12, XP: 0)
+
+;## search: 2-wall
+;## behind you [W]: 3way
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
 
 
 [Go down right passage.|e84964a9] (0eb6fb24) - End Game: False - TODO: CHOICES =========================================
@@ -87609,6 +91096,80 @@ The skeletons rush towards you.
 ;## behind you [S]: 4a
 
 ;## ---> PLAYER IS GRAVELY WOUNDED AND NEEDS HEALING [mana: True, item: False] (HP: 2) <---
+
+
+[Go straight through.|ed52337a] (a2d7e557) - End Game: False - TODO: CHOICES ===========================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go right.|0f72a398 (5)
+;## -> Return to the 4-way.|a2d7e557 (4way)
+;## -> Go straight through.|ed52337a
+
+;## Location: 4way
+;## Facing: s
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way', '5', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 *** COMPLETED: 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("a2d7e557")
+
+!turn= 22 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4way to your left→1 behind you→5* in front of you→3way to your right→4
+;;; !room.go("forward")
+
+!facing="s"
+!location="3way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 3way (3)
+;## You return to the three way. You see passageways to your left, behind
+;## you, and in front of you. The passage in front of you ends after 10ft
+;## at a flight of stairs heading down.
+
+;## to your left [E]: 2
+;## behind you [N]: 4way
+;## in front of you [S]: 3 ***
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
 
 
 [Wait and fight winner.|ed5291b5] (12b1d1a3) - End Game: False - TODO: CHOICES =========================================
@@ -91285,6 +94846,126 @@ surface and is where you entered.
 ;## ---> PLAYER IS INJURED AND NEEDS HEALING [mana: True, item: False] (HP: 6) <---
 
 
+[Kill the weakened creatures.|f13fd578] (5b107e8d) - End Game: False - TODO: CHOICES ===================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Stow boots then head upstairs.|41e9986e (3way)
+;## -> Continue straight ahead.|a762dfc0 (4way)
+;## -> Follow left passageway.|8caf337a (4)
+;## -> Search pond.|1571adc3 (4)
+;## -> Fight.|5b107e8d (4)
+;## -> Kill the weakened creatures.|f13fd578
+
+;## Location: 4
+;## Facing: out
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("5b107e8d")
+
+!turn= 12 # @turn: turn + 1
+; "" # @'' if (player.darkvision or turn % 20 != 0) else 'Torch starts sputtering'
+
+!room.info # 
+;## ROOM: 4 (Visited: True)
+;## You are in the cave with a pond in the middle. There is a large crack in the
+;## wall /S/. The cave entrance is /E/.
+;##
+;## [1] Amulet of Weakness, Max HP: -3 (#1)
+;## [2] Sack (#1)
+;## [3] Giant Spider (#38) (HP: 15, XP: 0)
+;## [4] Giant Spider (#39) (HP: 14, XP: 0)
+;##  e→4way pond→4-pond s→4a
+;!room.go("")
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+;## ---> PLAYER IS DEAD <---
+
+
+[Wait and attack winners.|f18bd22c] (8dbd85f7) - End Game: False - TODO: CHOICES =======================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go right.|8dbd85f7 (4)
+;## -> Wait and attack winners.|f18bd22c
+
+;## Location: 4
+;## Facing: w
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '4']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("8dbd85f7")
+
+!turn= 18 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4 behind you→4way pond→4-pond to your left→4a
+;!room.go("")
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+;## ---> PLAYER IS DEAD <---
+
+
 [Return to the crypt.|f19a9f4a] (57f52cfa) - End Game: False - TODO: CHOICES ===========================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
@@ -91915,6 +95596,79 @@ The original one page dungeon is from "One Page Dungeon Compendium", 2010
 Edition.
 
 :Back.|start
+
+
+[Flee.|f2ca1530] (77c80c38) - End Game: False - TODO: CHOICES ==========================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Press the attack.|77c80c38 (5)
+;## -> Flee.|f2ca1530
+
+;## Location: 5
+;## Facing: w
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("77c80c38")
+
+!turn= 17 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+;;; !room.go("4way")
+
+!facing="s"
+!location="4way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 4way (5)
+;## You are at a four way intersection. The passage to your left leads to
+;## the ruins above.
+
+;## [1] DEAD Giant Beetle (#16) (HP: 0, XP: 0)
+;## [2] DEAD Giant Beetle (#17) (HP: 0, XP: 0)
+;## [3] DEAD Giant Beetle (#18) (HP: 0, XP: 0)
+;## [4] DEAD Giant Beetle (#19) (HP: 0, XP: 0)
+;## [5] DEAD Giant Beetle (#20) (HP: 0, XP: 0)
+
+;## to your left [E]: 1
+;## behind you [N]: 5
+;## in front of you [S]: 3way
+;## to your right [W]: 4
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
 
 
 [Continue downslope and return to cave.|f3582505] (3ae44711) - End Game: False - TODO: CHOICES =========================
@@ -101688,6 +105442,79 @@ You search the room and find nothing else of interest.
 ; "" # @wander(6, 4) if turn >= 30 else ''
 
 
+[Go left.|f6ac5982] (a2d7e557) - End Game: False - TODO: CHOICES =======================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Loot alcoves.|90abca18 (5)
+;## -> Take advantage and flee through the portcullis.|6b843204 (4way)
+;## -> Go left.|2664604b (1)
+;## -> Climb stairs.|3b88dbc8 (1b)
+;## -> Go down stairs.|583d287f (4way)
+;## -> Go right.|0f72a398 (5)
+;## -> Return to the 4-way.|a2d7e557 (4way)
+;## -> Go left.|f6ac5982
+
+;## Location: 4way
+;## Facing: s
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '1', '1b', '4way', '5', '4way']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b (visited): 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 *** COMPLETED: 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("a2d7e557")
+
+!turn= 22 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [4way to your left→1 behind you→5* in front of you→3way to your right→4
+;;; !room.go("left")
+
+!facing="e"
+!location="1"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 1 (4)
+;## You travel down a 100ft passage and come to a bend. A flight of stairs
+;## leads up to your left.
+
+;## to your left [N]: 1b
+;## up: 1b
+;## behind you [W]: 4way
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+
 [Climb the stairs.|f6e54031] (1539d919) - End Game: False - TODO: CHOICES ==============================================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
@@ -103969,6 +107796,64 @@ ends in a spiked head. It is plain looking not having any decorations.
 ;## to your left [S]: 4way
 
 
+[Press the attack.|fbf533cc] (7e5add2e) - End Game: False - TODO: CHOICES ==============================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Equip boots.|4406c056 (3way)
+;## -> Continue straight ahead.|52f9c41b (4way)
+;## -> Follow left passageway.|565b2153 (4)
+;## -> Search pond.|832359f3 (4)
+;## -> Flee with goggles back to 4-way intersection.|83d44f30 (4way)
+;## -> Follow left passage.|8a093ebe (5)
+;## -> Examine empty alcove.|a6c245e9 (5a)
+;## -> Stow bag and return to crypt.|5016fab3 (5)
+;## -> Go through portcullis to your left.|471dfacf (4way)
+;## -> Go straight ahead.|773e7abf (3way)
+;## -> Go left.|0abfe7d0 (2)
+;## -> Rush in, grab the axe, kill the undead.|7e5add2e (2)
+;## -> Press the attack.|fbf533cc
+
+;## Location: 2
+;## Facing: e
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4', '4way', '5', '5a', '5', '4way', '3way', '2']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2 (visited): 
+;## 2-wall: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5 (visited): 
+;## 5a *** COMPLETED: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("7e5add2e")
+
+!turn= 19 # @turn: turn + 1
+; "" # @'' if turn % 20 != 0 else 'Torch starts guttering'
+
+!room.info_directions # 
+;## [2 search→2-wall behind you→3way
+;!room.go("")
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+
 [Return to the 4-way intersection.|fc1f85e2] (067a60ac) - End Game: False - TODO: CHOICES ==============================
 ;## -> start.|start (start)
 ;## -> Start the Game.|906d2fff (4way)
@@ -105955,6 +109840,72 @@ splashes out in all directions. They collapse unmoving to the floor.
 ;## to your left [S]: 4a
 
 ;## ---> PLAYER IS INJURED (HP: 6) <---
+
+
+[Flee the room.|fed83291] (5b107e8d) - End Game: False - TODO: CHOICES =================================================
+;## -> start.|start (start)
+;## -> Start the Game.|906d2fff (4way)
+;## -> Go right.|35169113 (5)
+;## -> Go back to the four-way intersection.|25db23e6 (4way)
+;## -> Go straight ahead.|4625c2a5 (3way)
+;## -> Continue straight ahead.|2e112d56 (3)
+;## -> Examine casks.|51a0c57c (3)
+;## -> Stow boots then head upstairs.|41e9986e (3way)
+;## -> Continue straight ahead.|a762dfc0 (4way)
+;## -> Follow left passageway.|8caf337a (4)
+;## -> Search pond.|1571adc3 (4)
+;## -> Fight.|5b107e8d (4)
+;## -> Flee the room.|fed83291
+
+;## Location: 4
+;## Facing: out
+;## VISITED: ['start', '4way', '5', '4way', '3way', '3', '3way', '4way', '4']
+;## DLs: Easy = 5, Routine = 7, Challenging = 9, Hard = 11, Extreme = 13
+
+;## 1 (visited): 
+;## 1b: 
+;## 2-wall: 
+;## 2: 
+;## 3 *** COMPLETED: Decapitated giant rat
+;## 3way (visited): 
+;## 4 (visited): 
+;## 4-pond (visited): :Set the sack down and fight :Loot sack and equip anything found before fighting
+;## 4a: 
+;## 4b: 
+;## 4way (visited): 
+;## 5: 1d3 Skeletons, 1d4 Zombies
+;## 5a: 
+;## start (visited): 
+;## town: 
+
+!NPC.set_section_tag("5b107e8d")
+
+!turn= 12 # @turn: turn + 1
+; "" # @'' if (player.darkvision or turn % 20 != 0) else 'Torch starts sputtering'
+
+!room.info_directions # 
+;## [4 e→4way pond→4-pond s→4a
+;;; !room.go("4way")
+
+!facing="e"
+!location="4way"
+!room=rooms(location).with_facing(facing)
+!room # 
+;## ROOM: 4way (4)
+;## You are at a four way intersection. The passage in front of you leads
+;## to the ruins above.
+
+;## in front of you [E]: 1
+;## to your left [N]: 5
+;## to your right [S]: 3way
+;## behind you [W]: 4
+
+; "" # @wander(6, 1) if turn < 10 else ''
+; "" # @wander(6, 2) if turn >= 10 and turn < 20 else ''
+; "" # @wander(6, 3) if turn >= 20 and turn < 30 else ''
+; "" # @wander(6, 4) if turn >= 30 else ''
+
+;## ---> PLAYER IS DEAD <---
 
 
 [Continue on to 4-way.|feeb2dc7] (4ffd0d5f) - End Game: False - TODO: CHOICES ==========================================

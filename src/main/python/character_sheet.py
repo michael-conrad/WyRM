@@ -68,6 +68,22 @@ class CharacterSheet:
 
     _saved_inv: list[str] = field(default_factory=list)
 
+    @property
+    def darkvision(self) -> bool:
+        for item in self.armor_worn:
+            name = item.name.lower()
+            if "darkvision" in name:
+                return True
+            if "dark vision" in name:
+                return True
+        for item in self.weapons:
+            name = item.name.lower()
+            if "darkvision" in name:
+                return True
+            if "dark vision" in name:
+                return True
+        return False
+
     def save_inv_list(self) -> None:
         for item in self.armor_worn:
             self._saved_inv.append(item.base_name)
@@ -77,17 +93,19 @@ class CharacterSheet:
             self._saved_inv.append(item.base_name)
 
     @property
-    def found_items(self) -> str:
-        _ = ""
+    def found_items(self) -> list[str] | None:
+        _ = list()
         for item in self.armor_worn:
             if item.base_name not in self._saved_inv:
-                _ += f"\n;## {item.name}"
+                _.append(f"* {item.base_name}")
         for item in self.weapons:
             if item.base_name not in self._saved_inv:
-                _ += f"\n;## {item.name}"
+                _.append(f"* {item.base_name}")
         for item in self.equipment:
             if item.base_name not in self._saved_inv:
-                _ += f"\n;## {item.name}"
+                _.append(f"* {item.base_name}")
+        if not _:
+            return None
         return _
 
     @property

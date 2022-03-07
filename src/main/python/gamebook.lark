@@ -1,0 +1,51 @@
+
+start : metadata sections
+
+metadata: metadata_tags
+metadata_tags: metadata_tag+
+metadata_tag: NAME ":" BARE_STRING
+
+sections: section+
+section : section_header section_metadata? commands
+
+section_header : "[" section_name "]" BARE_STRING?
+section_metadata: metadata_tags
+
+commands: block_command | command+
+command: comments | cmd_direction | cmd_option | cmd_object | cmd_if | string
+
+block_command: "begin" commands "end"
+
+comments: ";" free_string
+free_string: string | BARE_STRING
+string: STRING | LONG_STRING
+
+section_name: /[^]]+/i | STRING
+
+object_property: NAME ("." object_property)?
+
+cmd_if: "if" condition ":" (command | block_command) cmd_else?
+cmd_else: "else" ":" (command | block_command)
+cmd_direction: "direction" object_property? free_string
+cmd_option: "option" string "do" free_string
+cmd_object: object_property free_string
+condition: object_property (cond_operator? (object_property|STRING|SIGNED_NUMBER))?
+cond_operator: ("=" | ">" | "<" | ">=" | "<=" | "!=" | "is" | "is not")
+
+BARE_STRING: /.+/i NEWLINE
+STRING: /"(?!"").*?(?<!\\)(\\\\)*?"/i
+LONG_STRING: /"""\n.*?(?<!\\)(\\\\)*?\n"""\n/is
+
+NAME: ("_"|LETTER) ("_"|"-" (LETTER|DIGIT) |LETTER|DIGIT)*
+
+%import common.LCASE_LETTER
+%import common.UCASE_LETTER
+%import common.LETTER
+%import common.WORD
+%import common.NEWLINE
+%import common.WS
+%import common.SIGNED_NUMBER
+%import common.DIGIT
+
+%ignore WS
+

@@ -1,0 +1,206 @@
+Title: Slash'n Up! Book 0.5
+Subtitle: Dungeons of the Forsaken Abbey
+Author: Michael Conrad
+License: CC-BY-SA
+
+Note: A Hack'n Slash Game Book
+Note: Gabriel P (urudnd@gmail.com)
+
+Library: character_sheet
+Library: equipment
+Library: mana
+Library: skills
+Library: talents
+Library: gb_utils
+Library: npcs
+Library: pcs
+Library: room_descriptions
+Library: mob_combat
+
+
+[Start]
+
+"""
+Welcome New Adventurer!
+
+This is a Warrior, Rogue, Mage rules based gamebook.
+
+You are playing a gamebook using the one page dungeon for the quest:
+
+* "Dungeons of the Forsaken Abbey"
+* By Gabriel P. (urudnd@gmail.com)
+* Copyright 2010, CC-BY-SA
+
+The original one page dungeon is from "One Page Dungeon Compendium", 2010
+Edition.
+"""
+
+direction "Show Your Support"
+direction "Start the Game"
+
+[Start the Game]
+
+spawn player
+player facing "w"
+
+"""
+You've come to explore the ruins of an abbey whose name has been forgotten.
+There are tales of an all black clad warrior-mage with divinely blessed weapons,
+armor, and other gear, who went in and never returned. It is whispered that the
+armor, weapons, and other gear await any brave enough and strong enough to go
+find it. You've decided you're that someone.
+
+# Your Starting Stats
+
+* Warrior: {player.warrior} - Determines proficency with strength and fighting related skills.
+* Rogue: {player.rogue} - Determines proficency with agility and stealth related skills.
+* Mage: {player.mage} - Determines proficency with mana and mental related skills.
+
+## Pools
+
+* Fate: {player.fate} - Divine intervention used to avoid otherwise nasty death or circumstances. Use is automatic. Does not refill.
+* Armor_Penalty: {player.armor_penalty} - Penalty against mana pool based on armor worn.
+* Hit Points: {player.hp} - Life points. When it falls to < ½ skill penalties are assessed. If it falls to 0 death occurs.
+* Mana: {player.mana} ({player.mage*2} base - {player.armor_penalty} armor penalty) - Used by spell casting. Only refills during sleep or meditation.
+* Defense: 7 - Proficiency enemies need to achieve to damage you.
+
+## Skills
+
+* Acrobatics (Rogue) Training in activities like dancing, contortion, climbing, tightrope walking, tumbling.
+* Axes (Warrior) Training with axes and polearms
+* Daggers (Rogue) Training with daggers and knives.
+
+## Talents
+
+* Massive Attack: You can add your Warrior level to your melee attack damage once per combat.
+
+## Spells
+
+* Frost Burn, Mana: 1, Difficulty: Easy, Touch. 1d6-2 damage. Mana burn raises damage by +1.
+* Healing Hand, Mana: 1, Difficulty: Easy, Touch. 1d6 HP healed. Mana burn raises heal by +1.
+
+## Equipment
+
+* Adventurer's Kit: Flint and tinder. Water flask. Blanket. Bed roll. Small tent.
+* Backpack
+* Clothing Common
+* Clothing Travel
+* Iron Rations 1 week
+* Pickaxe
+* Rations 1 week
+* Rope 30 feet
+* Spellbook: Lose this and you can't cast spells until you locate another.
+* Torches: 3 each
+"""
+
+player get belt wear
+player get pouch put on belt
+player get pants wear
+player get "Boots" wear
+player get "Shirt" wear
+
+player get "Flint and tinder" put in backpack
+player get "Water flask" put in backpack
+player get "Blanket" put in backpack
+player get "Bed roll" put in backpack
+player get "Small tent" put in backpack
+player get "Backpack" put in backpack
+player get "Travel clothing" put in backpack
+player get "Iron rations 1 week" put in backpack
+player get "Pickaxe" put in backpack
+player get "Normal rations 1 week" put in backpack
+player get "Rope, 30ft" put in backpack
+player get "Spellbook" put in backpack
+player get "Torch" put in backpack
+player get "Torch" put in backpack
+player get "Torch" put in backpack
+
+"""
+## Money
+
+* SP: 122
+"""
+
+player get 122 sp put in pouch
+
+"""
+## Weapons
+
+Axe (Axes) [1d6]
+"""
+
+player equip weapon "Axe"
+
+"""
+## Armor
+
+Chain, Defense: +5, Mana: -4
+"""
+player equip armor "Chain" ; Chain mail
+
+"""
+Atop of the hill stand the ruins of what was once an abbey. Legend has it that
+long ago the studious monks became corrupted by some evil and were destroyed by
+a band of wizards.
+
+As a new adventurer you have come seeking loot. Hopefully stuff that will help
+with future adventures, or at least enough money to get a meal and room at a
+decent inn.
+
+You walk up the hill to the ruins.
+
+Digging through the rumble you happen upon a flight of stairs leading down
+underground.
+
+You walk down a flight of stairs and come to a short 10ft passageway which ends
+at a wall with an opening to another flight of stairs heading down into
+darkness.
+
+You light a torch and enter the passageway turning to the right and follow the
+stairs down a landing which leads straight ahead to another set of stairs going
+down. You follow those stairs down and walk through a short passageway that
+makes a right turn into a much longer passageway disappearing into darkness.
+
+You stop and listening carefully before proceeding. You only hear your own
+breathing. Deciding there is nothing waiting to attack you in the darkness beyond
+the reach of the torch light you continue on.
+
+You follow the passage for 60ft and come to a four way intersection. The
+passages /N/, /W/, and /S/ disappear into darkness.
+"""
+
+direction n "Crypt 5"
+direction w "Cave 4"
+direction s "3 Way"
+direction e "Long Passage 1"
+
+[Cave 4]
+
+if from is e:
+    "You go 60ft down a passageway and step into a large cave. The cave is about 100 ft x 70 ft."
+
+
+if from is s:
+    "You go down slope and step out of the crack."
+
+
+if room.first_visit:
+"""
+Water oozes down the walls of this natural cave and forms a 30ft diameter pond
+in the middle of it. You notice water dripping from the cave roof about 30ft
+above. From the pond a rivulet of water heads into the crack which appears large
+enough to walk into. The pond is covered in what appears to be a dark green
+scummy algae.
+"""
+else:
+"""
+You are in the cave with a pond in the middle.
+There is a large crack in the wall /S/.
+The cave entrance is /E/.
+"""
+
+
+direction e "4 Way"
+direction s "Tunnel 4a"
+option "Examine pond" do "Examine Pond"
+

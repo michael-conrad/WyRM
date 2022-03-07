@@ -1,15 +1,19 @@
 name: WyRM
 channels:
+  - conda-forge
   - defaults
 dependencies:
   - _libgcc_mutex=0.1
   - _openmp_mutex=4.5
+  - atomicwrites=1.4.0
   - bzip2=1.0.8
-  - ca-certificates=2021.10.26
-  - certifi=2020.6.20
+  - ca-certificates=2021.10.8
+  - certifi=2021.10.8
   - importlib-metadata=4.8.2
   - importlib_metadata=4.8.2
+  - js2py=0.71
   - jsonpickle=2.0.0
+  - lark=1.1.2
   - ld_impl_linux-64=2.35.1
   - libffi=3.3
   - libgcc-ng=9.3.0
@@ -19,12 +23,19 @@ dependencies:
   - ncurses=6.3
   - openssl=1.1.1m
   - pip=21.2.4
+  - pyjsparser=2.7.1
   - python=3.10.0
+  - python-tzdata=2021.5
+  - python_abi=3.10
+  - pytz-deprecation-shim=0.1.0.post0
   - readline=8.1.2
+  - regex=2021.8.3
   - setuptools=58.0.4
+  - six=1.16.0
   - sqlite=3.37.0
   - tk=8.6.11
   - tzdata=2021e
+  - tzlocal=4.1
   - wheel=0.37.1
   - xz=5.2.5
   - zipp=3.7.0
@@ -36,5 +47,4 @@ dependencies:
     - executing==0.8.2
     - pure-eval==0.2.2
     - pyparsing==3.0.7
-    - six==1.16.0
     - varname==0.8.1

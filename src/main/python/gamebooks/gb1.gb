@@ -17,8 +17,16 @@ Library: pcs
 Library: room_descriptions
 Library: mob_combat
 
-
 [Start]
+metadata: metadata value
+
+; one line comment
+
+;;;
+multi line comment
+;;;
+
+"this is a say command"
 
 """
 Welcome New Adventurer!
@@ -39,9 +47,16 @@ direction "Show Your Support"
 direction "Start the Game"
 
 [Start the Game]
+once {
+    player = PCs.player_forsaken_alley()
+    player.facing = w
+}
 
-spawn player
-player facing "w"
+say x
+y
+z= 3 + 4
+3+4
+say 3+4
 
 """
 You've come to explore the ruins of an abbey whose name has been forgotten.
@@ -93,27 +108,8 @@ find it. You've decided you're that someone.
 * Torches: 3 each
 """
 
-player get belt wear
-player get pouch put on belt
-player get pants wear
-player get "Boots" wear
-player get "Shirt" wear
-
-player get "Flint and tinder" put in backpack
-player get "Water flask" put in backpack
-player get "Blanket" put in backpack
-player get "Bed roll" put in backpack
-player get "Small tent" put in backpack
-player get "Backpack" put in backpack
-player get "Travel clothing" put in backpack
-player get "Iron rations 1 week" put in backpack
-player get "Pickaxe" put in backpack
-player get "Normal rations 1 week" put in backpack
-player get "Rope, 30ft" put in backpack
-player get "Spellbook" put in backpack
-player get "Torch" put in backpack
-player get "Torch" put in backpack
-player get "Torch" put in backpack
+player wear belt
+player equip axe
 
 """
 ## Money
@@ -121,22 +117,17 @@ player get "Torch" put in backpack
 * SP: 122
 """
 
-player get 122 sp put in pouch
-
 """
 ## Weapons
 
 Axe (Axes) [1d6]
 """
 
-player equip weapon "Axe"
-
 """
 ## Armor
 
 Chain, Defense: +5, Mana: -4
 """
-player equip armor "Chain" ; Chain mail
 
 """
 Atop of the hill stand the ruins of what was once an abbey. Legend has it that
@@ -176,15 +167,15 @@ direction e "Long Passage 1"
 
 [Cave 4]
 
-if from is e:
+if player.facing is e {
     "You go 60ft down a passageway and step into a large cave. The cave is about 100 ft x 70 ft."
+}
 
-
-if from is s:
+if player.facing == s {
     "You go down slope and step out of the crack."
+}
 
-
-if room.first_visit:
+if room.first_visit {
 """
 Water oozes down the walls of this natural cave and forms a 30ft diameter pond
 in the middle of it. You notice water dripping from the cave roof about 30ft
@@ -192,15 +183,18 @@ above. From the pond a rivulet of water heads into the crack which appears large
 enough to walk into. The pond is covered in what appears to be a dark green
 scummy algae.
 """
-else:
+} else {
 """
 You are in the cave with a pond in the middle.
 There is a large crack in the wall /S/.
 The cave entrance is /E/.
 """
+}
 
+option "Examine pond" {
+    "Examine Pond"
+}
 
 direction e "4 Way"
 direction s "Tunnel 4a"
-option "Examine pond" do "Examine Pond"
 

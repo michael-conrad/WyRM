@@ -1,0 +1,21 @@
+
+rule: rule1 | rule2 | rule3
+
+rule1: "Definition" ":" ("a"|"an") kind "is" new_adjectival_name ("if" | "unless") definition
+rule2: preamble ":" phrases
+rule3: preamble "," phrase
+
+definition: definition1 | definition2 | definition3
+definition1: condition
+definition2: ("its"|"his"|"her"|"their") value_property_name ("is"|"are") value "or" ("less"|"more)
+definition3: ":" phrases
+
+preamble: preamble1 | preamble2 | preamble3 | preamble4 | preamble5
+
+preamble1: "to" phrase_template
+preamble2: "to" "decide" ("if"|"whether") phrase_template
+preamble3: "to" "decide" ("which"|"what") kind_of_value "is" phrase_template
+preamble4: "this" "is" "the" rule_name
+preamble5: ("a"? "rule" "for")? circumstances ("(" "this" "is" "the" rule_name ")")?
+
+circumstances: circumstances1 circumstances2 circumstances3

@@ -2,9 +2,8 @@ Title: Slash'n Up! Book 0.5
 Subtitle: Dungeons of the Forsaken Abbey
 Author: Michael Conrad
 License: CC-BY-SA
-
-Note: A Hack'n Slash Game Book
-Note: Gabriel P (urudnd@gmail.com)
+Note: A "Hack'n" Slash Game Book
+Attribution: Gabriel P (urudnd@gmail.com)
 
 Library: character_sheet
 Library: equipment
@@ -18,12 +17,18 @@ Library: room_descriptions
 Library: mob_combat
 
 [Start]
-metadata: metadata value
+section_meta_tag: "sectionx metadata value"
+section_meta_tag2: "sectionx metadata value"
 
 ; one line comment
 
 ;;;
 multi line comment
+
+* "Dungeons of the Forsaken Abbey"
+* By Gabriel P. (urudnd@gmail.com)
+* Copyright 2010, CC-BY-SA
+
 ;;;
 
 "this is a say command"

@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 /src/main/python/gamebooks/gb1.html
 /src/main/python/gamebooks/gb1.tree.txt
+/src/main/python/gamebooks/gb1.py

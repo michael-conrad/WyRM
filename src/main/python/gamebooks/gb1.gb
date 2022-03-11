@@ -49,8 +49,16 @@ Edition.
 """
 
 direction "Show Your Support"
-direction "Start the Game"
+direction "Start the Game" "section tag"
 
+direction "Show Your Support" facing "e"
+direction "Start the Game" "section tag" facing "e"
+
+direction "Show Your Support" facing e
+direction "Start the Game" "section tag" facing e
+
+
+[Show Your Support]
 [Start the Game]
 once {
     player = PCs.player_forsaken_alley()

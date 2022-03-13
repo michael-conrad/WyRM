@@ -1,6 +1,5 @@
-import types
+import html
 
-import jsonpickle
 import lark.visitors
 
 from lark import Token
@@ -43,6 +42,13 @@ class GamebookCompiler(lark.visitors.Interpreter):
 
     section_lookup: dict[str, str] = dict()
     var_lookup: dict[str, str] = dict()
+
+    _next_random_seed: int = 0
+
+    @property
+    def next_random_seed(self) -> int:
+        self._next_random_seed += 1
+        return self._next_random_seed
 
     def start(self, tree: Tree | Token):
         global indent
@@ -105,6 +111,20 @@ class GamebookCompiler(lark.visitors.Interpreter):
         print("state.world.location = \"\"")
         print("recurse_depth: int = 0")
         print()
+        print("# Intentionally not tracked in state")
+        print("_node_id: int = 0")
+        print()
+        print()
+        print("def new_label() -> str:")
+        indent += 1
+        print("global _node_id")
+        print("_node_id += 1")
+        print('return f"{_node_id:08x}"')
+        indent -= 1
+        print()
+        print()
+        print("_output: dict[str, str] = dict()")
+        print()
         self.state_track_set.add('state')
         self.state_track_set.add('recurse_depth')
 
@@ -163,11 +183,12 @@ class GamebookCompiler(lark.visitors.Interpreter):
                     print(f"state.{section_name}.vars = dict[str, any] = dict()")
                     print()
                     print()
-                    print(f"def {section_name}() -> None:")
+                    print(f"def {section_name}() -> str:")
                     indent += 1
                     value: str = basic_escape(f"{name}")
                     print(f"{self.q3}{value}{self.q3}")
                     print()
+                    print("global _output")
                     print("global state")
                     print("global recurse_depth")
                     print("recurse_depth += 1")
@@ -175,22 +196,30 @@ class GamebookCompiler(lark.visitors.Interpreter):
                     print("    raise RecursionError()")
                     print(f"section: str = {self.q1}{value}{self.q1}")
                     print()
-                    print(f"_metadata: dict[str, str] = state.{section_name}.metadata")
-                    print(f"_once: set[int] = state.{section_name}.once")
-                    print(f"_vars: dict[str, any] = state.{section_name}.vars")
+                    print(f"_state: SimpleNamespace = state.{section_name}")
+                    print(f"_metadata: dict[str, str] = _state.metadata")
+                    print(f"_once: set[int] = _state.once")
+                    print(f"_vars: dict[str, any] = _state.vars")
                     self.once_counter += 1
                     print()
-                    print("rand: Random")
                     print(f"if {self.once_counter} not in _once:")
                     indent += 1
                     print(f"_once.add({self.once_counter})")
-                    print(f"rand = random.Random({self.section_ctr})")
+                    print(f"state.{section_name}.random_state = random.Random({self.next_random_seed}).getstate()")
                     indent -= 1
+                    print()
+                    print("out: str = ''")
+                    print(f"rand = random.Random()")
+                    print(f"rand.setstate(state.{section_name}.random_state)")
                     print()
                     continue
                 print(f"Unknown token: {child.type} = {child.value}")
                 continue
+        print(f"node_id: str = new_label()")
+        print("_output[node_id] = out")
+        print("return node_id")
         indent -= 1
+        print()
 
     def section_metadata(self, tree: Tree):
         global indent
@@ -207,35 +236,58 @@ class GamebookCompiler(lark.visitors.Interpreter):
         print(f"metadata[{self.q1}{tag}{self.q1}] = {value}")
 
     def section_content(self, tree: Tree):
-        options: list[str] = list()
         for child in tree.children:
             if isinstance(child, Tree):
                 if child.data == "direction_stmt":
-                    options.extend(self.visit(child))
+                    continue
+                if child.data == "option_stmt":
                     continue
                 self.visit(child)
                 continue
             if isinstance(child, Token):
                 print(child.value)
                 continue
-        print("OPTIONS")
-        for option in options:
-            print(option)
+        print("# OPTIONS")
+        print()
+        for child in tree.children:
+            if isinstance(child, Tree):
+                if child.data == "option_stmt":
+                    print(f"saved_state = save_state()")
+                    self.visit(child)
+                    print(f"restore_state(saved_state)")
+                    print(f"rand.setstate(_state.random_state)")
+                    print()
 
-    def direction_stmt(self, tree: Tree) -> list[str]:
-        cmds: list[str] = list()
+        print("# DIRECTIONS")
+        print()
+        for child in tree.children:
+            if isinstance(child, Tree):
+                if child.data == "direction_stmt":
+                    print(f"saved_state = save_state()")
+                    self.visit(child)
+                    print(f"restore_state(saved_state)")
+                    print(f"rand.setstate(_state.random_state)")
+                    print()
+
+    def direction_stmt(self, tree: Tree):
         if len(tree.children) == 3:
             section_name: str = basic_unescape(tree.children[1].value[1:-1])
             if section_name not in self.section_lookup:
                 raise KeyError(f"Section {section_name} not found. Valid sections: {[k for k in self.section_lookup.keys()]}")
             section_func: str = self.section_lookup[section_name]
-            cmds.append(f"saved_state = save_state()")
-            cmds.append(f"{section_func}() # {section_name}")
-            cmds.append(f"restore_state(saved_state)")
+            print(f"dest: str = {section_func}()  # {section_name}")
+            d: str = ""
+            d += "out += f\""
+            d += f"<a href=\\{self.q1}"
+            d += "{dest}"
+            d += f".html\\{self.q1}>"
+            d += html.escape(section_name).strip()
+            d += '</a>"'
+            print(d)
+        elif len(tree.children) == 4:
+            pass  #_, desc,
         else:
-            cmds.append(f"# {len(tree.children)} {tree.data}")
-        return cmds
-
+            print(f"# {len(tree.children)} {tree.data} {tree.children}")
 
     def short_comment(self, tree: Tree):
         comment: str = tree.children[0]
@@ -253,7 +305,8 @@ class GamebookCompiler(lark.visitors.Interpreter):
             if isinstance(child, Token):
                 markdown = tree.children[0]
                 print(f"md = {markdown}")
-                print(f"print(md)")
+                print(f'out += "\\n\\n"')
+                print(f"out += md.rstrip()")
                 print()
             else:
                 markdown = self.visit(child)

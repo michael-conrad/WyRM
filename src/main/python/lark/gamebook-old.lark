@@ -1,0 +1,178 @@
+start : metadata sections
+
+metadata: metadata_entry*
+metadata_entry: metadata_tag ":" metadata_value
+?metadata_tag: NAME
+?metadata_value: REMAINING_LINE?
+
+sections: section+
+section : "[" SECTION_NAME "]" NL* section_metadata section_content
+
+SECTION_NAME: /[^]]+/i
+section_metadata: section_metadata_entry*
+section_metadata_entry: metadata_tag ":" STRING NL
+
+section_content: ((NL | stmt)* | testlist NL*)
+
+with_stmt: "with" "world" suite | "with" "section" suite | "with" with_items suite
+with_items: with_item ("," with_item)*
+with_item: test ["as" name]
+
+say_stmt: say_string | say_long_string | say_expr
+?say_string.3: "say"? STRING
+?say_long_string.2: "say"? LONG_STRING
+?say_expr.1: "say" expr_stmt
+
+?direction_stmt.9: DIRECTION STRING (STRING | name_or_attr_pattern)? (FACING STRING | FACING name_or_attr_pattern)? NL
+DIRECTION: "direction"
+FACING: "facing"
+
+option_stmt: "option" STRING suite
+once_stmt: "once" suite // run once, first time run, further runs are a noop
+library_stmt.1: name_or_attr_pattern name_or_attr_pattern? atom_expr NL
+
+?power: await_expr ("**" factor)?
+?await_expr: AWAIT? atom_expr
+AWAIT: "await"
+
+?atom_expr: atom_expr "(" [arguments] ")"    -> funccall
+          | atom_expr "[" subscriptlist "]"  -> getitem
+          | atom_expr "." name               -> getattr
+          | atom
+
+?atom: "(" _tuple_inner? ")" -> tuple
+     | "[" _testlist_comp? "]"  -> list
+     | "{" _dict_exprlist? "}" -> dict
+     | "{" _set_exprlist "}" -> set
+     | name -> var
+     | number
+     | string_concat
+     | "(" test ")"
+     | "..." -> ellipsis
+     | "None"    -> const_none
+     | "True"    -> const_true
+     | "False"   -> const_false
+
+_testlist_comp: test | _tuple_inner
+_tuple_inner: test_or_star_expr (("," test_or_star_expr)+ [","] | ",")
+key_value: test ":"  test
+
+arguments: argvalue ("," argvalue)*
+
+_dict_exprlist: (key_value | "**" expr) ("," (key_value | "**" expr))* [","]
+
+?subscriptlist: subscript
+              | subscript (("," subscript)+ [","] | ",") -> subscript_tuple
+?subscript: test | ([test] ":" [test] [sliceop]) -> slice
+sliceop: ":" [test]
+
+?stmt: compound_stmt | direction_stmt | simple_stmt | library_stmt
+?compound_stmt: if_stmt | with_stmt | option_stmt | once_stmt | long_comment
+
+?simple_stmt: (short_comment | say_stmt | assign_stmt | expr_stmt) NL
+
+?expr_stmt: testlist_star_expr
+?assign_stmt: augassign | assign
+
+if_stmt: "if" test suite elifs ["else" suite]
+elifs: elif_*
+elif_: "elif" test suite
+
+?testlist_star_expr: test_or_star_expr
+                   | test_or_star_expr ("," test_or_star_expr)+ ","?  -> tuple
+                   | test_or_star_expr ","  -> tuple
+
+augassign: testlist_star_expr augassign_op testlist
+assign: testlist_star_expr ("=" testlist_star_expr)+
+
+?suite: simple_stmt | block_begin stmt+ block_end
+
+?test: or_test ("if" or_test "else" test)?
+     | assign_expr
+
+?test_or_star_expr.1: test
+
+
+_set_exprlist: test_or_star_expr (","  test_or_star_expr)* [","]
+
+?argvalue: test ("=" test)?
+
+!augassign_op: "+=" | "-=" | "*=" | "@=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>=" | "**=" | "//="
+
+?testlist: test | testlist_tuple
+
+?or_test: and_test ("or" and_test)*
+?and_test: not_test_ ("and" not_test_)*
+?not_test_: "not" not_test_ -> not_test
+         | comparison
+?comparison: expr (comp_op expr)*
+
+assign_expr: name "=" test
+
+star_expr: "*" expr
+
+testlist_tuple: test (("," test)+ [","] | ",")
+
+?expr: arith_expr
+?arith_expr: term (_add_op term)*
+?term: factor (_mul_op factor)*
+?factor: _unary_op factor | power
+
+!_unary_op: "+"|"-"|"~"
+!_add_op: "+"|"-"
+!_mul_op: "*"|"/"|"%"|"//"
+!comp_op: "<"|">"|"=="|">="|"<="|"!="|"in"|"not" "in"|"is"|"is" "not"
+
+!name: NAME
+
+?string_concat.1: string+
+string: STRING | LONG_STRING
+
+number: DEC_NUMBER | HEX_NUMBER | BIN_NUMBER | OCT_NUMBER | FLOAT_NUMBER
+
+attr_pattern: NAME ("." NAME)+ -> value
+
+?name_or_attr_pattern.1: NAME ("." NAME)* -> value
+
+NAME: /[^\W\d]\w*/
+REMAINING_LINE: /[^\n]+/ NEWLINE | NEWLINE
+NL: ( /\r?\n[\t ]*/  )+
+
+comment: short_comment | long_comment
+short_comment.1: /;[^\n]+/ NL*
+long_comment.2: /;;;.*?(?<!\\)(\\\\)*?;;;/is
+
+
+STRING: /"(?!"").*?(?<!\\)(\\\\)*?"/i
+LONG_STRING: /""".*?(?<!\\)(\\\\)*?"""/is
+
+_SPECIAL_DEC: "0".."9"        ("_"?  "0".."9"                       )*
+DEC_NUMBER:   "1".."9"        ("_"?  "0".."9"                       )*
+          |   "0"             ("_"?  "0"                            )* /(?![1-9])/
+HEX_NUMBER.2: "0" ("x" | "X") ("_"? ("0".."9" | "a".."f" | "A".."F"))+
+OCT_NUMBER.2: "0" ("o" | "O") ("_"?  "0".."7"                       )+
+BIN_NUMBER.2: "0" ("b" | "B") ("_"?  "0".."1"                       )+
+
+_EXP: ("e"|"E") ["+" | "-"] _SPECIAL_DEC
+DECIMAL: "." _SPECIAL_DEC | _SPECIAL_DEC "." _SPECIAL_DEC?
+FLOAT_NUMBER.2: _SPECIAL_DEC _EXP | DECIMAL _EXP?
+IMAG_NUMBER.2: (_SPECIAL_DEC      | FLOAT_NUMBER) ("J" | "j")
+
+%import common.LCASE_LETTER
+%import common.UCASE_LETTER
+%import common.LETTER
+%import common.WORD
+%import common.NEWLINE
+%import unicode.WS
+%import unicode.WS_INLINE
+%import common.SIGNED_NUMBER -> NUMBER
+%import common.DIGIT
+
+%ignore WS_INLINE
+%ignore /\\[\t \f]*\r?\n/   // LINE_CONT
+// %ignore COMMENT
+
+// %declare _INDENT _DEDENT
+?block_begin: "{" NL*
+?block_end: "}" NL*
+

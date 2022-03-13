@@ -1,178 +1,388 @@
-start : metadata sections
+// game book
 
-metadata: metadata_entry*
-metadata_entry: metadata_tag ":" metadata_value
-?metadata_tag: NAME
-?metadata_value: REMAINING_LINE?
+start: metadata sections
 
-sections: section+
-section : "[" SECTION_NAME "]" NL* section_metadata section_content
+metadata: metadata_entry+
+metadata_entry: metadata_tag ":" metadata_value? NEWLINE
+metadata_tag: IDENTIFIER
+metadata_value: REMAINING_LINE
+
+sections: section statement+
+section: "[" SECTION_NAME "]" NEWLINE
 
 SECTION_NAME: /[^]]+/i
-section_metadata: section_metadata_entry*
-section_metadata_entry: metadata_tag ":" STRING NL
 
-section_content: ((NL | stmt)* | testlist NL*)
+say_statement: say_string | say_long_string | say_expr
+say_string.1: "say"? STRING
+say_long_string.1: "say"? LONG_STRING
+say_expr: "say" expression
 
-with_stmt: "with" "world" suite | "with" "section" suite | "with" with_items suite
-with_items: with_item ("," with_item)*
-with_item: test ["as" name]
+direction_statement: DIRECTION STRING STRING? (FACING STRING)? NEWLINE
 
-say_stmt: say_string | say_long_string | say_expr
-?say_string.3: "say"? STRING
-?say_long_string.2: "say"? LONG_STRING
-?say_expr.1: "say" expr_stmt
-
-?direction_stmt.9: DIRECTION STRING (STRING | name_or_attr_pattern)? (FACING STRING | FACING name_or_attr_pattern)? NL
 DIRECTION: "direction"
 FACING: "facing"
 
-option_stmt: "option" STRING suite
-once_stmt: "once" suite // run once, first time run, further runs are a noop
-library_stmt.1: name_or_attr_pattern name_or_attr_pattern? atom_expr NL
+option_statement: "option" STRING compound_statement
+once_statement: "once" compound_statement // run once, first time run, further runs are a noop
+library_statement: IDENTIFIER IDENTIFIER? expression NEWLINE
 
-?power: await_expr ("**" factor)?
-?await_expr: AWAIT? atom_expr
-AWAIT: "await"
+with_statement: "with" "world" compound_statement
+            | "with" "section" compound_statement
+            | "with" with_item compound_statement
+with_item: IDENTIFIER ["as" IDENTIFIER]
 
-?atom_expr: atom_expr "(" [arguments] ")"    -> funccall
-          | atom_expr "[" subscriptlist "]"  -> getitem
-          | atom_expr "." name               -> getattr
-          | atom
+// partial grammar taken from https://raw.githubusercontent.com/igordejanovic/parglare/master/examples/c/c2.pg
 
-?atom: "(" _tuple_inner? ")" -> tuple
-     | "[" _testlist_comp? "]"  -> list
-     | "{" _dict_exprlist? "}" -> dict
-     | "{" _set_exprlist "}" -> set
-     | name -> var
-     | number
-     | string_concat
-     | "(" test ")"
-     | "..." -> ellipsis
-     | "None"    -> const_none
-     | "True"    -> const_true
-     | "False"   -> const_false
+statement: section
+    | labeled_statement
+    | compound_statement
+    | expression_statement
+    | selection_statement
+    | iteration_statement
+    | jump_statement
+    | comment
+    | direction_statement
+    | once_statement
+    | say_statement
+    | with_statement
+    | library_statement
 
-_testlist_comp: test | _tuple_inner
-_tuple_inner: test_or_star_expr (("," test_or_star_expr)+ [","] | ",")
-key_value: test ":"  test
+labeled_statement: IDENTIFIER ":" statement
+    | CASE constant_expression ":" statement
+    | DEFAULT ":" statement
 
-arguments: argvalue ("," argvalue)*
+compound_statement: "{" "}"
+    | "{"  block_item_list "}"
 
-_dict_exprlist: (key_value | "**" expr) ("," (key_value | "**" expr))* [","]
+block_item_list: block_item
+    | block_item_list block_item
 
-?subscriptlist: subscript
-              | subscript (("," subscript)+ [","] | ",") -> subscript_tuple
-?subscript: test | ([test] ":" [test] [sliceop]) -> slice
-sliceop: ":" [test]
+block_item: declaration
+    | statement
 
-?stmt: compound_stmt | direction_stmt | simple_stmt | library_stmt
-?compound_stmt: if_stmt | with_stmt | option_stmt | once_stmt | long_comment
+type_name: specifier_qualifier_list abstract_declarator
+    | specifier_qualifier_list
 
-?simple_stmt: (short_comment | say_stmt | assign_stmt | expr_stmt) NL
+abstract_declarator: pointer direct_abstract_declarator
+    | pointer
+    | direct_abstract_declarator
 
-?expr_stmt: testlist_star_expr
-?assign_stmt: augassign | assign
+specifier_qualifier_list: type_specifier specifier_qualifier_list
+    | type_specifier
+    | type_qualifier specifier_qualifier_list
+    | type_qualifier
+    
+direct_abstract_declarator: "(" abstract_declarator ")"
+    | "[" "]"
+    | "[" "*" "]"
+    | "[" STATIC type_qualifier_list assignment_expression "]"
+    | "[" STATIC assignment_expression "]"
+    | "[" type_qualifier_list STATIC assignment_expression "]"
+    | "[" type_qualifier_list assignment_expression "]"
+    | "[" type_qualifier_list "]"
+    | "[" assignment_expression "]"
+    | direct_abstract_declarator "[" "]"
+    | direct_abstract_declarator "[" "*" "]"
+    | direct_abstract_declarator "[" STATIC type_qualifier_list assignment_expression "]"
+    | direct_abstract_declarator "[" STATIC assignment_expression "]"
+    | direct_abstract_declarator "[" type_qualifier_list assignment_expression "]"
+    | direct_abstract_declarator "[" type_qualifier_list STATIC assignment_expression "]"
+    | direct_abstract_declarator "[" type_qualifier_list "]"
+    | direct_abstract_declarator "[" assignment_expression "]"
+    | "(" ")"
+    | "(" parameter_type_list ")"
+    | direct_abstract_declarator "(" ")"
+    | direct_abstract_declarator "(" parameter_type_list ")"
 
-if_stmt: "if" test suite elifs ["else" suite]
-elifs: elif_*
-elif_: "elif" test suite
+pointer: "*" type_qualifier_list pointer
+    | "*" type_qualifier_list
+    | "*" pointer
+    | "*"
 
-?testlist_star_expr: test_or_star_expr
-                   | test_or_star_expr ("," test_or_star_expr)+ ","?  -> tuple
-                   | test_or_star_expr ","  -> tuple
-
-augassign: testlist_star_expr augassign_op testlist
-assign: testlist_star_expr ("=" testlist_star_expr)+
-
-?suite: simple_stmt | block_begin stmt+ block_end
-
-?test: or_test ("if" or_test "else" test)?
-     | assign_expr
-
-?test_or_star_expr.1: test
+type_qualifier_list: type_qualifier
+    | type_qualifier_list type_qualifier
+    
+parameter_type_list: parameter_list "," ELLIPSIS
+    | parameter_list
 
 
-_set_exprlist: test_or_star_expr (","  test_or_star_expr)* [","]
+parameter_list: parameter_declaration
+    | parameter_list "," parameter_declaration
 
-?argvalue: test ("=" test)?
 
-!augassign_op: "+=" | "-=" | "*=" | "@=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>=" | "**=" | "//="
+parameter_declaration: declaration_specifiers declarator
+    | declaration_specifiers abstract_declarator
+    | declaration_specifiers
 
-?testlist: test | testlist_tuple
 
-?or_test: and_test ("or" and_test)*
-?and_test: not_test_ ("and" not_test_)*
-?not_test_: "not" not_test_ -> not_test
-         | comparison
-?comparison: expr (comp_op expr)*
+identifier_list: IDENTIFIER
+    | identifier_list "," IDENTIFIER
 
-assign_expr: name "=" test
 
-star_expr: "*" expr
+type_specifier: "var" | enum_specifier
+type_qualifier: CONST
 
-testlist_tuple: test (("," test)+ [","] | ",")
+expression_statement: NEWLINE
+    | expression NEWLINE
 
-?expr: arith_expr
-?arith_expr: term (_add_op term)*
-?term: factor (_mul_op factor)*
-?factor: _unary_op factor | power
+selection_statement: IF "(" expression ")" statement ELSE statement
+    | IF "(" expression ")" statement
+    | SWITCH "(" expression ")" statement
 
-!_unary_op: "+"|"-"|"~"
-!_add_op: "+"|"-"
-!_mul_op: "*"|"/"|"%"|"//"
-!comp_op: "<"|">"|"=="|">="|"<="|"!="|"in"|"not" "in"|"is"|"is" "not"
+iteration_statement: WHILE "(" expression ")" statement
+    | DO statement WHILE "(" expression ")" NEWLINE
+    | FOR "(" expression_statement expression_statement ")" statement
+    | FOR "(" expression_statement expression_statement expression ")" statement
+    | FOR "(" declaration expression_statement ")" statement
+    | FOR "(" declaration expression_statement expression ")" statement
+    
+jump_statement: GOTO IDENTIFIER NEWLINE
+    | CONTINUE NEWLINE
+    | BREAK NEWLINE
+    | RETURN NEWLINE
+    | RETURN expression NEWLINE
 
-!name: NAME
+cast_expression: unary_expression
+    | "(" type_name ")" cast_expression
 
-?string_concat.1: string+
+multiplicative_expression: cast_expression
+    | multiplicative_expression "*" cast_expression
+    | multiplicative_expression "/" cast_expression
+    | multiplicative_expression "%" cast_expression
+
+
+additive_expression: multiplicative_expression
+    | additive_expression "+" multiplicative_expression
+    | additive_expression "-" multiplicative_expression
+
+
+shift_expression: additive_expression
+    | shift_expression LEFT_OP additive_expression
+    | shift_expression RIGHT_OP additive_expression
+
+
+relational_expression: shift_expression
+    | relational_expression "<" shift_expression
+    | relational_expression ">" shift_expression
+    | relational_expression LE_OP shift_expression
+    | relational_expression GE_OP shift_expression
+
+equality_expression: relational_expression
+    | equality_expression EQ_OP relational_expression
+    | equality_expression NE_OP relational_expression
+
+
+and_expression: equality_expression
+    | and_expression "&" equality_expression
+
+
+exclusive_or_expression: and_expression
+    | exclusive_or_expression "^" and_expression
+
+
+inclusive_or_expression: exclusive_or_expression
+    | inclusive_or_expression "|" exclusive_or_expression
+
+
+logical_and_expression: inclusive_or_expression
+    | logical_and_expression AND_OP inclusive_or_expression
+
+
+logical_or_expression: logical_and_expression
+    | logical_or_expression OR_OP logical_and_expression
+
+conditional_expression: logical_or_expression
+    | logical_or_expression "?" expression ":" conditional_expression
+    
+assignment_expression: conditional_expression
+    | unary_expression assignment_operator assignment_expression
+
+assignment_operator: "="
+    | MUL_ASSIGN
+    | DIV_ASSIGN
+    | MOD_ASSIGN
+    | ADD_ASSIGN
+    | SUB_ASSIGN
+    | LEFT_ASSIGN
+    | RIGHT_ASSIGN
+    | AND_ASSIGN
+    | XOR_ASSIGN
+    | OR_ASSIGN
+
+expression: assignment_expression
+    | expression "," assignment_expression
+
+constant_expression: conditional_expression    // with constraints
+
+declaration: declaration_specifiers NEWLINE
+    | declaration_specifiers init_declarator_list NEWLINE
+
+
+declaration_specifiers: storage_class_specifier declaration_specifiers
+    | storage_class_specifier
+    | type_specifier declaration_specifiers
+    | type_specifier
+    | type_qualifier declaration_specifiers
+    | type_qualifier
+
+declarator: pointer direct_declarator
+    | direct_declarator
+    
+enum_specifier: ENUM "{" enumerator_list "}"
+    | ENUM "{" enumerator_list "," "}"
+    | ENUM IDENTIFIER "{" enumerator_list "}"
+    | ENUM IDENTIFIER "{" enumerator_list "," "}"
+    | ENUM IDENTIFIER
+    
+unary_expression: postfix_expression
+    | INC_OP unary_expression
+    | DEC_OP unary_expression
+    | unary_operator cast_expression
+
+unary_operator: "&"
+    | "*"
+    | "+"
+    | "-"
+    | "~"
+    | "!"
+
+init_declarator_list: init_declarator
+    | init_declarator_list "," init_declarator
+
+storage_class_specifier: STATIC
+
+direct_declarator: IDENTIFIER
+    | "(" declarator ")"
+    | direct_declarator "[" "]"
+    | direct_declarator "(" parameter_type_list ")"
+    | direct_declarator "(" ")"
+    | direct_declarator "(" identifier_list ")"
+
+enumerator_list: enumerator
+    | enumerator_list "," enumerator
+
+
+// identifiers must be flagged as ENUMERATION_CONSTANT
+enumerator: enumeration_constant "=" constant_expression
+    | enumeration_constant
+
+postfix_expression: primary_expression
+    | postfix_expression "[" expression "]"
+    | postfix_expression "(" ")"
+    | postfix_expression "(" argument_expression_list ")"
+    | postfix_expression DOT IDENTIFIER
+    | postfix_expression PTR_OP IDENTIFIER
+    | postfix_expression INC_OP
+    | postfix_expression DEC_OP
+    
+init_declarator: declarator "=" initializer
+    | declarator
+
+// before it has been defined as such
+enumeration_constant: IDENTIFIER
+
+argument_expression_list: assignment_expression
+    | argument_expression_list "," assignment_expression
+    
+primary_expression: IDENTIFIER
+    | constant
+    | string
+    | "(" expression ")"
+
+initializer: "{" initializer_list "}"
+    | "{" initializer_list "," "}"
+    | assignment_expression
+
+constant: I_CONSTANT        // includes character_constant
+    | F_CONSTANT
+    | ENUMERATION_CONSTANT  // after it has been defined as such
+
 string: STRING | LONG_STRING
 
-number: DEC_NUMBER | HEX_NUMBER | BIN_NUMBER | OCT_NUMBER | FLOAT_NUMBER
+initializer_list: designation initializer
+    | initializer
+    | initializer_list "," designation initializer
+    | initializer_list "," initializer
 
-attr_pattern: NAME ("." NAME)+ -> value
+designation: designator_list "="
 
-?name_or_attr_pattern.1: NAME ("." NAME)* -> value
+designator_list: designator
+    | designator_list designator
+    
+designator: "[" constant_expression "]"
+    | DOT IDENTIFIER
 
-NAME: /[^\W\d]\w*/
-REMAINING_LINE: /[^\n]+/ NEWLINE | NEWLINE
-NL: ( /\r?\n[\t ]*/  )+
+IDENTIFIER: ID
+ENUMERATION_CONSTANT: ID
 
-comment: short_comment | long_comment
-short_comment.1: /;[^\n]+/ NL*
-long_comment.2: /;;;.*?(?<!\\)(\\\\)*?;;;/is
+ID: /[a-zA-Z_][a-zA-Z_0-9]*/
+DOT: "."
 
+I_CONSTANT: /(0[xX])[a-fA-F0-9]+(((u|U)(l|L|ll|LL)?)|((l|L|ll|LL)(u|U)?))?/
+    | /[1-9][0-9]*(((u|U)(l|L|ll|LL)?)|((l|L|ll|LL)(u|U)?))?/
+    | /"0"[0-7]*(((u|U)(l|L|ll|LL)?)|((l|L|ll|LL)(u|U)?))?/
+
+F_CONSTANT:/[0-9]+([Ee][+-]?[0-9]+)(f|F|l|L)?/
+    | /[0-9]*"."[0-9]+([Ee][+-]?[0-9]+)?(f|F|l|L)?/
+    | /[0-9]+"."([Ee][+-]?[0-9]+)?(f|F|l|L)?/
+    | /(0[xX])[a-fA-F0-9]+([Pp][+-]?[0-9]+)(f|F|l|L)?/
+    | /(0[xX])[a-fA-F0-9]*"."[a-fA-F0-9]+([Pp][+-]?[0-9]+)(f|F|l|L)?/
+    | /(0[xX])[a-fA-F0-9]+"."([Pp][+-]?[0-9]+)(f|F|l|L)?/
+
+
+PTR_OP: "->"
+INC_OP: "++"
+DEC_OP: "--"
+LEFT_OP: "<<"
+RIGHT_OP: ">>"
+LE_OP: "<="
+GE_OP: ">="
+EQ_OP: "=="
+NE_OP: "!="
+AND_OP: "&&"
+OR_OP: "||"
+
+MUL_ASSIGN: "*="
+DIV_ASSIGN: "/="
+MOD_ASSIGN: "%="
+ADD_ASSIGN: "+="
+SUB_ASSIGN: "-="
+LEFT_ASSIGN: "<<="
+RIGHT_ASSIGN: ">>="
+AND_ASSIGN: "&="
+XOR_ASSIGN: "^="
+OR_ASSIGN: "|="
+
+STATIC: "static"
+CONST: "const"
+ENUM: "enum"
+ELLIPSIS: "..."
+
+CASE: "case"
+DEFAULT: "default"
+IF: "if"
+ELSE: "else"
+SWITCH: "switch"
+WHILE: "while"
+DO: "do"
+FOR: "for"
+GOTO: "goto"
+CONTINUE: "continue"
+BREAK: "break"
+RETURN: "return"
 
 STRING: /"(?!"").*?(?<!\\)(\\\\)*?"/i
 LONG_STRING: /""".*?(?<!\\)(\\\\)*?"""/is
+REMAINING_LINE: /[^\n]+/
 
-_SPECIAL_DEC: "0".."9"        ("_"?  "0".."9"                       )*
-DEC_NUMBER:   "1".."9"        ("_"?  "0".."9"                       )*
-          |   "0"             ("_"?  "0"                            )* /(?![1-9])/
-HEX_NUMBER.2: "0" ("x" | "X") ("_"? ("0".."9" | "a".."f" | "A".."F"))+
-OCT_NUMBER.2: "0" ("o" | "O") ("_"?  "0".."7"                       )+
-BIN_NUMBER.2: "0" ("b" | "B") ("_"?  "0".."1"                       )+
+comment: SHORT_COMMENT | LONG_COMMENT
+SHORT_COMMENT: /;[^\n]+/ NEWLINE
+LONG_COMMENT: /;;;.*?(?<!\\)(\\\\)*?;;;/is
 
-_EXP: ("e"|"E") ["+" | "-"] _SPECIAL_DEC
-DECIMAL: "." _SPECIAL_DEC | _SPECIAL_DEC "." _SPECIAL_DEC?
-FLOAT_NUMBER.2: _SPECIAL_DEC _EXP | DECIMAL _EXP?
-IMAG_NUMBER.2: (_SPECIAL_DEC      | FLOAT_NUMBER) ("J" | "j")
-
-%import common.LCASE_LETTER
-%import common.UCASE_LETTER
-%import common.LETTER
-%import common.WORD
 %import common.NEWLINE
-%import unicode.WS
 %import unicode.WS_INLINE
-%import common.SIGNED_NUMBER -> NUMBER
-%import common.DIGIT
 
+// %ignore NEWLINE
 %ignore WS_INLINE
 %ignore /\\[\t \f]*\r?\n/   // LINE_CONT
-// %ignore COMMENT
-
-// %declare _INDENT _DEDENT
-?block_begin: "{" NL*
-?block_end: "}" NL*
 

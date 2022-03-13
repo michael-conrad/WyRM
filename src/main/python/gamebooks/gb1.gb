@@ -17,8 +17,8 @@ Library: room_descriptions
 Library: mob_combat
 
 [Start]
-section_meta_tag: "sectionx metadata value"
-section_meta_tag2: "sectionx metadata value"
+;section_meta_tag: "sectionx metadata value"
+;section_meta_tag2: "sectionx metadata value"
 
 ; one line comment
 
@@ -48,17 +48,27 @@ The original one page dungeon is from "One Page Dungeon Compendium", 2010
 Edition.
 """
 
+; direction "Show Your Support" y.x
+
 direction "Show Your Support"
 direction "Start the Game" "section tag"
+;direction "Start the Game" variable
 
 direction "Show Your Support" facing "e"
 direction "Start the Game" "section tag" facing "e"
+;direction "Start the Game" variable.x, facing "e"
 
-direction "Show Your Support" facing e
-direction "Start the Game" "section tag" facing e
+;direction "Show Your Support" facing e
+;direction "Start the Game" "section tag" facing e
+;direction "Start the Game" variable.y facing e
 
+return
 
 [Show Your Support]
+
+
+return
+
 [Start the Game]
 once {
     player = PCs.player_forsaken_alley()
@@ -121,8 +131,11 @@ find it. You've decided you're that someone.
 * Torches: 3 each
 """
 
-player wear belt
-player equip axe
+with player {
+    wear belt
+    equip axe
+}
+
 
 """
 ## Money
@@ -173,22 +186,22 @@ You follow the passage for 60ft and come to a four way intersection. The
 passages /N/, /W/, and /S/ disappear into darkness.
 """
 
-direction n "Crypt 5"
-direction w "Cave 4"
-direction s "3 Way"
-direction e "Long Passage 1"
+direction "Crypt 5" facing "n"
+direction "Cave 4" facing "w"
+direction "3 Way" facing "s"
+direction "Long Passage 1" facing "e"
 
 [Cave 4]
 
-if player.facing is e {
+if (player.facing is e) {
     "You go 60ft down a passageway and step into a large cave. The cave is about 100 ft x 70 ft."
 }
 
-if player.facing == s {
+if (player.facing == s) {
     "You go down slope and step out of the crack."
 }
 
-if room.first_visit {
+if (room.first_visit) {
 """
 Water oozes down the walls of this natural cave and forms a 30ft diameter pond
 in the middle of it. You notice water dripping from the cave roof about 30ft
@@ -208,6 +221,6 @@ option "Examine pond" {
     "Examine Pond"
 }
 
-direction e "4 Way"
-direction s "Tunnel 4a"
+direction "4 Way" facing "e"
+direction "Tunnel 4a" facing "s"
 

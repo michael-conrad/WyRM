@@ -7,12 +7,7 @@ conda activate WyRM
 exec python "$0" "$@"
 exit $?
 ''"""
-from contextlib import redirect_stdout
-
 from gb_compiler import GamebookCompiler
-from lark import Token
-
-from lark import Tree
 from lark import UnexpectedCharacters
 from lark import Lark
 
@@ -47,8 +42,10 @@ def main() -> None:
 
     gbc: GamebookCompiler = GamebookCompiler()  # gbi.visit(tree)
     with open("gamebooks/gb1.py", "w") as w:
-        with redirect_stdout(w):
-            gbc.visit(tree)
+        program: str = gbc.visit(tree)
+        for part in program:
+            w.write(part)
+        w.write("\n")
 
 
 if __name__ == '__main__':

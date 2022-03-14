@@ -2,39 +2,40 @@
 
 start: metadata sections
 
+_nl: NEWLINE
+
 metadata: metadata_entry+
-metadata_entry: metadata_tag ":" metadata_value? NEWLINE
-metadata_tag: IDENTIFIER
-metadata_value: REMAINING_LINE
+?metadata_entry: metadata_tag ":" metadata_value? _nl
+?metadata_tag: IDENTIFIER
+?metadata_value: REMAINING_LINE
 
 sections: section statement+
-section: "[" SECTION_NAME "]" NEWLINE
+section: "[" SECTION_NAME "]" _nl
 
 SECTION_NAME: /[^]]+/i
 
-say_statement: say_string | say_long_string | say_expr
-say_string.1: "say"? STRING
-say_long_string.1: "say"? LONG_STRING
-say_expr: "say" expression
+direction_statement: "direction" STRING STRING? facing? _nl
 
-direction_statement: DIRECTION STRING STRING? (FACING STRING)? NEWLINE
-
-DIRECTION: "direction"
-FACING: "facing"
+facing: "facing" STRING
+    | "facing" "(" expression ")" -> facing_expr
 
 option_statement: "option" STRING compound_statement
-once_statement: "once" compound_statement // run once, first time run, further runs are a noop
-library_statement: IDENTIFIER IDENTIFIER? expression NEWLINE
 
-with_statement: "with" "world" compound_statement
-            | "with" "section" compound_statement
-            | "with" with_item compound_statement
-with_item: IDENTIFIER ["as" IDENTIFIER]
+once_statement: "once" compound_statement // run once, first time run, further runs are a noop
+
+
+//with_statement: "with" with_world compound_statement
+//            | "with" with_section compound_statement
+//            | "with" with_item compound_statement
+//with_item: postfix_expression [with_alias]
+//with_alias:  "as" IDENTIFIER
+
+//with_world: "world"
+//with_section: "section"
 
 // partial grammar taken from https://raw.githubusercontent.com/igordejanovic/parglare/master/examples/c/c2.pg
 
-statement: section
-    | labeled_statement
+?statement: section
     | compound_statement
     | expression_statement
     | selection_statement
@@ -43,22 +44,18 @@ statement: section
     | comment
     | direction_statement
     | once_statement
-    | say_statement
-    | with_statement
-    | library_statement
+    | assignment_statement
+    | option_statement
+    | go_statement
 
-labeled_statement: IDENTIFIER ":" statement
-    | CASE constant_expression ":" statement
-    | DEFAULT ":" statement
+go_statement: "go" next_section _nl
+next_section: STRING
 
-compound_statement: "{" "}"
-    | "{"  block_item_list "}"
+?compound_statement: "{" "}" | "{"  block_item_list "}"
 
-block_item_list: block_item
-    | block_item_list block_item
+?block_item_list: block_item | block_item_list block_item
 
-block_item: declaration
-    | statement
+?block_item: declaration | statement
 
 type_name: specifier_qualifier_list abstract_declarator
     | specifier_qualifier_list
@@ -122,100 +119,94 @@ identifier_list: IDENTIFIER
 type_specifier: "var" | enum_specifier
 type_qualifier: CONST
 
-expression_statement: NEWLINE
-    | expression NEWLINE
+?expression_statement: _null_statement | expression _nl
+
+_null_statement: _nl
 
 selection_statement: IF "(" expression ")" statement ELSE statement
     | IF "(" expression ")" statement
     | SWITCH "(" expression ")" statement
 
 iteration_statement: WHILE "(" expression ")" statement
-    | DO statement WHILE "(" expression ")" NEWLINE
+    | DO statement WHILE "(" expression ")" _nl
     | FOR "(" expression_statement expression_statement ")" statement
     | FOR "(" expression_statement expression_statement expression ")" statement
     | FOR "(" declaration expression_statement ")" statement
     | FOR "(" declaration expression_statement expression ")" statement
     
-jump_statement: GOTO IDENTIFIER NEWLINE
-    | CONTINUE NEWLINE
-    | BREAK NEWLINE
-    | RETURN NEWLINE
-    | RETURN expression NEWLINE
+jump_statement: GOTO IDENTIFIER _nl
+    | CONTINUE _nl
+    | BREAK _nl
+    | RETURN _nl
+    | RETURN expression _nl
 
-cast_expression: unary_expression
-    | "(" type_name ")" cast_expression
+?cast_expression: unary_expression
+    | "(" type_name ")" cast_expression -> type_cast
 
-multiplicative_expression: cast_expression
-    | multiplicative_expression "*" cast_expression
-    | multiplicative_expression "/" cast_expression
-    | multiplicative_expression "%" cast_expression
-
-
-additive_expression: multiplicative_expression
-    | additive_expression "+" multiplicative_expression
-    | additive_expression "-" multiplicative_expression
+?multiplicative_expression: cast_expression
+    | multiplicative_expression "*" cast_expression -> multiply
+    | multiplicative_expression "/" cast_expression -> divide
+    | multiplicative_expression "%" cast_expression -> modulo
 
 
-shift_expression: additive_expression
-    | shift_expression LEFT_OP additive_expression
-    | shift_expression RIGHT_OP additive_expression
+?additive_expression: multiplicative_expression
+    | additive_expression "+" multiplicative_expression -> addition
+    | additive_expression "-" multiplicative_expression -> subtraction
+
+?shift_expression: additive_expression
+
+?relational_expression: shift_expression
+    | relational_expression LT_OP shift_expression -> is_lt
+    | relational_expression GT_OP shift_expression -> is_gt
+    | relational_expression LE_OP shift_expression -> is_lte
+    | relational_expression GE_OP shift_expression -> is_gte
+
+?equality_expression: relational_expression
+    | equality_expression EQ_OP relational_expression -> is_eq
+    | equality_expression NE_OP relational_expression -> is_not_eq
 
 
-relational_expression: shift_expression
-    | relational_expression "<" shift_expression
-    | relational_expression ">" shift_expression
-    | relational_expression LE_OP shift_expression
-    | relational_expression GE_OP shift_expression
+?and_expression: equality_expression
 
-equality_expression: relational_expression
-    | equality_expression EQ_OP relational_expression
-    | equality_expression NE_OP relational_expression
+?exclusive_or_expression: and_expression
 
+?inclusive_or_expression: exclusive_or_expression
 
-and_expression: equality_expression
-    | and_expression "&" equality_expression
+?logical_and_expression: inclusive_or_expression
+    | logical_and_expression and_op inclusive_or_expression -> logical_and
 
+and_op: AND_OP
 
-exclusive_or_expression: and_expression
-    | exclusive_or_expression "^" and_expression
+?logical_or_expression: logical_and_expression
+    | logical_or_expression or_op logical_and_expression -> logical_or
 
+or_op: OR_OP
 
-inclusive_or_expression: exclusive_or_expression
-    | inclusive_or_expression "|" exclusive_or_expression
+//ternary
 
+conditional_expression: logical_or_expression | ternary_expression
 
-logical_and_expression: inclusive_or_expression
-    | logical_and_expression AND_OP inclusive_or_expression
+ternary_expression: logical_or_expression "?" expression ":" conditional_expression
 
-
-logical_or_expression: logical_and_expression
-    | logical_or_expression OR_OP logical_and_expression
-
-conditional_expression: logical_or_expression
-    | logical_or_expression "?" expression ":" conditional_expression
-    
 assignment_expression: conditional_expression
-    | unary_expression assignment_operator assignment_expression
 
-assignment_operator: "="
+    //| unary_expression assignment_operator assignment_expression
+
+assignment_statement: unary_expression assignment_operator assignment_expression
+assignment_operator: ASSIGN
     | MUL_ASSIGN
     | DIV_ASSIGN
     | MOD_ASSIGN
     | ADD_ASSIGN
     | SUB_ASSIGN
-    | LEFT_ASSIGN
-    | RIGHT_ASSIGN
-    | AND_ASSIGN
-    | XOR_ASSIGN
-    | OR_ASSIGN
 
-expression: assignment_expression
+?expression: assignment_expression
     | expression "," assignment_expression
 
 constant_expression: conditional_expression    // with constraints
 
-declaration: declaration_specifiers NEWLINE
-    | declaration_specifiers init_declarator_list NEWLINE
+declaration: declaration_specifiers _nl
+    | declaration_specifiers init_declarator_list _nl
 
 
 declaration_specifiers: storage_class_specifier declaration_specifiers
@@ -234,17 +225,12 @@ enum_specifier: ENUM "{" enumerator_list "}"
     | ENUM IDENTIFIER "{" enumerator_list "," "}"
     | ENUM IDENTIFIER
     
-unary_expression: postfix_expression
-    | INC_OP unary_expression
-    | DEC_OP unary_expression
-    | unary_operator cast_expression
+?unary_expression: postfix_expression
+    | unary_operator cast_expression -> unary_cast
 
-unary_operator: "&"
-    | "*"
-    | "+"
-    | "-"
-    | "~"
-    | "!"
+unary_operator: "+" -> expression_positive
+    | "-" -> expression_negate
+    | "!" -> logical_not
 
 init_declarator_list: init_declarator
     | init_declarator_list "," init_declarator
@@ -266,15 +252,27 @@ enumerator_list: enumerator
 enumerator: enumeration_constant "=" constant_expression
     | enumeration_constant
 
-postfix_expression: primary_expression
-    | postfix_expression "[" expression "]"
-    | postfix_expression "(" ")"
-    | postfix_expression "(" argument_expression_list ")"
+?postfix_expression: primary_expression
+    | postfix_array
+    | postfix_function_void
+    | postfix_function_params
+    | postfix_dot
+
+?postfix_dot: postfix_expression DOT IDENTIFIER
+postfix_array: postfix_expression lbracket expression rbracket
+
+lbracket: "["
+rbracket: "]"
+
+postfix_function_void: postfix_expression param_void
+postfix_function_params: postfix_expression param_args
+
+param_void: "(" ")"
+param_args: "(" argument_expression_list ")"
+
+?assign_identifier: postfix_expression "[" expression "]"
     | postfix_expression DOT IDENTIFIER
-    | postfix_expression PTR_OP IDENTIFIER
-    | postfix_expression INC_OP
-    | postfix_expression DEC_OP
-    
+
 init_declarator: declarator "=" initializer
     | declarator
 
@@ -282,22 +280,33 @@ init_declarator: declarator "=" initializer
 enumeration_constant: IDENTIFIER
 
 argument_expression_list: assignment_expression
-    | argument_expression_list "," assignment_expression
-    
-primary_expression: IDENTIFIER
+    | argument_expression_list comma assignment_expression
+
+comma: ","
+
+?primary_expression: IDENTIFIER
     | constant
     | string
-    | "(" expression ")"
+    | "(" expression ")" -> paren_expression
 
 initializer: "{" initializer_list "}"
     | "{" initializer_list "," "}"
     | assignment_expression
 
-constant: I_CONSTANT        // includes character_constant
+?constant: I_CONSTANT        // includes character_constant
     | F_CONSTANT
-    | ENUMERATION_CONSTANT  // after it has been defined as such
+    | boolean_value
+    // | ENUMERATION_CONSTANT  // after it has been defined as such
 
-string: STRING | LONG_STRING
+boolean_value: boolean_true | boolean_false
+
+boolean_true: TRUE
+boolean_false: FALSE
+
+TRUE: "true"
+FALSE: "false"
+
+?string: STRING | LONG_STRING
 
 initializer_list: designation initializer
     | initializer
@@ -318,23 +327,11 @@ ENUMERATION_CONSTANT: ID
 ID: /[a-zA-Z_][a-zA-Z_0-9]*/
 DOT: "."
 
-I_CONSTANT: /(0[xX])[a-fA-F0-9]+(((u|U)(l|L|ll|LL)?)|((l|L|ll|LL)(u|U)?))?/
-    | /[1-9][0-9]*(((u|U)(l|L|ll|LL)?)|((l|L|ll|LL)(u|U)?))?/
-    | /"0"[0-7]*(((u|U)(l|L|ll|LL)?)|((l|L|ll|LL)(u|U)?))?/
+I_CONSTANT: /[1-9][0-9]*/ | "0"
+F_CONSTANT: /[0-9]*"."[0-9]+/ | /[0-9]+"."/
 
-F_CONSTANT:/[0-9]+([Ee][+-]?[0-9]+)(f|F|l|L)?/
-    | /[0-9]*"."[0-9]+([Ee][+-]?[0-9]+)?(f|F|l|L)?/
-    | /[0-9]+"."([Ee][+-]?[0-9]+)?(f|F|l|L)?/
-    | /(0[xX])[a-fA-F0-9]+([Pp][+-]?[0-9]+)(f|F|l|L)?/
-    | /(0[xX])[a-fA-F0-9]*"."[a-fA-F0-9]+([Pp][+-]?[0-9]+)(f|F|l|L)?/
-    | /(0[xX])[a-fA-F0-9]+"."([Pp][+-]?[0-9]+)(f|F|l|L)?/
-
-
-PTR_OP: "->"
-INC_OP: "++"
-DEC_OP: "--"
-LEFT_OP: "<<"
-RIGHT_OP: ">>"
+LT_OP: "<"
+GT_OP: ">"
 LE_OP: "<="
 GE_OP: ">="
 EQ_OP: "=="
@@ -342,16 +339,12 @@ NE_OP: "!="
 AND_OP: "&&"
 OR_OP: "||"
 
+ASSIGN: "="
 MUL_ASSIGN: "*="
 DIV_ASSIGN: "/="
 MOD_ASSIGN: "%="
 ADD_ASSIGN: "+="
 SUB_ASSIGN: "-="
-LEFT_ASSIGN: "<<="
-RIGHT_ASSIGN: ">>="
-AND_ASSIGN: "&="
-XOR_ASSIGN: "^="
-OR_ASSIGN: "|="
 
 STATIC: "static"
 CONST: "const"
@@ -375,8 +368,10 @@ STRING: /"(?!"").*?(?<!\\)(\\\\)*?"/i
 LONG_STRING: /""".*?(?<!\\)(\\\\)*?"""/is
 REMAINING_LINE: /[^\n]+/
 
-comment: SHORT_COMMENT | LONG_COMMENT
-SHORT_COMMENT: /;[^\n]+/ NEWLINE
+?comment: short_comment | long_comment
+short_comment: SHORT_COMMENT _nl
+long_comment: LONG_COMMENT
+SHORT_COMMENT: /;[^\n]+/
 LONG_COMMENT: /;;;.*?(?<!\\)(\\\\)*?;;;/is
 
 %import common.NEWLINE

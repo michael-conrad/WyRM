@@ -7,19 +7,14 @@ conda activate WyRM
 exec python "$0" "$@"
 exit $?
 ''"""
+import os
+
 from gb_compiler import GamebookCompiler
 from lark import UnexpectedCharacters
 from lark import Lark
 
 
-def basic_escape(text: str) -> str:
-    return text.replace("\\", "\\\\\"").replace("\"", "\\\"")
-
-
 def main() -> None:
-    global indent_depth
-    q3 = "\"\"\""
-    q1 = "\""
     parser: Lark
     with open("lark/gamebook.lark") as r:
         # parser = Lark(r, cache=None, parser="earley", lexer="dynamic_complete", ambiguity="resolve")  # parser="lalr")
@@ -46,6 +41,8 @@ def main() -> None:
         for part in program:
             w.write(part)
         w.write("\n")
+
+    os.system("cd gamebooks; python gb1.py")
 
 
 if __name__ == '__main__':

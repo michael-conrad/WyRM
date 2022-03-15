@@ -21,17 +21,9 @@ facing: "facing" STRING
 
 option_statement: "option" STRING compound_statement
 
-once_statement: "once" compound_statement // run once, first time run, further runs are a noop
-
-
-//with_statement: "with" with_world compound_statement
-//            | "with" with_section compound_statement
-//            | "with" with_item compound_statement
-//with_item: postfix_expression [with_alias]
-//with_alias:  "as" IDENTIFIER
-
-//with_world: "world"
-//with_section: "section"
+// run once, first time run, further runs are a noop
+once_statement: "once" compound_statement | "once" compound_statement once_else compound_statement
+once_else: "else"
 
 // partial grammar taken from https://raw.githubusercontent.com/igordejanovic/parglare/master/examples/c/c2.pg
 
@@ -47,15 +39,24 @@ once_statement: "once" compound_statement // run once, first time run, further r
     | assignment_statement
     | option_statement
     | go_statement
+    | empty_statement
+    | scope_statement
+
+scope_statement: (WORLD | SECTION | LOCAL | EXTERN) IDENTIFIER _nl
+
+
+WORLD: "world"
+SECTION: "section"
+LOCAL: "local"
+EXTERN: "extern"
+
 
 go_statement: "go" next_section _nl
 next_section: STRING
 
 ?compound_statement: "{" "}" | "{"  block_item_list "}"
-
 ?block_item_list: block_item | block_item_list block_item
-
-?block_item: declaration | statement
+?block_item.1: declaration | statement
 
 type_name: specifier_qualifier_list abstract_declarator
     | specifier_qualifier_list
@@ -116,16 +117,21 @@ identifier_list: IDENTIFIER
     | identifier_list "," IDENTIFIER
 
 
-type_specifier: "var" | enum_specifier
+type_specifier: WORLD | SECTION | LOCAL | EXTERN | enum_specifier
+
 type_qualifier: CONST
 
-?expression_statement: _null_statement | expression _nl
+?expression_statement: expression _nl
 
-_null_statement: _nl
+empty_statement: _nl+
 
-selection_statement: IF "(" expression ")" statement ELSE statement
-    | IF "(" expression ")" statement
-    | SWITCH "(" expression ")" statement
+selection_statement: if_else_statement
+    | if_statement
+    | switch_statement
+
+if_else_statement: IF "(" expression ")" statement ELSE statement
+if_statement: IF "(" expression ")" statement
+switch_statement: SWITCH "(" expression ")" statement
 
 iteration_statement: WHILE "(" expression ")" statement
     | DO statement WHILE "(" expression ")" _nl
@@ -134,20 +140,23 @@ iteration_statement: WHILE "(" expression ")" statement
     | FOR "(" declaration expression_statement ")" statement
     | FOR "(" declaration expression_statement expression ")" statement
     
-jump_statement: GOTO IDENTIFIER _nl
+jump_statement: GOTO expression _nl -> goto_statement
     | CONTINUE _nl
     | BREAK _nl
     | RETURN _nl
     | RETURN expression _nl
 
-?cast_expression: unary_expression
-    | "(" type_name ")" cast_expression -> type_cast
+?cast_expression: unary_expression | dice_roll
+
+dice_roll: unary_expression "@" unary_expression dice_explode
+dice_explode: X?
+X: "x"
 
 ?multiplicative_expression: cast_expression
     | multiplicative_expression "*" cast_expression -> multiply
     | multiplicative_expression "/" cast_expression -> divide
     | multiplicative_expression "%" cast_expression -> modulo
-
+    | multiplicative_expression "//" cast_expression -> int_divide
 
 ?additive_expression: multiplicative_expression
     | additive_expression "+" multiplicative_expression -> addition
@@ -164,7 +173,6 @@ jump_statement: GOTO IDENTIFIER _nl
 ?equality_expression: relational_expression
     | equality_expression EQ_OP relational_expression -> is_eq
     | equality_expression NE_OP relational_expression -> is_not_eq
-
 
 ?and_expression: equality_expression
 
@@ -206,15 +214,9 @@ assignment_operator: ASSIGN
 constant_expression: conditional_expression    // with constraints
 
 declaration: declaration_specifiers _nl
-    | declaration_specifiers init_declarator_list _nl
 
-
-declaration_specifiers: storage_class_specifier declaration_specifiers
-    | storage_class_specifier
-    | type_specifier declaration_specifiers
-    | type_specifier
+declaration_specifiers: type_specifier IDENTIFIER
     | type_qualifier declaration_specifiers
-    | type_qualifier
 
 declarator: pointer direct_declarator
     | direct_declarator
@@ -232,11 +234,6 @@ unary_operator: "+" -> expression_positive
     | "-" -> expression_negate
     | "!" -> logical_not
 
-init_declarator_list: init_declarator
-    | init_declarator_list "," init_declarator
-
-storage_class_specifier: STATIC
-
 direct_declarator: IDENTIFIER
     | "(" declarator ")"
     | direct_declarator "[" "]"
@@ -252,7 +249,7 @@ enumerator_list: enumerator
 enumerator: enumeration_constant "=" constant_expression
     | enumeration_constant
 
-?postfix_expression: primary_expression
+postfix_expression: primary_expression
     | postfix_array
     | postfix_function_void
     | postfix_function_params
@@ -284,7 +281,7 @@ argument_expression_list: assignment_expression
 
 comma: ","
 
-?primary_expression: IDENTIFIER
+primary_expression: IDENTIFIER
     | constant
     | string
     | "(" expression ")" -> paren_expression
@@ -296,17 +293,20 @@ initializer: "{" initializer_list "}"
 ?constant: I_CONSTANT        // includes character_constant
     | F_CONSTANT
     | boolean_value
+    | NONE
     // | ENUMERATION_CONSTANT  // after it has been defined as such
+
+NONE: "None"
 
 boolean_value: boolean_true | boolean_false
 
 boolean_true: TRUE
 boolean_false: FALSE
 
-TRUE: "true"
-FALSE: "false"
+TRUE: "True"
+FALSE: "False"
 
-?string: STRING | LONG_STRING
+string: STRING | LONG_STRING
 
 initializer_list: designation initializer
     | initializer

@@ -1,3 +1,4 @@
+import dataclasses
 import random
 
 import dice
@@ -639,3 +640,111 @@ class Macro:
         result.append("@hp: roll('1d6') if cast else 0")
         result.append("@player.hp: player.hp + hp")
         return result
+
+
+@dataclasses.dataclass
+class Facing:
+    _facing: int = 0
+    _facing_subj: dict[int, str] = dataclasses.field(default_factory=dict)
+    _direction_as_option: dict[int, str] = dataclasses.field(default_factory=dict)
+
+    def __post_init__(self):
+        self._facing: int = 0
+
+        self._facing_subj[0] = "front"
+        self._facing_subj[1] = "right"
+        self._facing_subj[2] = "rear"
+        self._facing_subj[3] = "left"
+
+        self._direction_as_option[0] = "Continue forwards."
+        self._direction_as_option[1] = "Turn right and continue."
+        self._direction_as_option[2] = "Go back."
+        self._direction_as_option[3] = "Turn left and continue."
+
+    def face(self, direction: str):
+        self.facing = direction
+
+    def with_facing(self, direction: str) -> "Facing":
+        self.facing = direction
+        return self
+
+    def is_facing(self, direction: str) -> bool:
+        if not direction:
+            return False
+        direction = direction.lower()[0]
+        return direction == self.face
+
+    def is_behind(self, direction: str) -> bool:
+        if not direction:
+            return False
+        direction = direction.lower()[0]
+        if direction == "n":
+            return self.n == "rear"
+        elif direction == "e":
+            return self.e == "rear"
+        elif direction == "s":
+            return self.s == "rear"
+        return self.n == "rear"
+
+    @property
+    def facing(self) -> str:
+        if self._facing == 1:
+            return "e"
+        if self._facing == 2:
+            return "s"
+        if self._facing == 3:
+            return "w"
+        return "n"
+
+    def subj_idx(self, direction: int) -> int:
+        return (4 - self._facing + direction) % 4
+
+    @facing.setter
+    def facing(self, facing: str) -> None:
+        if not facing:
+            return
+        facing = facing.lower()[0]
+        if facing == "e":
+            self._facing = 1
+            return
+        if facing == "s":
+            self._facing = 2
+            return
+        if facing == "w":
+            self._facing = 3
+            return
+        self._facing = 0
+
+    @property
+    def n(self) -> str:
+        return self._facing_subj[self.subj_idx(0)]
+
+    @property
+    def e(self) -> str:
+        return self._facing_subj[self.subj_idx(1)]
+
+    @property
+    def s(self) -> str:
+        return self._facing_subj[self.subj_idx(2)]
+
+    @property
+    def w(self) -> str:
+        return self._facing_subj[self.subj_idx(3)]
+
+    # _direction_as_option
+
+    @property
+    def dn(self) -> str:
+        return self._direction_as_option[self.subj_idx(0)]
+
+    @property
+    def de(self) -> str:
+        return self._direction_as_option[self.subj_idx(1)]
+
+    @property
+    def ds(self) -> str:
+        return self._direction_as_option[self.subj_idx(2)]
+
+    @property
+    def dw(self) -> str:
+        return self._direction_as_option[self.subj_idx(3)]

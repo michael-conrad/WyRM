@@ -14,9 +14,12 @@ section: "[" SECTION_NAME "]" _nl
 
 SECTION_NAME: /[^]]+/i
 
-direction_statement: "direction" STRING STRING? facing? _nl
+direction_statement: "direction" short_format_string direction_section direction_facing _nl
 
-facing: "facing" STRING
+direction_section: STRING
+short_format_string: STRING
+
+direction_facing: ("facing" STRING)?
     | "facing" "(" expression ")" -> facing_expr
 
 option_statement: "option" STRING compound_statement
@@ -210,6 +213,7 @@ assignment_operator: ASSIGN
 
 ?expression: assignment_expression
     | expression "," assignment_expression
+    // | "[" expression "]"
 
 constant_expression: conditional_expression    // with constraints
 
@@ -283,7 +287,7 @@ comma: ","
 
 primary_expression: IDENTIFIER
     | constant
-    | string
+    | string_constant
     | "(" expression ")" -> paren_expression
 
 initializer: "{" initializer_list "}"
@@ -306,7 +310,7 @@ boolean_false: FALSE
 TRUE: "True"
 FALSE: "False"
 
-string: STRING | LONG_STRING
+string_constant: STRING | LONG_STRING
 
 initializer_list: designation initializer
     | initializer

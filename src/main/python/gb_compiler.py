@@ -1,4 +1,5 @@
-import html
+import re
+import string
 import textwrap
 
 import lark.visitors
@@ -60,11 +61,18 @@ def out(text: str = ""):
 
 
 def end_section() -> None:
+
+    out("out += \"\\n\"")
     out("for _ in option_list:")
     indent_inc()
+
+    out("destination_node = _[1]()")
+    out(f"_option_text: str = str(_[0])")
+    out(f"_option_text = html.escape(_option_text)")
+    out(f"_md_link: str = \"[\" + _option_text + \"](\" + destination_node + \")\"")
+    out("out += \"* \" + _md_link")
     out("out += \"\\n\"")
-    out("out += _[1]()")
-    out("out += \"\\n\"")
+
     indent_dec()
     out()
     out("_output[node_id] = out")
@@ -94,7 +102,9 @@ class GamebookCompiler(lark.visitors.Interpreter):
 
     import_block: list[str] = list()
 
-    var_scope_tracking: dict[str, str] = dict()
+    scope_world: set[str] = set()
+    scope_section: set[str] = set()
+    scope_local: set[str] = set()
 
     @property
     def func_ctr(self) -> int:
@@ -131,6 +141,8 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out()
 
         # system required imports
+        out("import os")
+        out("import html")
         out("import dice")
         out("import hashlib")
         out("import random")
@@ -203,11 +215,21 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out("repeat_state_tracking: dict[str, str] = dict()")
         out("state: SimpleNamespace = SimpleNamespace()")
         out("state.world = SimpleNamespace()")
-        out("state.world.turn = 0")
-        out("state.world.facing = \"\"")
-        out("state.world.location = \"\"")
         out("state.world.vars = SimpleNamespace()")
         out("recurse_depth: int = 0")
+        out()
+        out(f"imports = dict()")
+        for _ in self.import_block:
+            out(f"exec('from {_} import *', imports)")
+        out(f"for attr in [*imports]:")
+        indent_inc()
+        out(f"setattr(state.world.vars, attr, imports[attr])")
+        indent_dec()
+
+        out(f"for attr in [*__builtins__.__dict__.keys()]:")
+        indent_inc()
+        out(f"setattr(state.world.vars, attr, __builtins__.__dict__[attr])")
+        indent_dec()
         out()
         out("# Intentionally not tracked in state")
         out("_node_id: int = 0")
@@ -225,7 +247,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out("node_id_by_checksum: dict[str, str] = dict()")
 
         self.state_track_set.add('state')
-        self.state_track_set.add('recurse_depth')
 
         # scan ahead for section names to build section to function lookup table
 
@@ -271,7 +292,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out()
         out("def state_checksum() -> str:")
         indent_inc()
-        out("pickled: str = jsonpickle.encode(save_state())")
+        out("pickled: str = jsonpickle.encode(save_state(), keys=True)")
         out("sha512: str = hashlib.sha512(pickled.encode('utf-8')).hexdigest()")
         out("return sha512")
         indent_dec()
@@ -284,7 +305,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
             out(f"global {state}")
         out("states: dict[str, str] = dict()")
         for state in sorted_track:
-            out(f"states['{state}'] = jsonpickle.encode({state})")
+            out(f"states['{state}'] = jsonpickle.encode({state}, keys=True)")
         out("return states")
         indent_dec()
         out()
@@ -294,7 +315,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
         for state in sorted_track:
             out(f"global {state}")
         for state in sorted_track:
-            out(f"{state} = jsonpickle.decode(states['{state}'])")
+            out(f"{state} = jsonpickle.decode(states['{state}'], keys=True)")
         out("return")
         indent_dec()
 
@@ -302,28 +323,27 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out()
         out()
         out(f"index_node: str = {self.section_lookup[self.main_section]}()")
-        out(f"""
-with open("gb-result.md", "w") as w:
-    w.write("\\n")
-    w.write("\\n")
-    w.write("# " + index_node)
-    w.write(_output[index_node])
-    w.write("\\n")
-    for key in _output:
-        if key == index_node:
-            continue
+        out("""
+os.makedirs("md", exist_ok=True)
+for key in _output:
+    with open("md/" + key + ".md", "w") as w:
         w.write("\\n")
-        w.write("\\n")
-        w.write("# "+key)
-        w.write("\\n")
+        w.write("# " + key)
         w.write(_output[key])
         w.write("\\n")
+        
+with open("md/index.md", "w") as w:
+        w.write("\\n")
+        w.write("# " + index_node)
+        w.write(_output[index_node])
+        w.write("\\n")        
 """)
 
     def section(self, tree: Tree):
 
-        # always clear at start of processing a new section
-        self.var_scope_tracking.clear()
+        # always clear non-world scopes at start of processing a new section
+        self.scope_section.clear()
+        self.scope_local.clear()
 
         _ = ""
         for child in tree.children:
@@ -356,10 +376,11 @@ with open("gb-result.md", "w") as w:
                     indent_inc()
                     value: str = basic_escape(f"{name}")
                     out(f"{self.q3}{value}{self.q3}")
+                    out(f"section: str = {self.q1}{value}{self.q1}")
                     out()
                     out("# see if this is a repeating state, if yes, just use original node id")
                     out("global node_id_by_checksum")
-                    out("sha512: str = state_checksum()")
+                    out("sha512: str = section + state_checksum()")
                     out("if sha512 in node_id_by_checksum:")
                     indent_inc()
                     out("return node_id_by_checksum[sha512]")
@@ -375,9 +396,10 @@ with open("gb-result.md", "w") as w:
                     out("global recurse_depth")
                     out()
                     out("recurse_depth += 1")
-                    out("if recurse_depth > 10:")
-                    out("    raise RecursionError()")
-                    out(f"section: str = {self.q1}{value}{self.q1}")
+                    out("if recurse_depth > 1000:")
+                    indent_inc()
+                    out("raise RecursionError()")
+                    indent_dec()
                     out(f"_state: SimpleNamespace = state.{section_name}")
                     out(f"_metadata: dict[str, str] = _state.metadata")
                     out(f"_once: set[int] = _state.once")
@@ -392,23 +414,10 @@ with open("gb-result.md", "w") as w:
                     out(f"random.seed({self.next_random_seed})")
                     out(f"state.{section_name}.random_state = random.getstate()")
                     out()
-                    out(f"imports = dict()")
-                    for _ in self.import_block:
-                        out(f"exec('from {_} import *', imports)")
-                    out(f"for attr in [*imports]:")
-                    indent_inc()
-                    out(f"setattr(_vars, attr, imports[attr])")
-                    indent_dec()
-
-                    out(f"for attr in [*__builtins__.__dict__.keys()]:")
-                    indent_inc()
-                    out(f"setattr(_vars, attr, __builtins__.__dict__[attr])")
-                    indent_dec()
 
                     indent_dec()
                     out()
                     out("out: str = ''")
-                    # out(f"rand = random.Random()")
                     out(f"random.setstate(state.{section_name}.random_state)")
                     out()
                     out("option_list: list[tuple[str, Callable]] = list()")
@@ -476,9 +485,13 @@ with open("gb-result.md", "w") as w:
             if visit:
                 _ += visit
         if _:
+            out(f"segment: str | None = {_.rstrip()}")
+            out("if segment is not None:")
+            indent_inc()
             out(f"out += \"\\n\\n\"")
-            out(f"_ = {_}")
-            out(f"out += textwrap.dedent(str(_))")
+            out(f"_ = html.escape(str(segment))")
+            out(f"out += textwrap.dedent(_)")
+            indent_dec()
             out()
 
     def selection_statement(self, tree: Tree):
@@ -600,32 +613,28 @@ with open("gb-result.md", "w") as w:
             out(_)
 
     def direction_statement(self, tree: Tree):
-        _ = ""
-        option_description = basic_unescape(tree.children[0][1:-1])
-        section_name = option_description
-        facing: str = ""
-        if len(tree.children) == 2:
-            section_name = option_description
+        short_format_string, direction_section, direction_facing, _ = tree.children
 
-        if len(tree.children) == 3:
-            child = tree.children[1]
+        option_bin_description: str = ""
+        for child in short_format_string.children:
             if isinstance(child, Token):
-                section_name = basic_unescape(tree.children[1][1:-1])
-            if isinstance(child, Tree):
-                if child.data == "facing":
-                    facing = child.children[0]
+                option_bin_description += child.value
+        option_bin_description = eval(option_bin_description)
 
-        if len(tree.children) == 4:
-            child = tree.children[1]
-            if isinstance(child, Token):
-                section_name = basic_unescape(tree.children[1][1:-1])
-            child = tree.children[2]
-            if isinstance(child, Tree):
-                if child.data == "facing":
-                    facing = child.children[0]
+        option_description = ""
+        _ = self.visit(short_format_string)
+        if _:
+            option_description += _
 
-        if len(tree.children) > 4:
-            out(f"# direction: {len(tree.children)} " + str(tree.children))
+        section_name = ""
+        for _ in self.visit_children(direction_section):
+            if _:
+                section_name += _
+        section_name = section_name.strip()[1:-1]
+
+        facing = ""
+        for _ in self.visit_children(direction_facing):
+            facing += _
 
         if section_name not in self.section_lookup:
             print(self.__top_level_children(tree.children))
@@ -636,25 +645,25 @@ with open("gb-result.md", "w") as w:
 
         func: str = self.next_direction
         out(f"# direction statement")
+        out()
         out(f"def {func}() -> str:")
         indent_inc()
-        out(f"\"\"\"{basic_escape(option_description)}\"\"\"")
+        out(f"\"\"\"{basic_escape(option_bin_description)}\"\"\"")
         out("nonlocal out")
-        # out("nonlocal rand")
+        out("nonlocal _world")
+
         out(f"saved_state = save_state()")
         if facing:
-            out(f"state.world.facing = {facing}")
-        out(f"destination_node: str = {section_func}()")
+            out(f"_world.new_facing = {facing}")
+            print(f"New facing: {facing}")
+        out(f"destination_node: str = {section_func}() + \".md\"")
+
         out(f"restore_state(saved_state)")
         out(f"random.setstate(_state.random_state)")
-        d: str = ""
-        d += "return \""
-        d += "(" + html.escape(option_description).strip() + ")"
-        d += f"[" + "\" + destination_node + \".md]\""
-        out(d)
+        out(f"return destination_node")
         indent_dec()
         out()
-        out(f"option_list.append((\"{basic_escape(option_description)}\", {func}))")
+        out(f"option_list.append(({option_description}, {func}))")
         out()
 
     def option_statement(self, tree: Tree):
@@ -899,16 +908,14 @@ with open("gb-result.md", "w") as w:
             if isinstance(child, Token):
                 if child.type == "IDENTIFIER":
                     var = child.value
-                    scope = "section"
-                    if var in self.var_scope_tracking:
-                        scope = self.var_scope_tracking[var]
-                    if scope == "local":
+                    if var in self.scope_local:
                         _ += "_local."
-                    if scope == "section":
+                    elif var in self.scope_section:
                         _ += "_vars."
-                    if scope == "world":
+                    elif var in self.scope_world:
                         _ += "_world."
-
+                    else:
+                        _ += "_world."
                     _ += child.value
                 else:
                     _ += child.value
@@ -916,14 +923,42 @@ with open("gb-result.md", "w") as w:
                 _ += self.visit(child)
         return _
 
-    def string(self, tree: Tree) -> str:
+    def string_constant(self, tree: Tree) -> str:
+        return self.format_string(tree)
+
+    def short_format_string(self, tree: Tree) -> str:
+        return self.format_string(tree)
+
+    def format_string(self, tree: Tree) -> str:
         _ = ""
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
         _ = textwrap.dedent(_)
-        out("# string")
-        out(_)
+        f = string.Formatter()
+        params = f.parse(_)
+        auto_format: list = [k for k in list(params) if k[1]]
+        if auto_format:
+            formatter: str = ".format("
+            already: set[str] = set()
+            for lookup in auto_format:
+                var: str = lookup[1]
+                field_var: str
+                var = re.sub("(?i)^([a-z_][a-z_0-9]*).*", "\\1", var)
+                if var in self.scope_local:
+                    field_var = f"_local.{var}"
+                elif var in self.scope_section:
+                    field_var = f"_vars.{var}"
+                elif var in self.scope_world:
+                    field_var = f"_world.{var}"
+                else:
+                    field_var = f"_world.{var}"
+
+                if var not in already:
+                    already.add(var)
+                    _ = _.replace("{" + var, "{" + field_var)
+            formatter += "_world=_world, _vars=_vars, _local=_local)"
+            _ += formatter
         return _
 
     def postfix_array(self, tree: Tree) -> str:
@@ -1083,7 +1118,12 @@ with open("gb-result.md", "w") as w:
     def scope_statement(self, tree: Tree):
         scope, var, _ = tree.children
         out(f"# {scope} {var}")
-        self.var_scope_tracking[var] = scope
+        if scope == "world":
+            self.scope_world.add(var)
+        if scope == "section":
+            self.scope_section.add(var)
+        if scope == "local":
+            self.scope_local.add(var)
 
     def __default__(self, tree: Tree | Token):
         out(f"# __default__: {tree.data}")

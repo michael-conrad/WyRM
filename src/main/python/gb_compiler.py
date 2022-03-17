@@ -698,14 +698,15 @@ with open("md/index.md", "w") as w:
         out(f"def {func}() -> str:")
         indent_inc()
         out(f"\"\"\"{basic_escape(option_description)}\"\"\"")
+        out()
+        out("# new node id is needed")
+        out(f"node_id: str = new_label('{func}')")
+        out(f"global node_id_by_checksum")
         out("nonlocal _state")
         out("nonlocal section_func")
         out()
         out(f"option_saved_state = save_state()")
         out()
-        out("# save existing out string")
-        out("out_prev: str = _output[node_id]")
-        # out("out = \"\"")
         out("_output[node_id] = ''")
         implicit_go: bool = True
         for child in block.children:
@@ -715,16 +716,19 @@ with open("md/index.md", "w") as w:
                     implicit_go = False
                     break
         if implicit_go:
-            out(f"option_node: str = section_func()")
+            out(f"append_node: str = section_func()")
         else:
-            out(f"option_node: str = go_function()")
-        out("_output[option_node] = _output[node_id] + \"\\n\\n\" + _output[option_node]")
+            out(f"append_node: str = go_function()")
+        out("sha512: str = section + ' option ' + ' (' + state['world']['facing'].facing + ') ' + state_checksum()")
+        out("if sha512 in node_id_by_checksum:")
+        indent_inc()
+        out("return node_id_by_checksum[sha512]")
+        indent_dec()
+        out("_output[node_id] += \"\\n\\n\" + _output[append_node]")
 
         out(f"restore_state(option_saved_state)")
         out(f"random.setstate(_state['random_state'])")
-        # out(f"out = out_prev")
-        out("_output[node_id] = out_prev")
-        out("return option_node")
+        out("return node_id")
         indent_dec()
         out()
         out(f"option_list.append((\"{basic_escape(option_description)}\", {func}))")

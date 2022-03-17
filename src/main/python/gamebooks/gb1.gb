@@ -20,14 +20,11 @@ Library: mob_combat
 
 world player
 world facing
-world new_facing
 
-new_facing = "w"
 once {
     player = PCs.player_forsaken_alley()
-    facing = Facing()
 }
-facing.face(new_facing)
+
 
 """
 Welcome New Adventurer!
@@ -44,12 +41,12 @@ The original one page dungeon is from "One Page Dungeon Compendium", 2010
 Edition.
 """
 
-direction "About this book" "About"
-direction "Show your support" "Show Your Support"
+direction "About this book" "About" facing "w"
+direction "Show your support" "Show Your Support" facing "w"
 direction "Start the game" "Start the Game" facing "w"
 
 [About]
-facing.face(new_facing)
+
 
 """
 This is a Warrior, Rogue, Mage rules based gamebook.
@@ -62,11 +59,11 @@ You are playing a gamebook using the one page dungeon for the quest:
 The original one page dungeon is from "One Page Dungeon Compendium", 2010 Edition.
 """
 
-direction "Show your support" "Show Your Support"
+direction "Show your support" "Show Your Support" facing "w"
 direction "Start the game" "Start the Game" facing "w"
 
 [Show Your Support]
-facing.face(new_facing)
+
 
 """
 Don't forget to leave a five star review with comments.
@@ -75,11 +72,11 @@ Adding a brief description of your adventure to the review would be appreciated.
 My husband is also a writer, so please look for "Forgiving Judas" by Spencer Conrad.
 """
 
-direction "About this book" "About"
+direction "About this book" "About" facing "w"
 direction "Start the game" "Start the Game" facing "w"
 
 [Start the Game]
-facing.face(new_facing)
+
 
 """
 You've come to explore the ruins of an abbey whose name has been forgotten.
@@ -178,71 +175,79 @@ direction "{facing.ds}" "3 Way" facing "s"
 direction "{facing.dw}" "4" facing "w"
 
 [5]
-"5"
-facing.face(new_facing)
-
+section looted
+section alcove
 once {
+    looted = False
+    alcove = False
     """
     You come to a portcullis. Beyond you see a 90ft x 40ft room with
     alcoves in the walls. You can't see into the alcoves from here.
     You push the portcullis open with the sound of rusted screeching metal
     and step into the room to get a better view. The alcoves
     are filled with the skeletons and corpses of monks, except one
-    in the wall {facing.e} in the near corner.
+    in the {facing.e} wall.
     """
-    direction "Examine empty alcove to the {facing.e}." "5a" facing "e"
 } else {
-    "You are in the crypt. The portcullis is {facing.s}. The empty alcove is {facing.e}."
-    direction "Enter empty alcove to the {facing.e}." "5a" facing "e"
+    "You are in the crypt. The portcullis is {facing.s}. The empty alcove is to the {facing.e}."
 }
 
-direction "Exit through the portcullis to your {facing.s}." "4 Way" facing "s"
+if (!alcove) {
+    option "Examine empty alcove" {
+        alcove = True
+        "You discover a cleverly disguised door."
+    }
+} else {
+    direction "Go through door in alcove to your {facing.e}." "5a" facing "e"
+}
 
+if (!looted) {
+    option "Loot alcoves" {
+        looted = True
+        "You go crazy looting"
+    }
+}
+
+direction "Exit the crypt using the portcullis to your {facing.s}." "4 Way" facing "s"
 
 [5a]
-facing.face(new_facing)
+
 
 once {
-    rooms("5a")
+    rooms("5a").desc1
 } else {
-    rooms("5a")
+    rooms("5a").desc2
 }
+
+direction "Exit room" "5" facing "w"
 
 [4 Way]
-"4 Way"
-new_facing
+"You are facing: {facing.compass}"
 
-facing.face(new_facing)
 
 once {
-    rooms("4way").desc1
+    """
+    You are at a four way intersection.
+    You came in from the passage to your {facing.e}.
+    The passages {facing.n}, {facing.s}, and {facing.w} disappear into darkness.
+    """
 } else {
-    rooms("4way").desc2
+    "You are at a four way intersection. The passage to your {facing.e} leads to the ruins above."
 }
 
-direction "{facing.dn}" "5"
-direction "{facing.dw}" "4"
-direction "{facing.de}" "1"
-direction "{facing.ds}" "3 Way"
+direction "{facing.dn}" "5" facing "n"
+direction "{facing.dw}" "4" facing "w"
+direction "{facing.de}" "1" facing "e"
+direction "{facing.ds}" "3 Way" facing "s"
 
 [1]
-facing.face(new_facing)
+
 
 [3 Way]
-facing.face(new_facing)
+
 
 [4]
-facing.face(new_facing)
-once {
-    "first visit room 4"
-} else {
-    "not first visit room 4"
-}
 
-direction "E" "4 Way"
-
-[Cave 4]
-facing.face(new_facing)
 
 once {
     """
@@ -268,14 +273,18 @@ if (facing.is_facing("s")) "You go down slope and step out of the crack."
 
 option "Examine pond" {
     "You examine the pond and are suddenly turned around in a different direction!"
-    o = list("n", "e", "w", "s")
-    d = rand.choose(o)
-    facing.face(d)
+    ; o = list("n", "e", "w", "s")
+    ; d = rand.choose(o)
+    ; facing.face(d)
 }
 
 option "Examine crack" {
     "You examine the crack in the wall"
-    goto "Tunnel 4a"
+    goto "4a"
 }
+
+[4a]
+
+"The crack!"
 
 

@@ -2,7 +2,7 @@
 
 start: metadata sections
 
-_nl: NEWLINE
+_nl: NEWLINE | comment
 
 metadata: metadata_entry+
 ?metadata_entry: metadata_tag ":" metadata_value? _nl
@@ -19,7 +19,7 @@ direction_statement: "direction" short_format_string direction_section direction
 direction_section: STRING
 short_format_string: STRING
 
-direction_facing: ("facing" STRING)?
+direction_facing: ("facing" STRING)
     | "facing" "(" expression ")" -> facing_expr
 
 option_statement: "option" STRING compound_statement
@@ -36,7 +36,6 @@ once_else: "else"
     | selection_statement
     | iteration_statement
     | jump_statement
-    | comment
     | direction_statement
     | once_statement
     | assignment_statement
@@ -44,6 +43,8 @@ once_else: "else"
     | go_statement
     | empty_statement
     | scope_statement
+
+// | comment
 
 scope_statement: (WORLD | SECTION | LOCAL | EXTERN) IDENTIFIER _nl
 

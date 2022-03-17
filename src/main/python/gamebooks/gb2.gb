@@ -1,0 +1,105 @@
+Title: Slash'n Up! Book 0.5
+Subtitle: Dungeons of the Forsaken Abbey
+Author: Michael Conrad
+License: CC-BY-SA
+Note: A "Hack'n" Slash Game Book
+Attribution: Gabriel P (urudnd@gmail.com)
+
+Library: character_sheet
+Library: equipment
+Library: mana
+Library: skills
+Library: talents
+Library: gb_utils
+Library: npcs
+Library: pcs
+Library: room_descriptions
+Library: mob_combat
+
+
+[Start]
+
+world player
+world facing
+
+once {
+    player = PCs.player_forsaken_alley()
+    facing = Facing()
+}
+
+"""
+Welcome New Adventurer!
+"""
+
+direction "Start the game" "Start the Game" facing "w"
+
+[Start the Game]
+
+"""
+You've come to explore the ruins of an abbey whose name has been forgotten.
+"""
+
+direction "Continue" "1" facing "w"
+
+[1]
+
+facing
+
+"You are at the bottom of stairs to your {facing.n}."
+
+direction "{facing.dw}" "4way" facing "w"
+
+[4way]
+
+"You are at a 4-way intersection."
+
+direction "{facing.dn}" "5" facing "n"
+direction "{facing.de}" "1" facing "e"
+direction "{facing.ds}" "3way" facing "s"
+direction "{facing.dw}" "4" facing "w"
+
+[5]
+
+"You are in a crypt."
+
+direction "{facing.de}" "5a" facing "e"
+direction "{facing.ds}" "4way" facing "s"
+
+[5a]
+
+"You are in a room with a crucified monk."
+
+direction "{facing.dw}" "5" facing "w"
+
+[4]
+
+"You are in a cave with a pond in the middle."
+
+direction "{facing.de}" "4way" facing "e"
+direction "Enter the crack in the wall to your {facing.s}" "4a" facing "s"
+
+[4a]
+
+"You are in a spider filled crack."
+
+direction "{facing.dn}" "4" facing "n"
+
+[3]
+
+"You are in a winery. The only exit is to your {facing.n}."
+
+direction "{facing.dn}" "3way" facing "n"
+
+[2]
+
+"You are in a cave with a fancy axe on a plinth."
+
+direction "{facing.dw}" "3way" facing "w"
+
+[3way]
+
+"You are at a 3-way intersection. You see stairs down the passage to your {facing.s}."
+
+direction "{facing.dn}" "4way" facing "n"
+direction "{facing.de}" "2" facing "e"
+direction "{facing.ds}" "3" facing "s"

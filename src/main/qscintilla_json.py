@@ -27,6 +27,8 @@ class LexerJson(QsciLexerCustom):
         super().__init__(parent)
         self.create_parser()
         self.create_styles()
+        self.token_styles = dict()
+        self.lark: Lark | None = None
 
     def create_styles(self):
         deeppink = QColor(249, 38, 114)
@@ -37,48 +39,22 @@ class LexerJson(QsciLexerCustom):
         lightcyan = QColor(213, 248, 232)
         darkslategrey = QColor(39, 40, 34)
 
-        styles = {
-            0: mediumturquoise,
-            1: mediumpurple,
-            2: yellowgreen,
-            3: deeppink,
-            4: khaki,
-            5: lightcyan
-        }
+        styles = {0: mediumturquoise, 1: mediumpurple, 2: yellowgreen, 3: deeppink, 4: khaki, 5: lightcyan}
 
         for style, color in styles.items():
             self.setColor(color, style)
             self.setPaper(darkslategrey, style)
             self.setFont(self.parent().font(), style)
 
-        self.token_styles = {
-            "COLON": 5,
-            "COMMA": 5,
-            "LBRACE": 5,
-            "LSQB": 5,
-            "RBRACE": 5,
-            "RSQB": 5,
-            "FALSE": 0,
-            "NULL": 0,
-            "TRUE": 0,
-            "STRING": 4,
-            "NUMBER": 1,
-        }
+        self.token_styles = {"COLON": 5, "COMMA": 5, "LBRACE": 5, "LSQB": 5, "RBRACE": 5, "RSQB": 5, "FALSE": 0,
+                "NULL"              : 0, "TRUE": 0, "STRING": 4, "NUMBER": 1, }
 
     def create_parser(self):
-        grammar = '''
-            anons: ":" "{" "}" "," "[" "]"
-            TRUE: "true"
-            FALSE: "false"
-            NULL: "NULL"
-            %import common.ESCAPED_STRING -> STRING
-            %import common.SIGNED_NUMBER  -> NUMBER
-            %import common.WS
-            %ignore WS
-        '''
-
-        self.lark = Lark(grammar, parser=None, lexer='basic')
-        # All tokens: print([t.name for t in self.lark.parser.lexer.tokens])
+        grammar = ''
+        with open("python/lark/gamebook.lark") as r:
+            grammar = r.read()
+        self.lark = Lark(grammar, parser=None,
+                         lexer='basic')  # All tokens: print([t.name for t in self.lark.parser.lexer.tokens])
 
     def defaultPaper(self, style):
         return QColor(39, 40, 34)
@@ -98,11 +74,10 @@ class LexerJson(QsciLexerCustom):
             for token in self.lark.lex(text):
                 ws_len = token.start_pos - last_pos
                 if ws_len:
-                    self.setStyling(ws_len, 0)    # whitespace
+                    self.setStyling(ws_len, 0)  # whitespace
 
                 token_len = len(bytearray(token, "utf-8"))
-                self.setStyling(
-                    token_len, self.token_styles.get(token.type, 0))
+                self.setStyling(token_len, self.token_styles.get(token.type, 0))
 
                 last_pos = token.start_pos + token_len
         except Exception as e:
@@ -151,52 +126,19 @@ class EditorAll(QsciScintilla):
         # Set multiselection defaults
         self.SendScintilla(QsciScintilla.SCI_SETMULTIPLESELECTION, True)
         self.SendScintilla(QsciScintilla.SCI_SETMULTIPASTE, 1)
-        self.SendScintilla(
-            QsciScintilla.SCI_SETADDITIONALSELECTIONTYPING, True)
+        self.SendScintilla(QsciScintilla.SCI_SETADDITIONALSELECTIONTYPING, True)
 
         lexer = LexerJson(self)
         self.setLexer(lexer)
 
 
-EXAMPLE_TEXT = textwrap.dedent("""\
-        {
-            "_id": "5b05ffcbcf8e597939b3f5ca",
-            "about": "Excepteur consequat commodo esse voluptate aute aliquip ad sint deserunt commodo eiusmod irure. Sint aliquip sit magna duis eu est culpa aliqua excepteur ut tempor nulla. Aliqua ex pariatur id labore sit. Quis sit ex aliqua veniam exercitation laboris anim adipisicing. Lorem nisi reprehenderit ullamco labore qui sit ut aliqua tempor consequat pariatur proident.",
-            "address": "665 Malbone Street, Thornport, Louisiana, 243",
-            "age": 23,
-            "balance": "$3,216.91",
-            "company": "BULLJUICE",
-            "email": "elisekelley@bulljuice.com",
-            "eyeColor": "brown",
-            "gender": "female",
-            "guid": "d3a6d865-0f64-4042-8a78-4f53de9b0707",
-            "index": 0,
-            "isActive": false,
-            "isActive2": true,
-            "latitude": -18.660714,
-            "longitude": -85.378048,
-            "name": "Elise Kelley",
-            "phone": "+1 (808) 543-3966",
-            "picture": "http://placehold.it/32x32",
-            "registered": "2017-09-30T03:47:40 -02:00",
-            "tags": [
-                "et",
-                "nostrud",
-                "in",
-                "fugiat",
-                "incididunt",
-                "labore",
-                "nostrud"
-            ]
-        }\
-    """)
-
 def main():
-    app = QApplication(sys.argv)
-    ex = EditorAll()
+    app: QApplication = QApplication(sys.argv)
+    ex: EditorAll = EditorAll()
     ex.setWindowTitle(__file__)
-    ex.setText(EXAMPLE_TEXT)
-    ex.resize(800, 600)
+    with open("python/gamebooks/gb1.gb") as r:
+        ex.setText(r.read())
+    ex.resize(1280, 720)
     ex.show()
     sys.exit(app.exec_())
 

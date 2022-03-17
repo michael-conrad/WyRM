@@ -62,20 +62,24 @@ def out(text: str = ""):
 
 def end_section() -> None:
 
-    out("out += \"\\n\"")
+    out("_output[node_id] += \"\\n\"")
+    out("_output[node_id] += \"\\n\"")
     out("for _ in option_list:")
     indent_inc()
-
+    out("saved_state = save_state()")
     out("destination_node = _[1]()")
+    out("restore_state(saved_state)")
     out(f"_option_text: str = str(_[0])")
     out(f"_option_text = html.escape(_option_text)")
     out(f"_md_link: str = \"[\" + _option_text + \"](\" + destination_node + \")\"")
-    out("out += \"* \" + _md_link")
-    out("out += \"\\n\"")
+
+    out("_output[node_id] += \"* \" + _md_link")
+
+    out("_output[node_id] += \"\\n\"")
 
     indent_dec()
     out()
-    out("_output[node_id] = out")
+    # out("_output[node_id] = out")
     out("return node_id")
     indent_dec()
     out()
@@ -213,9 +217,17 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out(f"# pad: {self.section_pad_length}")
         out("")
         out("repeat_state_tracking: dict[str, str] = dict()")
-        out("state: SimpleNamespace = SimpleNamespace()")
-        out("state.world = SimpleNamespace()")
-        out("state.world.vars = SimpleNamespace()")
+        out("state: dict[str, any] = dict()")
+        out("state['world'] = dict()")
+        out("state['world'] = dict()")
+        out("state['world']['facing'] = Facing().with_facing('n')")
+        out()
+        out("def face(facing: str):")
+        indent_inc()
+        out("global state")
+        out("state['world']['facing'].face(facing)")
+        indent_dec()
+        out()
         out("recurse_depth: int = 0")
         out()
         out(f"imports = dict()")
@@ -223,30 +235,37 @@ class GamebookCompiler(lark.visitors.Interpreter):
             out(f"exec('from {_} import *', imports)")
         out(f"for attr in [*imports]:")
         indent_inc()
-        out(f"setattr(state.world.vars, attr, imports[attr])")
+        out(f"state['world'][attr] = imports[attr]")
         indent_dec()
-
-        out(f"for attr in [*__builtins__.__dict__.keys()]:")
+        out(f"state['world']['__builtins__'] = globals()['__builtins__']")
+        out()
+        out("# build up list of keys not to pickle or checksum")
+        out("ignore_pickle_keys: set[str] = set()")
+        out(f"for attr in [*imports]:")
         indent_inc()
-        out(f"setattr(state.world.vars, attr, __builtins__.__dict__[attr])")
+        out(f"ignore_pickle_keys.add(attr)")
         indent_dec()
+        out(f"ignore_pickle_keys.add('__builtins__')")
         out()
         out("# Intentionally not tracked in state")
-        out("_node_id: int = 0")
+        out("_node_id: dict[str, int] = dict()")
         out()
         out()
-        out("def new_label() -> str:")
+        out("def new_label(section: str = 'no-section') -> str:")
         indent_inc()
         out("global _node_id")
-        out("_node_id += 1")
-        out('return f"{_node_id:08x}"')
+        out("if section not in _node_id:")
+        indent_inc()
+        out("_node_id[section]=0")
+        indent_dec()
+        out("_node_id[section] += 1")
+        out("cnt: int = _node_id[section]")
+        out('return f"{section}-{cnt:03x}"')
         indent_dec()
         out()
         out()
         out("_output: dict[str, str] = dict()")
         out("node_id_by_checksum: dict[str, str] = dict()")
-
-        self.state_track_set.add('state')
 
         # scan ahead for section names to build section to function lookup table
 
@@ -301,11 +320,10 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out("def save_state() -> dict[str, str]:")
         indent_inc()
         sorted_track = sorted(self.state_track_set)
-        for state in sorted_track:
-            out(f"global {state}")
         out("states: dict[str, str] = dict()")
+        out(f"states['world_vars'] = jsonpickle.encode(state['world'], keys=True)")
         for state in sorted_track:
-            out(f"states['{state}'] = jsonpickle.encode({state}, keys=True)")
+            out(f"states['{state}'] = jsonpickle.encode(state['{state}'], keys=True)")
         out("return states")
         indent_dec()
         out()
@@ -313,9 +331,8 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out("def restore_state(states: dict[str, str]) -> None:")
         indent_inc()
         for state in sorted_track:
-            out(f"global {state}")
-        for state in sorted_track:
-            out(f"{state} = jsonpickle.decode(states['{state}'], keys=True)")
+            out(f"state['{state}'] = jsonpickle.decode(states['{state}'], keys=True)")
+        out(f"state['world'] = jsonpickle.decode(states['world_vars'], keys=True)")
         out("return")
         indent_dec()
 
@@ -363,62 +380,68 @@ with open("md/index.md", "w") as w:
                     out(f"# {name}: {section_no}")
                     out()
                     self.section_lookup[name] = section_name
-                    out(f"state.{section_name} = SimpleNamespace()")
-                    out(f"state.{section_name}.name = \"{basic_escape(name)}\"")
-                    out(f"state.{section_name}.id = {section_no}")
-                    out(f"state.{section_name}.func_name = \"{section_name}\"")
-                    out(f"state.{section_name}.metadata = dict()")
-                    out(f"state.{section_name}.once = set()")
-                    out(f"state.{section_name}.vars = SimpleNamespace()")
+                    self.state_track_set.add(section_name)
+                    out(f"state['{section_name}'] = dict()")
+                    out(f"state['{section_name}']['name'] = \"{basic_escape(name)}\"")
+                    out(f"state['{section_name}']['id'] = {section_no}")
+                    out(f"state['{section_name}']['func_name'] = \"{section_name}\"")
+                    out(f"state['{section_name}']['metadata'] = dict()")
+                    out(f"state['{section_name}']['once'] = set()")
+                    out(f"state['{section_name}']['vars'] = dict()")
                     out()
                     out()
                     out(f"def {section_name}() -> str:")
                     indent_inc()
                     value: str = basic_escape(f"{name}")
                     out(f"{self.q3}{value}{self.q3}")
-                    out(f"section: str = {self.q1}{value}{self.q1}")
+                    out("global _output")
+                    out("global state")
+                    out("global recurse_depth")
                     out()
+                    out(f"_state: dict[str, any] = state['{section_name}']")
+                    out(f"_once: set[int] = _state['once']")
+                    out(f"_local: dict[str, any] = dict()  # not persistent, discarded after processing")
+                    out()
+                    out(f"section: str = {self.q1}{value}{self.q1}")
+                    out(f"section_name: str = {self.q1}{section_name}{self.q1}")
+                    # out("out: str = ''")
+                    if self.main_section == name:
+                        out("state['world']['facing'] = Facing().with_facing('n')"
+                            " # initial assumed facing for first section")
+
                     out("# see if this is a repeating state, if yes, just use original node id")
                     out("global node_id_by_checksum")
-                    out("sha512: str = section + state_checksum()")
+                    out("sha512: str = section"
+                        " + ' (' + state['world']['facing'].facing + ') '"
+                        " + state_checksum()")
                     out("if sha512 in node_id_by_checksum:")
                     indent_inc()
                     out("return node_id_by_checksum[sha512]")
                     indent_dec()
                     out()
-                    out(f"node_id: str = new_label()")
+                    out(f"node_id: str = new_label(section_name)")
+                    out("_output[node_id] = ''")
                     out("node_id_by_checksum[sha512] = node_id")
                     out()
                     out(f"section_func: Callable = {section_name}")
-                    out()
-                    out("global _output")
-                    out("global state")
-                    out("global recurse_depth")
                     out()
                     out("recurse_depth += 1")
                     out("if recurse_depth > 1000:")
                     indent_inc()
                     out("raise RecursionError()")
                     indent_dec()
-                    out(f"_state: SimpleNamespace = state.{section_name}")
-                    out(f"_metadata: dict[str, str] = _state.metadata")
-                    out(f"_once: set[int] = _state.once")
-                    out(f"_vars: SimpleNamespace = _state.vars  # persistent by section")
-                    out(f"_world: SimpleNamespace = state.world.vars  # persistent global to all sections")
-                    out(f"_local: SimpleNameSpace = SimpleNamespace()  # not persistent, discarded after processing")
                     self.once_counter += 1
                     out()
                     out(f"if {self.once_counter} not in _once:")
                     indent_inc()
                     out(f"_once.add({self.once_counter})")
                     out(f"random.seed({self.next_random_seed})")
-                    out(f"state.{section_name}.random_state = random.getstate()")
+                    out(f"state['{section_name}']['random_state'] = random.getstate()")
                     out()
 
                     indent_dec()
                     out()
-                    out("out: str = ''")
-                    out(f"random.setstate(state.{section_name}.random_state)")
+                    out(f"random.setstate(state['{section_name}']['random_state'])")
                     out()
                     out("option_list: list[tuple[str, Callable]] = list()")
                     out()
@@ -488,9 +511,11 @@ with open("md/index.md", "w") as w:
             out(f"segment: str | None = {_.rstrip()}")
             out("if segment is not None:")
             indent_inc()
-            out(f"out += \"\\n\\n\"")
+            # out(f"out += \"\\n\\n\"")
+            out(f"_output[node_id] += \"\\n\\n\"")
             out(f"_ = html.escape(str(segment))")
-            out(f"out += textwrap.dedent(_)")
+            # out(f"out += textwrap.dedent(_)")
+            out(f"_output[node_id] += textwrap.dedent(_)")
             indent_dec()
             out()
 
@@ -579,7 +604,7 @@ with open("md/index.md", "w") as w:
         indent_inc()
         out("global section_function_lookup")
         out("nonlocal _state")
-        out("nonlocal out")
+        # out("nonlocal out")
         out()
         # section_function_lookup
         section: str = ""
@@ -594,7 +619,7 @@ with open("md/index.md", "w") as w:
         out(f"goto_saved_state = save_state()")
         out(f"goto_destination_node: str = section_function_lookup[lookup]()")
         out(f"restore_state(goto_saved_state)")
-        out(f"random.setstate(_state.random_state)")
+        out(f"random.setstate(_state['random_state'])")
         out()
         out(f"return goto_destination_node")
         indent_dec()
@@ -649,18 +674,15 @@ with open("md/index.md", "w") as w:
         out(f"def {func}() -> str:")
         indent_inc()
         out(f"\"\"\"{basic_escape(option_bin_description)}\"\"\"")
-        out("nonlocal out")
-        out("nonlocal _world")
-
+        out()
+        out()
         out(f"saved_state = save_state()")
         if facing:
-            out(f"_world.new_facing = {facing}")
-            print(f"New facing: {facing}")
-        out(f"destination_node: str = {section_func}() + \".md\"")
-
+            out(f"state['world']['facing'].face({facing})")
+        out(f"direction_destination: str = {section_func}() + \".md\"")
         out(f"restore_state(saved_state)")
-        out(f"random.setstate(_state.random_state)")
-        out(f"return destination_node")
+        out(f"random.setstate(_state['random_state'])")
+        out(f"return direction_destination")
         indent_dec()
         out()
         out(f"option_list.append(({option_description}, {func}))")
@@ -677,17 +699,14 @@ with open("md/index.md", "w") as w:
         indent_inc()
         out(f"\"\"\"{basic_escape(option_description)}\"\"\"")
         out("nonlocal _state")
-        out("nonlocal out")
-        # out("nonlocal rand")
         out("nonlocal section_func")
-        out("nonlocal _vars")
-        out("nonlocal _world")
+        out()
+        out(f"option_saved_state = save_state()")
         out()
         out("# save existing out string")
-        out("out_prev: str = out")
-        out("out = \"\"")
-        out(f"saved_state = save_state()")
-
+        out("out_prev: str = _output[node_id]")
+        # out("out = \"\"")
+        out("_output[node_id] = ''")
         implicit_go: bool = True
         for child in block.children:
             self.visit(child)
@@ -696,15 +715,16 @@ with open("md/index.md", "w") as w:
                     implicit_go = False
                     break
         if implicit_go:
-            out(f"destination_node: str = section_func()")
+            out(f"option_node: str = section_func()")
         else:
-            out(f"destination_node: str = go_function()")
-        out("_output[destination_node] = out +  \"\\n\\n\" + _output[destination_node]")
+            out(f"option_node: str = go_function()")
+        out("_output[option_node] = _output[node_id] + \"\\n\\n\" + _output[option_node]")
 
-        out(f"restore_state(saved_state)")
-        out(f"random.setstate(_state.random_state)")
-        out(f"out = out_prev")
-        out("return destination_node")
+        out(f"restore_state(option_saved_state)")
+        out(f"random.setstate(_state['random_state'])")
+        # out(f"out = out_prev")
+        out("_output[node_id] = out_prev")
+        out("return option_node")
         indent_dec()
         out()
         out(f"option_list.append((\"{basic_escape(option_description)}\", {func}))")
@@ -877,7 +897,7 @@ with open("md/index.md", "w") as w:
         lvalue = self.visit(postfix)
         op = self.visit(operator)
         value = self.visit(expression)
-        if lvalue == "_world":
+        if lvalue == "state['world']":
             raise SyntaxError(f"Can not set world to a value. Only world members may be set.")
         out(f"{lvalue} {op} {value}")
 
@@ -909,14 +929,13 @@ with open("md/index.md", "w") as w:
                 if child.type == "IDENTIFIER":
                     var = child.value
                     if var in self.scope_local:
-                        _ += "_local."
+                        _ += f"_local['{var}']"
                     elif var in self.scope_section:
-                        _ += "_vars."
+                        _ += f"state[section_name]['vars']['{var}']"
                     elif var in self.scope_world:
-                        _ += "_world."
+                        _ += f"state['world']['{var}']"
                     else:
-                        _ += "_world."
-                    _ += child.value
+                        _ += f"state['world']['{var}']"
                 else:
                     _ += child.value
             if isinstance(child, Tree):
@@ -941,23 +960,27 @@ with open("md/index.md", "w") as w:
         if auto_format:
             formatter: str = ".format("
             already: set[str] = set()
+            key_var: set[str] = set()
             for lookup in auto_format:
                 var: str = lookup[1]
-                field_var: str
+                field_var: str = ''
                 var = re.sub("(?i)^([a-z_][a-z_0-9]*).*", "\\1", var)
                 if var in self.scope_local:
-                    field_var = f"_local.{var}"
+                    field_var = f"_local['{var}']"
                 elif var in self.scope_section:
-                    field_var = f"_vars.{var}"
+                    field_var = f"section['{var}']"
                 elif var in self.scope_world:
-                    field_var = f"_world.{var}"
+                    field_var = var  # f"world['{var}']"
+                    key_var.add(f"{var}=state['world']['{var}']")
                 else:
-                    field_var = f"_world.{var}"
+                    key_var.add(f"{var}=state['world']['{var}']")
 
-                if var not in already:
+                if var not in already and field_var:
                     already.add(var)
                     _ = _.replace("{" + var, "{" + field_var)
-            formatter += "_world=_world, _vars=_vars, _local=_local)"
+            for kv in key_var:
+                formatter += f"{kv}, "
+            formatter += f"world=state['world'], section=state[section_name]['vars'])"
             _ += formatter
         return _
 

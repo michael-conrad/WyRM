@@ -646,6 +646,7 @@ class Macro:
 class Facing:
     _facing: int = 0
     _facing_subj: dict[int, str] = dataclasses.field(default_factory=dict)
+    _facing_obj: dict[int, str] = dataclasses.field(default_factory=dict)
     _direction_as_option: dict[int, str] = dataclasses.field(default_factory=dict)
 
     def __post_init__(self):
@@ -661,6 +662,11 @@ class Facing:
         self._direction_as_option[2] = "Go back."
         self._direction_as_option[3] = "Turn left and continue."
 
+        self._facing_obj[0] = "north"
+        self._facing_obj[1] = "east"
+        self._facing_obj[2] = "south"
+        self._facing_obj[3] = "west"
+
     def face(self, direction: str):
         self.facing = direction
 
@@ -672,7 +678,7 @@ class Facing:
         if not direction:
             return False
         direction = direction.lower()[0]
-        return direction == self.face
+        return direction == self.facing
 
     def is_behind(self, direction: str) -> bool:
         if not direction:
@@ -687,14 +693,20 @@ class Facing:
         return self.n == "rear"
 
     @property
+    def compass(self) -> str:
+        return self._facing_obj[self._facing]
+
+    @property
     def facing(self) -> str:
+        if self._facing == 0:
+            return "n"
         if self._facing == 1:
             return "e"
         if self._facing == 2:
             return "s"
         if self._facing == 3:
             return "w"
-        return "n"
+        return "UNKNOWN"
 
     def subj_idx(self, direction: int) -> int:
         return (4 - self._facing + direction) % 4
@@ -703,7 +715,10 @@ class Facing:
     def facing(self, facing: str) -> None:
         if not facing:
             return
-        facing = facing.lower()[0]
+        facing = facing.strip().lower()[0]
+        if facing == "n":
+            self._facing = 0
+            return
         if facing == "e":
             self._facing = 1
             return
@@ -713,7 +728,7 @@ class Facing:
         if facing == "w":
             self._facing = 3
             return
-        self._facing = 0
+        print(f"Unknown facing: {facing}")
 
     @property
     def n(self) -> str:

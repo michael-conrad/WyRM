@@ -1,0 +1,422 @@
+start
+  metadata
+    metadata_entry
+      Title
+      Slash'n Up! Book 0.5
+      
+
+    metadata_entry
+      Subtitle
+      Dungeons of the Forsaken Abbey
+      
+
+    metadata_entry
+      Author
+      Michael Conrad
+      
+
+    metadata_entry
+      License
+      CC-BY-SA
+      
+
+    metadata_entry
+      Note
+      A "Hack'n" Slash Game Book
+      
+
+    metadata_entry
+      Attribution
+      Gabriel P (urudnd@gmail.com)
+      
+
+
+    metadata_entry
+      Library
+      character_sheet
+      
+
+    metadata_entry
+      Library
+      equipment
+      
+
+    metadata_entry
+      Library
+      mana
+      
+
+    metadata_entry
+      Library
+      skills
+      
+
+    metadata_entry
+      Library
+      talents
+      
+
+    metadata_entry
+      Library
+      gb_utils
+      
+
+    metadata_entry
+      Library
+      npcs
+      
+
+    metadata_entry
+      Library
+      pcs
+      
+
+    metadata_entry
+      Library
+      room_descriptions
+      
+
+    metadata_entry
+      Library
+      mob_combat
+      
+
+
+
+  sections
+    section
+      Start
+      
+
+
+    scope_statement
+      world
+      player
+      
+
+    scope_statement
+      world
+      facing
+      
+
+
+    once_statement
+      block_item_list
+        block_item_list
+          block_item_list
+            block_item_list
+              empty_statement	
+
+              assignment_statement
+                postfix_expression
+                  primary_expression	player
+                assignment_operator	=
+                assignment_expression
+                  conditional_expression
+                    postfix_expression
+                      postfix_function_void
+                        postfix_expression
+                          postfix_dot
+                            postfix_expression
+                              primary_expression	PCs
+                            .
+                            player_forsaken_alley
+                        param_void
+            empty_statement	
+
+          assignment_statement
+            postfix_expression
+              primary_expression	facing
+            assignment_operator	=
+            assignment_expression
+              conditional_expression
+                postfix_expression
+                  postfix_function_void
+                    postfix_expression
+                      primary_expression	Facing
+                    param_void
+        empty_statement	
+
+    empty_statement	
+
+
+    expression_statement
+      assignment_expression
+        conditional_expression
+          postfix_expression
+            primary_expression
+              string_constant	"""
+Welcome New Adventurer!
+"""
+      
+
+
+    direction_statement
+      short_format_string	"Start the game"
+      direction_section	"Start the Game"
+      direction_facing	"w"
+      
+
+
+    section
+      Start the Game
+      
+
+
+    expression_statement
+      assignment_expression
+        conditional_expression
+          postfix_expression
+            primary_expression
+              string_constant	"""
+You've come to explore the ruins of an abbey whose name has been forgotten.
+"""
+      
+
+
+    direction_statement
+      short_format_string	"Continue"
+      direction_section	"1"
+      direction_facing	"w"
+      
+
+
+    section
+      1
+      
+
+
+    expression_statement
+      assignment_expression
+        conditional_expression
+          postfix_expression
+            primary_expression	facing
+      
+
+
+    expression_statement
+      assignment_expression
+        conditional_expression
+          postfix_expression
+            primary_expression
+              string_constant	"You are at the bottom of stairs to your {facing.n}."
+      
+
+
+    direction_statement
+      short_format_string	"{facing.dw}"
+      direction_section	"4way"
+      direction_facing	"w"
+      
+
+
+    section
+      4way
+      
+
+
+    expression_statement
+      assignment_expression
+        conditional_expression
+          postfix_expression
+            primary_expression
+              string_constant	"You are at a 4-way intersection."
+      
+
+
+    direction_statement
+      short_format_string	"{facing.dn}"
+      direction_section	"5"
+      direction_facing	"n"
+      
+
+    direction_statement
+      short_format_string	"{facing.de}"
+      direction_section	"1"
+      direction_facing	"e"
+      
+
+    direction_statement
+      short_format_string	"{facing.ds}"
+      direction_section	"3way"
+      direction_facing	"s"
+      
+
+    direction_statement
+      short_format_string	"{facing.dw}"
+      direction_section	"4"
+      direction_facing	"w"
+      
+
+
+    section
+      5
+      
+
+
+    expression_statement
+      assignment_expression
+        conditional_expression
+          postfix_expression
+            primary_expression
+              string_constant	"You are in a crypt."
+      
+
+
+    direction_statement
+      short_format_string	"{facing.de}"
+      direction_section	"5a"
+      direction_facing	"e"
+      
+
+    direction_statement
+      short_format_string	"{facing.ds}"
+      direction_section	"4way"
+      direction_facing	"s"
+      
+
+
+    section
+      5a
+      
+
+
+    expression_statement
+      assignment_expression
+        conditional_expression
+          postfix_expression
+            primary_expression
+              string_constant	"You are in a room with a crucified monk."
+      
+
+
+    direction_statement
+      short_format_string	"{facing.dw}"
+      direction_section	"5"
+      direction_facing	"w"
+      
+
+
+    section
+      4
+      
+
+
+    expression_statement
+      assignment_expression
+        conditional_expression
+          postfix_expression
+            primary_expression
+              string_constant	"You are in a cave with a pond in the middle."
+      
+
+
+    direction_statement
+      short_format_string	"{facing.de}"
+      direction_section	"4way"
+      direction_facing	"e"
+      
+
+    direction_statement
+      short_format_string	"Enter the crack in the wall to your {facing.s}"
+      direction_section	"4a"
+      direction_facing	"s"
+      
+
+
+    section
+      4a
+      
+
+
+    expression_statement
+      assignment_expression
+        conditional_expression
+          postfix_expression
+            primary_expression
+              string_constant	"You are in a spider filled crack."
+      
+
+
+    direction_statement
+      short_format_string	"{facing.dn}"
+      direction_section	"4"
+      direction_facing	"n"
+      
+
+
+    section
+      3
+      
+
+
+    expression_statement
+      assignment_expression
+        conditional_expression
+          postfix_expression
+            primary_expression
+              string_constant	"You are in a winery. The only exit is to your {facing.n}."
+      
+
+
+    direction_statement
+      short_format_string	"{facing.dn}"
+      direction_section	"3way"
+      direction_facing	"n"
+      
+
+
+    section
+      2
+      
+
+
+    expression_statement
+      assignment_expression
+        conditional_expression
+          postfix_expression
+            primary_expression
+              string_constant	"You are in a cave with a fancy axe on a plinth."
+      
+
+
+    direction_statement
+      short_format_string	"{facing.dw}"
+      direction_section	"3way"
+      direction_facing	"w"
+      
+
+
+    section
+      3way
+      
+
+
+    expression_statement
+      assignment_expression
+        conditional_expression
+          postfix_expression
+            primary_expression
+              string_constant	"You are at a 3-way intersection. You see stairs down the passage to your {facing.s}."
+      
+
+
+    direction_statement
+      short_format_string	"{facing.dn}"
+      direction_section	"4way"
+      direction_facing	"n"
+      
+
+    direction_statement
+      short_format_string	"{facing.de}"
+      direction_section	"2"
+      direction_facing	"e"
+      
+
+    direction_statement
+      short_format_string	"{facing.ds}"
+      direction_section	"3"
+      direction_facing	"s"
+      
+
+

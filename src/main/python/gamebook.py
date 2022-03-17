@@ -13,6 +13,8 @@ from gb_compiler import GamebookCompiler
 from lark import UnexpectedCharacters
 from lark import Lark
 
+base_name: str = "gb1"
+
 
 def main() -> None:
     parser: Lark
@@ -20,7 +22,7 @@ def main() -> None:
         # parser = Lark(r, cache=None, parser="earley", lexer="dynamic_complete", ambiguity="resolve")  # parser="lalr")
         parser = Lark(r, cache=None, parser="lalr", propagate_positions=True)
     gb: str
-    with open("gamebooks/gb1.gb") as r:
+    with open("gamebooks/" + base_name + ".gb") as r:
         gb = r.read()
     try:
         tree = parser.parse(gb)
@@ -31,18 +33,18 @@ def main() -> None:
             break
         return
 
-    with open("gamebooks/gb1.tree.txt", "w") as w:
+    with open("gamebooks/" + base_name + ".tree.txt", "w") as w:
         w.write(tree.pretty())
         w.write("\n")
 
     gbc: GamebookCompiler = GamebookCompiler()  # gbi.visit(tree)
-    with open("gamebooks/gb1.py", "w") as w:
+    with open("gamebooks/" + base_name + ".py", "w") as w:
         program: str = gbc.visit(tree)
         for part in program:
             w.write(part)
         w.write("\n")
 
-    os.system("cd gamebooks; python gb1.py")
+    os.system("cd gamebooks; python " + base_name + ".py")
 
 
 if __name__ == '__main__':

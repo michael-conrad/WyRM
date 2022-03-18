@@ -93,7 +93,7 @@ find it. You've decided you're that someone.
 
 ## Pools
 
-* Fate: {player.fate} - Divine intervention used to avoid otherwise nasty death or circumstances. Use is automatic. Does not refill.
+* Fate: {player.fate} - Divine intervention used to avoid otherwise nasty death or circumstances.  Use is automatic. Does not refill.
 * Armor_Penalty: {player.armor_penalty} - Penalty against mana pool based on armor worn.
 * Hit Points: {player.hp} - Life points. When it falls to < ½ skill penalties are assessed. If it falls to 0 death occurs.
 * Mana: {player.mana} ({player.mage}*2 base - {player.armor_penalty} armor penalty) - Used by spell casting. Only refills during sleep or meditation.
@@ -222,8 +222,6 @@ once {
 direction "Exit room" "5" facing "w"
 
 [4 Way]
-"You are facing: {facing.compass}"
-
 
 once {
     """
@@ -245,9 +243,70 @@ direction "{facing.ds}" "3 Way" facing "s"
 
 [3 Way]
 
+once {
+    """
+    You are at a three way intersection with openings {facing.n}, {facing.e}, and {facing.s}.
+    The passageway {facing.e} disappears into darkness.
+    The passageway {facing.n} disappears into darkness.
+    The passageway {facing.s} goes for 10ft past the intersection and ends at
+    a set of stairs heading down.
+    """
+} else {
+    """
+    You see passageways {facing.e}, {facing.n}, and {facing.s}."
+    The passage {facing.s} ends after 10ft at a flight of stairs heading down.
+    """
+}
+
+wander = wander()
+if (wander!="") {
+    wander
+}
+
+direction "{facing.dn}" "4 Way" facing "n"
+direction "{facing.de}" "2" facing "e"
+direction "{facing.ds}" "3" facing "s"
+
+[2]
+
+once {
+    """
+    You follow the passage for 50ft and come to a cave with a tiled floor. You see a stone plinth on the far
+    side holding a two handed war axe. Even from this distance you can tell that it is a finely crafted
+    weapon. Next to the plinth on the floor you see the remains of a monk with several arrows in its back.
+    looks like the monk was trying to reach the axe before being struck down."""
+
+    "As you look beyond the dead monk you see figures moving into the torchlight."
+
+    Weapon.by_name("Axe (Dark Enchanted)")
+    qty_skell = 1@3
+    NPC.skeleton_warrior()
+    qty_zombie = 1@4
+    NPC.zombie()
+} else {
+    "You are in a tiled floor cave with a stone plinth."
+}
+
+direction "{facing.dw}" "3 Way" facing "w"
+
+[3]
+
+once {
+    """
+    You enter a 90ft x 40ft room full of wine and ale casks. Many are open. You don't see any other doors or
+    passages leading from the room.
+    """
+} else {
+    "You enter the room full of empty and broken casks."
+}
+
+direction "{facing.dn}" "3 Way" facing "n"
 
 [4]
 
+if (facing.is_facing("w")) {
+    "You go down a 60ft passageway and step out into a large cave. The cave is about 100 ft x 70 ft."
+}
 
 once {
     """
@@ -265,12 +324,6 @@ once {
     """
 }
 
-if (facing.is_facing("e")) {
-    "You go 60ft down a passageway and step into a large cave. The cave is about 100 ft x 70 ft."
-}
-
-if (facing.is_facing("s")) "You go down slope and step out of the crack."
-
 option "Examine pond" {
     "You examine the pond and are suddenly turned around in a different direction!"
     ; o = list("n", "e", "w", "s")
@@ -280,11 +333,13 @@ option "Examine pond" {
 
 option "Examine crack" {
     "You examine the crack in the wall"
-    goto "4a"
+    goto "4a" facing "s"
 }
 
 [4a]
 
-"The crack!"
+"The crack is empty!"
+
+direction "{facing.dn}" "4" facing "n"
 
 

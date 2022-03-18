@@ -144,7 +144,7 @@ iteration_statement: WHILE "(" expression ")" statement
     | FOR "(" declaration expression_statement ")" statement
     | FOR "(" declaration expression_statement expression ")" statement
     
-jump_statement: GOTO expression _nl -> goto_statement
+jump_statement: GOTO expression direction_facing _nl -> goto_statement
     | CONTINUE _nl
     | BREAK _nl
     | RETURN _nl

@@ -1,11 +1,13 @@
 import random
 from dataclasses import dataclass
+
+import gamebook_core
 from skills import CharacterSkill
 from skills import CharacterSkillsList
 
 
 @dataclass(slots=True)
-class Shield:
+class Shield(gamebook_core.Item):
     _name: str = ""
     location: str = ""
     defense_bonus: int = 0
@@ -70,7 +72,7 @@ def item_counter() -> dict[str, int]:
 
 
 @dataclass(slots=True)
-class Item:
+class Item(gamebook_core.Item):
     _uses: int | None = None
     _name: str = ""
     _desc: str = ""
@@ -174,7 +176,7 @@ class Item:
 
 
 @dataclass(slots=True)
-class Armor:
+class Armor(gamebook_core.Item):
     _name: str = ""
     _defense: int = 0
     defense_bonus: int = 0
@@ -268,8 +270,7 @@ class Armor:
         return cls.list()[0]
 
 
-@dataclass(slots=True)
-class Weapon:
+class Weapon(gamebook_core.Item):
     _name: str = ""
     location: str = ""
     skill: CharacterSkill = None
@@ -284,7 +285,7 @@ class Weapon:
         self.location = location
         return self
 
-    def with_location(self, location: str) -> "Item":
+    def with_location(self, location: str) -> "Weapon":
         self.location = location
         return self
 
@@ -330,6 +331,8 @@ class Weapon:
 
     @property
     def two_handed(self) -> bool:
+        if not hasattr(self, "_two_handed"):
+            setattr(self, "_two_handed", False)
         return self._two_handed
 
     @two_handed.setter
@@ -377,7 +380,7 @@ class Weapon:
         self._description = ""
         self._attack_bonus = 0
         self._damage_bonus = 0
-        self.two_handed = two_handed
+        self._two_handed = two_handed
 
     def __str__(self) -> str:
         skill_name: str

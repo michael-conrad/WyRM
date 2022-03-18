@@ -18,11 +18,11 @@ Library: mob_combat
 
 [Start]
 
-world player
-world facing
+world player;
+world facing;
 
 once {
-    player = PCs.player_forsaken_alley()
+    player = PCs.player_forsaken_alley();
 }
 
 
@@ -41,9 +41,9 @@ The original one page dungeon is from "One Page Dungeon Compendium", 2010
 Edition.
 """
 
-direction "About this book" "About" facing "w"
-direction "Show your support" "Show Your Support" facing "w"
-direction "Start the game" "Start the Game" facing "w"
+direction "About this book" "About" facing "w";
+direction "Show your support" "Show Your Support" facing "w";
+direction "Start the game" "Start the Game" facing "w";
 
 [About]
 
@@ -59,8 +59,8 @@ You are playing a gamebook using the one page dungeon for the quest:
 The original one page dungeon is from "One Page Dungeon Compendium", 2010 Edition.
 """
 
-direction "Show your support" "Show Your Support" facing "w"
-direction "Start the game" "Start the Game" facing "w"
+direction "Show your support" "Show Your Support" facing "w";
+direction "Start the game" "Start the Game" facing "w";
 
 [Show Your Support]
 
@@ -72,8 +72,8 @@ Adding a brief description of your adventure to the review would be appreciated.
 My husband is also a writer, so please look for "Forgiving Judas" by Spencer Conrad.
 """
 
-direction "About this book" "About" facing "w"
-direction "Start the game" "Start the Game" facing "w"
+direction "About this book" "About" facing "w";
+direction "Start the game" "Start the Game" facing "w";
 
 [Start the Game]
 
@@ -169,17 +169,17 @@ You follow the passage for 60ft and come to a four way intersection. The
 passages to the {facing.n}, to the {facing.w}, and to the {facing.s} disappear into darkness.
 """
 
-direction "{facing.dn}" "5" facing "n"
-direction "{facing.de}" "1" facing "e"
-direction "{facing.ds}" "3 Way" facing "s"
-direction "{facing.dw}" "4" facing "w"
+direction "{facing.dn}" "5" facing "n";
+direction "{facing.de}" "1" facing "e";
+direction "{facing.ds}" "3 Way" facing "s";
+direction "{facing.dw}" "4" facing "w";
 
 [5]
-section looted
-section alcove
+section looted;
+section alcove;
 once {
-    looted = False
-    alcove = False
+    looted = False;
+    alcove = False;
     """
     You come to a portcullis. Beyond you see a 90ft x 40ft room with
     alcoves in the walls. You can't see into the alcoves from here.
@@ -194,32 +194,32 @@ once {
 
 if (!alcove) {
     option "Examine empty alcove" {
-        alcove = True
+        alcove = True;
         "You discover a cleverly disguised door."
     }
 } else {
-    direction "Go through door in alcove to your {facing.e}." "5a" facing "e"
+    direction "Go through door in alcove to your {facing.e}." "5a" facing "e";
 }
 
 if (!looted) {
     option "Loot alcoves" {
-        looted = True
+        looted = True;
         "You go crazy looting"
     }
 }
 
-direction "Exit the crypt using the portcullis to your {facing.s}." "4 Way" facing "s"
+direction "Exit the crypt using the portcullis to your {facing.s}." "4 Way" facing "s";
 
 [5a]
 
 
 once {
-    rooms("5a").desc1
+    rooms("5a").desc1;
 } else {
-    rooms("5a").desc2
+    rooms("5a").desc2;
 }
 
-direction "Exit room" "5" facing "w"
+direction "Exit room" "5" facing "w";
 
 [4 Way]
 
@@ -233,10 +233,10 @@ once {
     "You are at a four way intersection. The passage to your {facing.e} leads to the ruins above."
 }
 
-direction "{facing.dn}" "5" facing "n"
-direction "{facing.dw}" "4" facing "w"
-direction "{facing.de}" "1" facing "e"
-direction "{facing.ds}" "3 Way" facing "s"
+direction "{facing.dn}" "5" facing "n";
+direction "{facing.dw}" "4" facing "w";
+direction "{facing.de}" "1" facing "e";
+direction "{facing.ds}" "3 Way" facing "s";
 
 [1]
 
@@ -258,14 +258,14 @@ once {
     """
 }
 
-wander = wander()
+wander = wander();
 if (wander!="") {
-    wander
+    wander;
 }
 
-direction "{facing.dn}" "4 Way" facing "n"
-direction "{facing.de}" "2" facing "e"
-direction "{facing.ds}" "3" facing "s"
+direction "{facing.dn}" "4 Way" facing "n";
+direction "{facing.de}" "2" facing "e";
+direction "{facing.ds}" "3" facing "s";
 
 [2]
 
@@ -278,16 +278,14 @@ once {
 
     "As you look beyond the dead monk you see figures moving into the torchlight."
 
-    Weapon.by_name("Axe (Dark Enchanted)")
-    qty_skell = 1@3
-    NPC.skeleton_warrior()
-    qty_zombie = 1@4
-    NPC.zombie()
+    Weapon.by_name("Axe (Dark Enchanted)");
+    repeat 1@3 NPC.skeleton_warrior();
+    repeat 1@4 NPC.zombie();
 } else {
     "You are in a tiled floor cave with a stone plinth."
 }
 
-direction "{facing.dw}" "3 Way" facing "w"
+direction "{facing.dw}" "3 Way" facing "w";
 
 [3]
 
@@ -300,7 +298,7 @@ once {
     "You enter the room full of empty and broken casks."
 }
 
-direction "{facing.dn}" "3 Way" facing "n"
+direction "{facing.dn}" "3 Way" facing "n";
 
 [4]
 
@@ -326,20 +324,20 @@ once {
 
 option "Examine pond" {
     "You examine the pond and are suddenly turned around in a different direction!"
-    ; o = list("n", "e", "w", "s")
-    ; d = rand.choose(o)
-    ; facing.face(d)
+    // ; o = list("n", "e", "w", "s")
+    // ; d = rand.choose(o)
+    // ; facing.face(d)
 }
 
 option "Examine crack" {
     "You examine the crack in the wall"
-    goto "4a" facing "s"
+    goto "4a" facing "s";
 }
 
 [4a]
 
 "The crack is empty!"
 
-direction "{facing.dn}" "4" facing "n"
+direction "{facing.dn}" "4" facing "n";
 
 

@@ -6,6 +6,7 @@ from dataclasses import field
 import dice
 import jsonpickle
 
+import gamebook_core
 from equipment import Armor
 from equipment import Item
 from equipment import Shield
@@ -26,7 +27,7 @@ def copy_of(o) -> any:
 
 
 @dataclass(slots=True)
-class CharacterSheet:
+class CharacterSheet(gamebook_core.Character):
     xp: int = 0
     _name: str = ""
     location: str = ""

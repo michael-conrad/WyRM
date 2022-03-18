@@ -155,7 +155,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out("import dice")
         out("import hashlib")
         out("import random")
-        out("from jsonpickle import decode, encode")
+        out("import jsonpickle")
         out("from types import SimpleNamespace")
         out("from collections.abc import Callable")
         out()
@@ -175,25 +175,33 @@ class GamebookCompiler(lark.visitors.Interpreter):
         _ = compiled_program
         return _
 
-    def metadata(self, tree: Tree | Token):
-        out("# Metadata")
+    def metadata(self, tree: Tree):
+        self.visit_children(tree)
 
+    def metadata_entries(self, tree: Tree):
+        out("# Metadata entries")
         info_block: list[tuple[str, str]] = list()
         info_tags: set[str] = set()
-        for child in tree.children:
-            if isinstance(tree, Token):
-                out(f"token: {tree.type} = {tree.value.strip()}")
-                continue
-            if child.data == "metadata_entry":
-                tag, value, *_ = child.children
-                if tag == "Library":
-                    self.import_block.append(f"{value.strip()}")
-                else:
-                    if tag in info_tags:
-                        raise SyntaxError(f"Duplicate entry {tag}. Each metadata entry must be uniquely tagged.")
-                    info_tags.add(tag)
-                    value: str = basic_escape(f"{value.strip()}")
-                    info_block.append((tag.strip(), value))
+        self.visit_children(tree)
+        for tag, value in self.visit_children(tree):
+            if tag == "Library":
+                self.import_block.append(f"{value.strip()}")
+            else:
+                if tag in info_tags:
+                    raise SyntaxError(f"Duplicate entry {tag}. Each metadata entry must be uniquely tagged.")
+                info_tags.add(tag)
+                value: str = basic_escape(f"{value.strip()}")
+                info_block.append((tag.strip(), value))
+
+        if info_block:
+            out("# Game Book Metadata\n")
+            out()
+            out("gamebook_metadata: dict[str, str] = dict()\n")
+        for tag, value in info_block:
+            out(f"gamebook_metadata[\"{tag}\"] = \"{value}\"\n")
+        if info_block:
+            out()
+
         if self.import_block:
             out("# Imports from library metadata\n")
             out()
@@ -205,14 +213,11 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out()
         out()
 
-        if info_block:
-            out("# Game Book Metadata\n")
-            out()
-            out("gamebook_metadata: dict[str, str] = dict()\n")
-        for tag, value in info_block:
-            out(f"gamebook_metadata[\"{tag}\"] = \"{value}\"\n")
-        if info_block:
-            out()
+    def metadata_entry(self, tree: Tree | Token) -> tuple[str, str]:
+        tag: Token
+        value: Token
+        tag, value, *_ = tree.children
+        return tag.strip(), value.strip()
 
     def sections(self, tree: Tree):
         self.section_pad_length = len(str(len([s for s in tree.find_data("section")])))
@@ -535,16 +540,19 @@ with open("md/index.md", "w") as w:
                 _ += visit
         if _:
             out(f"segment: any = {_.rstrip()}")
-            out("if isinstance(segment, str):")
-            indent_inc()
-            out(f"out += \"\\n\\n\"")
-            out(f"_ = html.escape(str(segment))")
-            # out(f"out += textwrap.dedent(_)")
-            out(f"out += textwrap.dedent(_)")
-            indent_dec()
             out("if isinstance(segment, gamebook_core.Item):")
             indent_inc()
             out("state[section_name]['vars']['items'].add(segment)")
+            indent_dec()
+            out("elif isinstance(segment, gamebook_core.Character):")
+            indent_inc()
+            out("state[section_name]['vars']['items'].add(segment)")
+            indent_dec()
+            out("elif segment is not None:")
+            indent_inc()
+            out(f"out += \"\\n\\n\"")
+            out(f"_ = html.escape(str(segment))")
+            out(f"out += textwrap.dedent(_)")
             indent_dec()
             out()
 
@@ -558,7 +566,7 @@ with open("md/index.md", "w") as w:
         if _:
             out(_)
 
-    def __top_level_children(self, children: list[Tree, Token]) -> str:
+    def __top_level_children(self, children: list[Tree, Token] | Tree) -> str:
         _ = ""
 
         if isinstance(children, Tree):
@@ -616,6 +624,61 @@ with open("md/index.md", "w") as w:
                 _ += visit
         if _:
             out(_)
+
+    # while_statement:  WHILE "(" expression ")" statement
+    def while_statement(self, tree: Tree):
+        _, expression, statement = tree.children
+        e = self.visit(expression)
+        out(f"while {e}:")
+        indent_inc()
+        self.visit(statement)
+        indent_dec()
+
+    # do_while_statement: DO statement WHILE "(" expression ")" _eos
+    def do_while_statement(self, tree: Tree):
+        _, compound_statement, _, assignment_express, _ = tree.children
+        out("while True:")
+        indent_inc()
+        self.visit(compound_statement)
+        e = self.visit(assignment_express)
+        out(f"if {e}:")
+        indent_inc()
+        out("continue")
+        indent_dec()
+        out("break")
+        indent_dec()
+        pass
+
+    # for_statement: FOR "(" assignment_statement expression_statement expression ")" statement
+    def for_statement(self, tree: Tree):
+        _, assignment_expression, expression_statement, assignment_express, compound_statement = tree.children
+        out(self.visit(assignment_expression))
+        es = self.visit(expression_statement)
+        ae = self.visit(assignment_express)
+        out(f"while True:")
+        indent_inc()
+        out(f"_ = {es}")
+        out(f"if not _:")
+        indent_inc()
+        out("break")
+        indent_dec()
+
+        self.visit(compound_statement)
+
+        out(f"{ae}")
+        indent_dec()
+
+        pass
+
+    def repeat_statement(self, tree: Tree):
+        out(f"# repeat statement {self.__top_level_children(tree)}")
+        _, expression, statement = tree.children
+
+        e = self.visit(expression)
+        out(f"for _ in range({e}):")
+        indent_inc()
+        self.visit(statement)
+        indent_dec()
 
     def jump_statement(self, tree: Tree):
         out("# jump")
@@ -754,8 +817,8 @@ with open("md/index.md", "w") as w:
         out("out = ''")
         implicit_go: bool = True
         for child in block.children:
-            self.visit(child)
             if isinstance(child, Tree):
+                self.visit(child)
                 if child.data == "goto_statement":
                     implicit_go = False
                     break
@@ -938,7 +1001,7 @@ with open("md/index.md", "w") as w:
         postfix: Tree
         operator: Tree
         expression: Tree
-        postfix, operator, expression = tree.children
+        postfix, operator, expression, _ = tree.children
         lvalue: str = self.visit(postfix)
         op: str = self.visit(operator)
         value: str = self.visit(expression)
@@ -1017,13 +1080,16 @@ with open("md/index.md", "w") as w:
                 field_var: str = ''
                 var = re.sub("(?i)^([a-z_][a-z_0-9]*).*", "\\1", var)
                 if var in self.scope_local:
-                    field_var = f"_local['{var}']"
+                    field_var = var
+                    key_var.add(f"{var}=_local['{var}']")
                 elif var in self.scope_section:
-                    field_var = f"section['{var}']"
+                    field_var = var
+                    key_var.add(f"{var}=state[section_name]['vars']['{var}']")
                 elif var in self.scope_world:
-                    field_var = var  # f"world['{var}']"
+                    field_var = var
                     key_var.add(f"{var}=state['world']['{var}']")
                 else:
+                    field_var = var
                     key_var.add(f"{var}=state['world']['{var}']")
 
                 if var not in already and field_var:
@@ -1031,7 +1097,8 @@ with open("md/index.md", "w") as w:
                     _ = _.replace("{" + var, "{" + field_var)
             for kv in key_var:
                 formatter += f"{kv}, "
-            formatter += f"world=state['world'], section=state[section_name]['vars'])"
+            # formatter += f"world=state['world'], section=state[section_name]['vars'])"
+            formatter += f")"
             _ += formatter
         return _
 

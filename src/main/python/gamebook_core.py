@@ -1,14 +1,19 @@
 import abc
 import dataclasses
-import sys
 from abc import ABC
 
 
+@dataclasses.dataclass(slots=True)
 class Item(ABC):
     @property
     @abc.abstractmethod
     def name(self) -> str:
         return ""
+
+
+@dataclasses.dataclass(slots=True)
+class Character(ABC):
+    pass
 
 
 @dataclasses.dataclass

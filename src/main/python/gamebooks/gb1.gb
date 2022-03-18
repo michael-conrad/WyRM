@@ -28,17 +28,6 @@ once {
 
 """
 Welcome New Adventurer!
-
-This is a Warrior, Rogue, Mage rules based gamebook.
-
-You are playing a gamebook using the one page dungeon for the quest:
-
-* "Dungeons of the Forsaken Abbey"
-* By Gabriel P. (urudnd@gmail.com)
-* Copyright 2010, CC-BY-SA
-
-The original one page dungeon is from "One Page Dungeon Compendium", 2010
-Edition.
 """
 
 direction "About this book" "About" facing "w";
@@ -50,6 +39,7 @@ direction "Start the game" "Start the Game" facing "w";
 
 """
 This is a Warrior, Rogue, Mage rules based gamebook.
+
 You are playing a gamebook using the one page dungeon for the quest:
 
     "Dungeons of the Forsaken Abbey"
@@ -76,7 +66,6 @@ direction "About this book" "About" facing "w";
 direction "Start the game" "Start the Game" facing "w";
 
 [Start the Game]
-
 
 """
 You've come to explore the ruins of an abbey whose name has been forgotten.
@@ -175,8 +164,8 @@ direction "{facing.ds}" "3 Way" facing "s";
 direction "{facing.dw}" "4" facing "w";
 
 [5]
-section looted;
-section alcove;
+room looted;
+room alcove;
 once {
     looted = False;
     alcove = False;
@@ -240,6 +229,54 @@ direction "{facing.ds}" "3 Way" facing "s";
 
 [1]
 
+"""
+A flight of stairs leads up to the {facing.n}. A long passageway is to your {facing.w}.
+"""
+
+option "Climb up stairs" {
+    """
+    You climb up two flights of stairs, turn left, then continue up.
+    """
+    goto "ruins" facing "w";
+}
+direction "Follow passageway" "4way" facing "w";
+
+[ruins]
+
+"""
+## Abbey Ruins
+
+Rubble and collapsed buildings are all about. You see a flight of stairs heading down to your {player.e}
+"""
+
+direction "Visit town" "town" facing "n";
+option "Climb down stairs" {
+    """
+    You climb down a flight of stairs, come to a landing, then turning right go down an additional
+    two flights of stairs
+    """
+    goto "1" facing "s";
+}
+
+[2]
+
+once {
+    """
+    You follow the passage for 50ft and come to a cave with a tiled floor. You see a stone plinth on the far
+    side holding a two handed war axe. Even from this distance you can tell that it is a finely crafted
+    weapon. Next to the plinth on the floor you see the remains of a monk with several arrows in its back.
+    looks like the monk was trying to reach the axe before being struck down."""
+
+    "As you look beyond the dead monk you see figures moving into the torchlight."
+
+    Weapon.by_name("Axe (Dark Enchanted)");
+    repeat 1@3 NPC.skeleton_warrior();
+    repeat 1@4 NPC.zombie();
+} else {
+    "You are in a tiled floor cave with a stone plinth."
+}
+
+direction "{facing.dw}" "3 Way" facing "w";
 
 [3 Way]
 
@@ -266,26 +303,6 @@ if (wander!="") {
 direction "{facing.dn}" "4 Way" facing "n";
 direction "{facing.de}" "2" facing "e";
 direction "{facing.ds}" "3" facing "s";
-
-[2]
-
-once {
-    """
-    You follow the passage for 50ft and come to a cave with a tiled floor. You see a stone plinth on the far
-    side holding a two handed war axe. Even from this distance you can tell that it is a finely crafted
-    weapon. Next to the plinth on the floor you see the remains of a monk with several arrows in its back.
-    looks like the monk was trying to reach the axe before being struck down."""
-
-    "As you look beyond the dead monk you see figures moving into the torchlight."
-
-    Weapon.by_name("Axe (Dark Enchanted)");
-    repeat 1@3 NPC.skeleton_warrior();
-    repeat 1@4 NPC.zombie();
-} else {
-    "You are in a tiled floor cave with a stone plinth."
-}
-
-direction "{facing.dw}" "3 Way" facing "w";
 
 [3]
 
@@ -324,14 +341,10 @@ once {
 
 option "Examine pond" {
     "You examine the pond and are suddenly turned around in a different direction!"
-    // ; o = list("n", "e", "w", "s")
-    // ; d = rand.choose(o)
-    // ; facing.face(d)
 }
 
 option "Examine crack" {
     "You examine the crack in the wall"
-    goto "4a" facing "s";
 }
 
 [4a]

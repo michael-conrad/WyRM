@@ -60,11 +60,11 @@ def out(text: str = ""):
     compiled_program += ("    " * _indent) + text + "\n"
 
 
-def end_section() -> None:
-    out()
+def end_room() -> None:
+    pass
     out("recurse_depth -= 1")
-    out()
-    out("out += state[section_name]['vars']['items'].inv")
+    pass
+    out("out += state[room_name]['vars']['items'].inv")
     out("out += \"\\n\"")
     out("for _ in option_list:")
     indent_inc()
@@ -74,16 +74,11 @@ def end_section() -> None:
     out(f"_option_text: str = str(_[0])")
     out(f"_option_text = html.escape(_option_text)")
     out(f"_md_link: str = \"[\" + _option_text + \"](\" + destination_node + \")\"")
-
     out("out += \"* \" + _md_link")
-
     out("out += \"\\n\"")
-
     indent_dec()
-    out()
-    out("_output[section_node_id] = out")
-    out()
-    out("return section_node_id")
+    out("_output[room_node_id] = out")
+    out("return room_node_id")
     indent_dec()
     out()
     out()
@@ -94,23 +89,23 @@ class GamebookCompiler(lark.visitors.Interpreter):
     q3 = "\"\"\""
 
     once_counter: int = 0
-    section_ctr: int = 0
-    section_pad_length: int = 1
+    room_ctr: int = 0
+    room_pad_length: int = 1
     state_track_set: set[str] = set()
     _func_ctr: int = 0
 
-    section_lookup: dict[str, str] = dict()
-    section_ctr_lookup: dict[str, int] = dict()
+    room_lookup: dict[str, str] = dict()
+    room_ctr_lookup: dict[str, int] = dict()
     var_lookup: dict[str, str] = dict()
 
     _next_random_seed: int = 0
 
-    main_section: str | None = None
+    main_room: str | None = None
 
     import_block: list[str] = list()
 
     scope_world: set[str] = set()
-    scope_section: set[str] = set()
+    scope_room: set[str] = set()
     scope_local: set[str] = set()
 
     @property
@@ -145,7 +140,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
     def start(self, tree: Tree) -> str:
         _ = ""
         out("# START")
-        out()
+        pass
 
         # system required imports
         out("import gamebook_core")
@@ -158,8 +153,8 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out("import jsonpickle")
         out("from types import SimpleNamespace")
         out("from collections.abc import Callable")
-        out()
-        out()
+        pass
+        pass
 
         for child in tree.children:
             if isinstance(child, Token):
@@ -193,25 +188,19 @@ class GamebookCompiler(lark.visitors.Interpreter):
                 value: str = basic_escape(f"{value.strip()}")
                 info_block.append((tag.strip(), value))
 
+        if self.import_block:
+            out("# Imports from library metadata\n")
+        for import_lib in self.import_block:
+            out(f"from {import_lib} import *\n")
+        out()
+
         if info_block:
             out("# Game Book Metadata\n")
-            out()
             out("gamebook_metadata: dict[str, str] = dict()\n")
         for tag, value in info_block:
             out(f"gamebook_metadata[\"{tag}\"] = \"{value}\"\n")
-        if info_block:
-            out()
-
-        if self.import_block:
-            out("# Imports from library metadata\n")
-            out()
-        for import_lib in self.import_block:
-            out(f"from {import_lib} import *\n")
-        if self.import_block:
-            out()
-
         out()
-        out()
+
 
     def metadata_entry(self, tree: Tree | Token) -> tuple[str, str]:
         tag: Token
@@ -219,19 +208,15 @@ class GamebookCompiler(lark.visitors.Interpreter):
         tag, value, *_ = tree.children
         return tag.strip(), value.strip()
 
-    def sections(self, tree: Tree):
-        self.section_pad_length = len(str(len([s for s in tree.find_data("section")])))
+    def rooms(self, tree: Tree):
+        self.room_pad_length = len(str(len([s for s in tree.find_data("room")])))
 
         # add the predefined dict, world, pointing to package locals
-        out("# Sections")
-        out(f"# pad: {self.section_pad_length}")
-        out("")
+        out("# Rooms")
         out("repeat_state_tracking: dict[str, str] = dict()")
         out("state: dict[str, any] = dict()")
         out("state['world'] = dict()")
-        out()
         out("recurse_depth: int = 0")
-        out()
         out("imports = dict()")
         if "gamebook_core" not in self.import_block:
             self.import_block.append("gamebook_core")
@@ -243,7 +228,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
         indent_dec()
         out(f"state['world']['__builtins__'] = globals()['__builtins__']")
         out("state['world']['facing'] = state['world']['Facing']().with_facing('n')")
-        out()
+        pass
         out("# build up list of keys not to pickle or checksum")
         out("ignore_pickle_keys: set[str] = set()")
         out(f"for attr in [*imports]:")
@@ -251,7 +236,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out(f"ignore_pickle_keys.add(attr)")
         indent_dec()
         out(f"ignore_pickle_keys.add('__builtins__')")
-        out()
         out("# Intentionally not tracked in state")
         out("_node_id: dict[str, int] = dict()")
         out()
@@ -263,43 +247,42 @@ class GamebookCompiler(lark.visitors.Interpreter):
         indent_dec()
         out()
         out()
-        out("def new_label(section: str = 'no-section') -> str:")
+        out("def new_label(room: str = 'no-room') -> str:")
         indent_inc()
         out("global _node_id")
-        out("if section not in _node_id:")
+        out("if room not in _node_id:")
         indent_inc()
-        out("_node_id[section]=0")
+        out("_node_id[room]=0")
         indent_dec()
-        out("_node_id[section] += 1")
-        out("cnt: int = _node_id[section]")
-        out('return f"{section}-{cnt:03x}"')
+        out("_node_id[room] += 1")
+        out("cnt: int = _node_id[room]")
+        out('return f"{room}-{cnt:03x}"')
         indent_dec()
         out()
         out()
         out("_output: dict[str, str] = dict()")
         out("_output_post_append: dict[str, str] = dict()")
-        out("node_id_by_checksum: dict[str, str] = dict()")
+        out("node_id_by_hash: dict[str, str] = dict()")
 
-        # scan ahead for section names to build section to function lookup table
+        # scan ahead for room names to build room to function lookup table
 
-        for child in tree.find_data("section"):
+        for child in tree.find_data("room"):
             if isinstance(child, Token):
                 continue
             if isinstance(child, Tree):
-                if child.data == "section":
-                    section_name_block = child
-                    self.section_ctr += 1
-                    section = section_name_block.children[0]
-                    if isinstance(section, Token):
-                        name: str = section.value
-                        if name in self.section_lookup:
-                            raise SyntaxError(f"Section {name} is duplicated")
-                        out(f"# {self.section_ctr} {name}")
-                        section_name = f"section_{self.section_ctr:0{self.section_pad_length}}"
-                        self.section_lookup[name] = section_name
-                        self.section_ctr_lookup[name] = self.section_ctr
-                        if not self.main_section:
-                            self.main_section = name
+                if child.data == "room":
+                    room_name_block = child
+                    self.room_ctr += 1
+                    room = room_name_block.children[0]
+                    if isinstance(room, Token):
+                        name: str = room.value
+                        if name in self.room_lookup:
+                            raise SyntaxError(f"Room {name} is duplicated")
+                        room_name = f"room_{self.room_ctr:0{self.room_pad_length}}"
+                        self.room_lookup[name] = room_name
+                        self.room_ctr_lookup[name] = self.room_ctr
+                        if not self.main_room:
+                            self.main_room = name
 
         _ = ""
         for child in tree.children:
@@ -310,23 +293,23 @@ class GamebookCompiler(lark.visitors.Interpreter):
                 if _c:
                     for _d in _c:
                         _ += _d
-        if _:
+        if _.strip():
             out(_)
 
-        # make sure last section function has closing code
-        end_section()
-        out("section_function_lookup: dict[str, Callable] = dict()")
-        for _key in self.section_lookup.keys():
-            _function = self.section_lookup[_key]
-            out(f"section_function_lookup[\"{_key}\"] = {_function}")
+        # make sure last room function has closing code
+        end_room()
+        out("room_function_lookup: dict[str, Callable] = dict()")
+        for _key in self.room_lookup.keys():
+            _function = self.room_lookup[_key]
+            out(f"room_function_lookup[\"{_key}\"] = {_function}")
 
         out()
         out()
         out("def state_checksum() -> str:")
         indent_inc()
         out("pickled: str = jsonpickle.encode(save_state(), keys=True)")
-        out("sha512: str = hashlib.sha512(pickled.encode('utf-8')).hexdigest()")
-        out("return sha512")
+        out("room_hash: str = hashlib.sha512(pickled.encode('utf-8')).hexdigest()")
+        out("return room_hash")
         indent_dec()
         out()
         out()
@@ -335,7 +318,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
         sorted_track = sorted(self.state_track_set)
         out("states: dict[str, dict | str] = dict()")
         out("states['world_vars']: dict[str, any] = dict()")
-        out()
         out("for var in state['world'].keys():")
         indent_inc()
         out("if var in ignore_pickle_keys:")
@@ -344,7 +326,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
         indent_dec()
         out("states['world_vars'][var] = jsonpickle.encode(state['world'][var], keys=True)")
         indent_dec()
-        out()
         for state in sorted_track:
             out(f"states['{state}'] = jsonpickle.encode(state['{state}'], keys=True)")
         out("return states")
@@ -362,10 +343,10 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out("return")
         indent_dec()
 
-        # the first section is 'main'
+        # the first room is 'main'
         out()
         out()
-        out(f"index_node: str = {self.section_lookup[self.main_section]}()")
+        out(f"index_node: str = {self.room_lookup[self.main_room]}()")
         out("""
 shutil.rmtree("md", ignore_errors=True)
 os.makedirs("md", exist_ok=True)
@@ -386,10 +367,10 @@ with open("md/index.md", "w") as w:
         w.write("\\n")        
 """)
 
-    def section(self, tree: Tree):
+    def room(self, tree: Tree):
 
-        # always clear non-world scopes at start of processing a new section
-        self.scope_section.clear()
+        # always clear non-world scopes at start of processing a new room
+        self.scope_room.clear()
         self.scope_local.clear()
 
         _ = ""
@@ -400,83 +381,69 @@ with open("md/index.md", "w") as w:
             if isinstance(child, Token):
                 if child.type == "NL":
                     continue
-                if child.type == "SECTION_NAME":
+                if child.type == "ROOM_NAME":
                     name = child.strip()
-                    section_name: str = self.section_lookup[name]
-                    section_no: int = self.section_ctr_lookup[name]
-                    # always make sure previous section has correct return code
-                    if section_no > 1:
-                        end_section()
-                    out(f"# {name}: {section_no}")
-                    out()
-                    self.section_lookup[name] = section_name
-                    self.state_track_set.add(section_name)
-                    out(f"state['{section_name}'] = dict()")
-                    out(f"state['{section_name}']['name'] = \"{basic_escape(name)}\"")
-                    out(f"state['{section_name}']['id'] = {section_no}")
-                    out(f"state['{section_name}']['func_name'] = \"{section_name}\"")
-                    out(f"state['{section_name}']['metadata'] = dict()")
-                    out(f"state['{section_name}']['once'] = set()")
-                    out(f"state['{section_name}']['vars'] = dict()")
-                    out(f"state['{section_name}']['vars']['items'] = gamebook_core.Items()")
+                    room_name: str = self.room_lookup[name]
+                    room_no: int = self.room_ctr_lookup[name]
+                    # always make sure previous room has correct return code
+                    if room_no > 1:
+                        end_room()
+                    self.room_lookup[name] = room_name
+                    self.state_track_set.add(room_name)
+                    out(f"state['{room_name}'] = dict()")
+                    out(f"state['{room_name}']['name'] = \"{basic_escape(name)}\"")
+                    out(f"state['{room_name}']['id'] = {room_no}")
+                    out(f"state['{room_name}']['func_name'] = \"{room_name}\"")
+                    out(f"state['{room_name}']['metadata'] = dict()")
+                    out(f"state['{room_name}']['once'] = set()")
+                    out(f"state['{room_name}']['vars'] = dict()")
+                    out(f"state['{room_name}']['vars']['items'] = gamebook_core.Items()")
                     out()
                     out()
-                    out(f"def {section_name}() -> str:")
+                    out(f"def {room_name}() -> str:")
                     indent_inc()
                     value: str = basic_escape(f"{name}")
                     out(f"{self.q3}{value}{self.q3}")
                     out("global _output")
                     out("global state")
                     out("global recurse_depth")
-                    out()
-                    out(f"_state: dict[str, any] = state['{section_name}']")
+                    out(f"_state: dict[str, any] = state['{room_name}']")
                     out(f"_once: set[int] = _state['once']")
                     out(f"_local: dict[str, any] = dict()  # not persistent, discarded after processing")
-                    out()
-                    out(f"section: str = {self.q1}{value}{self.q1}")
-                    out(f"section_name: str = {self.q1}{section_name}{self.q1}")
+                    out(f"room: str = {self.q1}{value}{self.q1}")
+                    out(f"room_name: str = {self.q1}{room_name}{self.q1}")
                     # out("out: str = ''")
-                    # if self.main_section == name:
+                    # if self.main_room == name:
                     #     out("state['world']['facing'] = Facing().with_facing('n')"
-                    #         " # initial assumed facing for first section")
+                    #         " # initial assumed facing for first room")
 
                     out("# see if this is a repeating state, if yes, just use original node id")
-                    out("global node_id_by_checksum")
-                    out("sha512: str = section"
+                    out("global node_id_by_hash")
+                    out("room_hash: str = room"
                         " + ' (' + state['world']['facing'].facing + ') '"
                         " + state_checksum()")
-                    out("if sha512 in node_id_by_checksum:")
+                    out("if room_hash in node_id_by_hash:")
                     indent_inc()
-                    out("return node_id_by_checksum[sha512]")
+                    out("return node_id_by_hash[room_hash]")
                     indent_dec()
-                    out()
-                    out(f"section_node_id: str = new_label(section_name)")
+                    out(f"room_node_id: str = new_label(room_name)")
                     out("out = ''")
-                    out("node_id_by_checksum[sha512] = section_node_id")
-                    out()
-                    out(f"section_func: Callable = {section_name}")
-                    out()
+                    out("node_id_by_hash[room_hash] = room_node_id")
+                    out(f"room_func: Callable = {room_name}")
                     out("recurse_depth += 1")
                     out("if recurse_depth > 1000:")
                     indent_inc()
                     out("raise RecursionError()")
                     indent_dec()
                     self.once_counter += 1
-                    out()
                     out(f"if {self.once_counter} not in _once:")
                     indent_inc()
                     out(f"_once.add({self.once_counter})")
                     out(f"random.seed({self.next_random_seed})")
-                    out(f"state['{section_name}']['random_state'] = random.getstate()")
-                    out()
-
+                    out(f"state['{room_name}']['random_state'] = random.getstate()")
                     indent_dec()
-                    out()
-                    out(f"random.setstate(state['{section_name}']['random_state'])")
-                    out()
+                    out(f"random.setstate(state['{room_name}']['random_state'])")
                     out("option_list: list[tuple[str, Callable]] = list()")
-                    out()
-
                     continue
                 if child.type == "NEWLINE":
                     continue
@@ -492,7 +459,7 @@ with open("md/index.md", "w") as w:
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
-        if _:
+        if _.strip():
             out(_)
 
     def labeled_statement(self, tree: Tree):
@@ -502,17 +469,16 @@ with open("md/index.md", "w") as w:
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
-        if _:
+        if _.strip():
             out(_)
 
     def compound_statement(self, tree: Tree):
-        _ = ""
         out("# compound statement")
         _ = ""
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
-        if _:
+        if _.strip():
             out(_)
 
     def block_item_list(self, tree: Tree):
@@ -520,7 +486,7 @@ with open("md/index.md", "w") as w:
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
-        if _:
+        if _.strip():
             out(_)
 
     def block_item(self, tree: Tree):
@@ -530,7 +496,7 @@ with open("md/index.md", "w") as w:
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
-        if _:
+        if _.strip():
             out(_)
 
     def expression_statement(self, tree: Tree):
@@ -538,15 +504,15 @@ with open("md/index.md", "w") as w:
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
-        if _:
+        if _.strip():
             out(f"segment: any = {_.rstrip()}")
             out("if isinstance(segment, gamebook_core.Item):")
             indent_inc()
-            out("state[section_name]['vars']['items'].add(segment)")
+            out("state[room_name]['vars']['items'].add(segment)")
             indent_dec()
             out("elif isinstance(segment, gamebook_core.Character):")
             indent_inc()
-            out("state[section_name]['vars']['items'].add(segment)")
+            out("state[room_name]['vars']['items'].add(segment)")
             indent_dec()
             out("elif segment is not None:")
             indent_inc()
@@ -554,7 +520,7 @@ with open("md/index.md", "w") as w:
             out(f"_ = html.escape(str(segment))")
             out(f"out += textwrap.dedent(_)")
             indent_dec()
-            out()
+            pass
 
     def selection_statement(self, tree: Tree):
         _ = ""
@@ -563,7 +529,7 @@ with open("md/index.md", "w") as w:
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
-        if _:
+        if _.strip():
             out(_)
 
     def __top_level_children(self, children: list[Tree, Token] | Tree) -> str:
@@ -574,11 +540,11 @@ with open("md/index.md", "w") as w:
 
         for child in children:
             if isinstance(child, Token):
-                if _:
+                if _.strip():
                     _ += ", "
                 _ += f"token: {child.type}"
             if isinstance(child, Tree):
-                if _:
+                if _.strip():
                     _ += ", "
                 _ += f"tree: {child.data}"
         return _
@@ -622,7 +588,7 @@ with open("md/index.md", "w") as w:
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
-        if _:
+        if _.strip():
             out(_)
 
     # while_statement:  WHILE "(" expression ")" statement
@@ -686,26 +652,24 @@ with open("md/index.md", "w") as w:
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
-        if _:
+        if _.strip():
             out(_)
 
     def goto_statement(self, tree: Tree):
-        _, new_section, direction_facing, _ = tree.children
+        _, new_room, direction_facing, _ = tree.children
         func = self.next_goto
+        out()
         out(f"def {func}():")
         indent_inc()
-        out("global section_function_lookup")
+        out("global room_function_lookup")
         out("nonlocal _state")
-        # out("nonlocal out")
-        out()
-        # section_function_lookup
-        section: str = ""
-        for _ in self.visit(new_section):
-            section += _
-        out(f"lookup: str = str({section})")
-        out(f"if lookup not in section_function_lookup:")
+        room: str = ""
+        for _ in self.visit(new_room):
+            room += _
+        out(f"lookup: str = str({room})")
+        out(f"if lookup not in room_function_lookup:")
         indent_inc()
-        out(f"raise KeyError(f\"Section {{lookup}} not found.\")")
+        out(f"raise KeyError(f\"room {{lookup}} not found.\")")
         indent_dec()
 
         facing = ""
@@ -715,16 +679,13 @@ with open("md/index.md", "w") as w:
             out(f"state['world']['facing'].face({facing})")
 
         out(f"goto_saved_state = save_state()")
-        out(f"goto_destination_node: str = section_function_lookup[lookup]()")
+        out(f"goto_destination_node: str = room_function_lookup[lookup]()")
         out(f"restore_state(goto_saved_state)")
         out(f"random.setstate(_state['random_state'])")
-        out()
         out(f"return goto_destination_node")
         indent_dec()
-        out()
         out(f"go_function = {func}")
-        out()
-        return func
+        return None
 
     def comment(self, tree: Tree):
         out("# comment")
@@ -732,11 +693,11 @@ with open("md/index.md", "w") as w:
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
-        if _:
+        if _.strip():
             out(_)
 
     def direction_statement(self, tree: Tree):
-        short_format_string, direction_section, direction_facing, _ = tree.children
+        short_format_string, direction_room, direction_facing, _ = tree.children
 
         option_bin_description: str = ""
         for child in short_format_string.children:
@@ -746,74 +707,62 @@ with open("md/index.md", "w") as w:
 
         option_description = ""
         _ = self.visit(short_format_string)
-        if _:
+        if _.strip():
             option_description += _
 
-        section_name = ""
-        for _ in self.visit_children(direction_section):
-            if _:
-                section_name += _
-        section_name = section_name.strip()[1:-1]
+        room_name = ""
+        for _ in self.visit_children(direction_room):
+            if _.strip():
+                room_name += _
+        room_name = room_name.strip()[1:-1]
 
         facing = ""
         for _ in self.visit_children(direction_facing):
             facing += _
 
-        if section_name not in self.section_lookup:
+        if room_name not in self.room_lookup:
             print(self.__top_level_children(tree.children))
-            raise KeyError(f"Section {section_name} not found.\n"
-                           f"Valid sections: {[k for k in self.section_lookup.keys()]}")
+            raise KeyError(f"Room {room_name} not found.\n"
+                           f"Valid rooms: {[k for k in self.room_lookup.keys()]}")
 
-        section_func: str = self.section_lookup[section_name]
+        room_func: str = self.room_lookup[room_name]
 
         func: str = self.next_direction
-        out(f"# direction statement")
         out()
         out(f"def {func}() -> str:")
         indent_inc()
         out(f"\"\"\"{basic_escape(option_bin_description)}\"\"\"")
-        out()
-        out()
-        out(f"saved_state = save_state()")
+        out(f"dir_saved_state = save_state()")
         if facing:
             out(f"state['world']['facing'].face({facing})")
-        out(f"direction_destination: str = {section_func}() + \".md\"")
-        out(f"restore_state(saved_state)")
+        out(f"direction_destination: str = {room_func}() + \".md\"")
+        out(f"restore_state(dir_saved_state)")
         out(f"random.setstate(_state['random_state'])")
         out(f"return direction_destination")
         indent_dec()
-        out()
         out(f"option_list.append(({option_description}, {func}))")
-        out()
 
     def option_statement(self, tree: Tree):
         _ = ""
         block: Tree = tree.children[1]
         option_description = basic_unescape(tree.children[0][1:-1])
         func: str = self.next_option
-        out(f"# option statement")
         out()
         out(f"def {func}() -> str:")
         indent_inc()
         out(f"\"\"\"{basic_escape(option_description)}\"\"\"")
-        out()
-        out("global node_id_by_checksum")
+        out("global node_id_by_hash")
         out("global _output")
         out("nonlocal _state")
-        out("nonlocal section_func")
-        
-        out()
-        out(f"sha512: str = section + '{func}-' + '-' + state['world']['facing'].facing + '-' + state_checksum()")
-        out("if sha512 in node_id_by_checksum:")
+        out("nonlocal room_func")
+        out(f"option_hash: str = room + '{func}-' + '-' + state['world']['facing'].facing + '-' + state_checksum()")
+        out("if option_hash in node_id_by_hash:")
         indent_inc()
-        out("return node_id_by_checksum[sha512]")
+        out("return node_id_by_hash[option_hash]")
         indent_dec()
-        out()
         out("# new node id is needed")
         out(f"option_node_id: str = new_label('{func}')")
-        out()
         out(f"option_saved_state = save_state()")
-        out()
         out("out = ''")
         implicit_go: bool = True
         for child in block.children:
@@ -822,21 +771,20 @@ with open("md/index.md", "w") as w:
                 if child.data == "goto_statement":
                     implicit_go = False
                     break
-        
         if implicit_go:
-            out(f"append_node: str = section_func()")
+            out(f"append_node: str = room_func()")
         else:
             out(f"append_node: str = go_function()")
         out("_output_post_append[option_node_id] = append_node")
-        out("node_id_by_checksum[sha512] = option_node_id")
+        out("node_id_by_hash[option_hash] = option_node_id")
         out(f"restore_state(option_saved_state)")
         out(f"random.setstate(_state['random_state'])")
         out("_output[option_node_id] = out")
         out("return option_node_id")
         indent_dec()
-        out()
+        pass
         out(f"option_list.append((\"{basic_escape(option_description)}\", {func}))")
-        out()
+        pass
 
     def once_statement(self, tree: Tree):
         # out(f"# once: {self.__top_level_children(tree.children)}")
@@ -894,7 +842,7 @@ with open("md/index.md", "w") as w:
         _ = ""
         for visit in self.visit_children(tree):
             if visit:
-                if _:
+                if _.strip():
                     _ += " "
                 _ += visit
         return _
@@ -903,7 +851,7 @@ with open("md/index.md", "w") as w:
         _ = ""
         for visit in self.visit_children(tree):
             if visit:
-                if _:
+                if _.strip():
                     _ += " "
                 _ += visit
         return _
@@ -1042,10 +990,12 @@ with open("md/index.md", "w") as w:
             if isinstance(child, Token):
                 if child.type == "IDENTIFIER":
                     var = child.value
-                    if var in self.scope_local:
+                    if var in __builtins__:
+                        _ += f"__builtins__.{var}"
+                    elif var in self.scope_local:
                         _ += f"_local['{var}']"
-                    elif var in self.scope_section:
-                        _ += f"state[section_name]['vars']['{var}']"
+                    elif var in self.scope_room:
+                        _ += f"state[room_name]['vars']['{var}']"
                     elif var in self.scope_world:
                         _ += f"state['world']['{var}']"
                     else:
@@ -1082,9 +1032,9 @@ with open("md/index.md", "w") as w:
                 if var in self.scope_local:
                     field_var = var
                     key_var.add(f"{var}=_local['{var}']")
-                elif var in self.scope_section:
+                elif var in self.scope_room:
                     field_var = var
-                    key_var.add(f"{var}=state[section_name]['vars']['{var}']")
+                    key_var.add(f"{var}=state[room_name]['vars']['{var}']")
                 elif var in self.scope_world:
                     field_var = var
                     key_var.add(f"{var}=state['world']['{var}']")
@@ -1097,7 +1047,7 @@ with open("md/index.md", "w") as w:
                     _ = _.replace("{" + var, "{" + field_var)
             for kv in key_var:
                 formatter += f"{kv}, "
-            # formatter += f"world=state['world'], section=state[section_name]['vars'])"
+            # formatter += f"world=state['world'], room=state[room_name]['vars'])"
             formatter += f")"
             _ += formatter
         return _
@@ -1158,11 +1108,11 @@ with open("md/index.md", "w") as w:
         out(f"# {comment[1:].strip()}")
 
     def long_comment(self, tree: Tree):
-        out()
+        pass
         comment: str = tree.children[0]
         for line in comment[3:-3].strip().split("\n"):
             out(f"# {line}")
-        out()
+        pass
 
     def addition(self, tree: Tree) -> str:
         return self.__binary_op("+", tree)
@@ -1261,8 +1211,8 @@ with open("md/index.md", "w") as w:
         out(f"# {scope} {var}")
         if scope == "world":
             self.scope_world.add(var)
-        if scope == "section":
-            self.scope_section.add(var)
+        if scope == "room":
+            self.scope_room.add(var)
         if scope == "local":
             self.scope_local.add(var)
 
@@ -1272,5 +1222,5 @@ with open("md/index.md", "w") as w:
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
-        if _:
+        if _.strip():
             out(_)

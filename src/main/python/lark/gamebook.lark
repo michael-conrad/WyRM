@@ -1,6 +1,6 @@
 // game book
 
-start: metadata sections
+start: metadata rooms
 
 _eos: ";" _ws
 _nl: NEWLINE
@@ -12,14 +12,14 @@ metadata_entry: metadata_tag ":" metadata_value _nl
 ?metadata_tag: IDENTIFIER
 ?metadata_value: REMAINING_LINE?
 
-sections: section statement+
-section: "[" SECTION_NAME "]" _nl
+rooms: room statement+
+room: "[" ROOM_NAME "]" _nl
 
-SECTION_NAME: /[^]]+/i
+ROOM_NAME: /[^]]+/i
 
-direction_statement: "direction" short_format_string direction_section direction_facing _eos
+direction_statement: "direction" short_format_string direction_room direction_facing _eos
 
-direction_section: STRING
+direction_room: STRING
 short_format_string: STRING
 
 direction_facing: ("facing" STRING)
@@ -33,7 +33,7 @@ once_else: "else"
 
 // partial grammar taken from https://raw.githubusercontent.com/igordejanovic/parglare/master/examples/c/c2.pg
 
-?statement: section
+?statement: room
     | compound_statement
     | expression_statement
     | selection_statement
@@ -48,17 +48,17 @@ once_else: "else"
     | scope_statement
     | comment_statement
 
-scope_statement: (WORLD | SECTION | LOCAL | EXTERN) IDENTIFIER _eos
+scope_statement: (WORLD | ROOM | LOCAL | EXTERN) IDENTIFIER _eos
 
 
 WORLD: "world"
-SECTION: "section"
+ROOM: "room"
 LOCAL: "local"
 EXTERN: "extern"
 
 
-go_statement: "go" next_section _eos
-next_section: STRING
+go_statement: "go" next_room _eos
+next_room: STRING
 
 ?compound_statement: "{" _nl? "}" _nl? | "{" _nl?  block_item_list "}" _nl?
 ?block_item_list: block_item | block_item_list block_item
@@ -123,7 +123,7 @@ identifier_list: IDENTIFIER
     | identifier_list "," IDENTIFIER
 
 
-type_specifier: WORLD | SECTION | LOCAL | EXTERN | enum_specifier
+type_specifier: WORLD | ROOM | LOCAL | EXTERN | enum_specifier
 
 type_qualifier: CONST
 

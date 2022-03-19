@@ -28,6 +28,8 @@ once {
 
 """
 Welcome New Adventurer!
+
+I hope you enjoy this experiment in static interactive fiction ebook creation.
 """
 
 direction "About this book" "About" facing "w";
@@ -76,13 +78,13 @@ find it. You've decided you're that someone.
 
 # Your Starting Stats
 
-* Warrior: {player.warrior} - Determines proficency with strength and fighting related skills.
-* Rogue: {player.rogue} - Determines proficency with agility and stealth related skills.
-* Mage: {player.mage} - Determines proficency with mana and mental related skills.
+* Warrior: {player.warrior} - Determines proficiency with strength and fighting related skills.
+* Rogue: {player.rogue} - Determines proficiency with agility and stealth related skills.
+* Mage: {player.mage} - Determines proficiency with mana and mental related skills.
 
 ## Pools
 
-* Fate: {player.fate} - Divine intervention used to avoid otherwise nasty death or circumstances.  Use is automatic. Does not refill.
+* Fate: {player.fate} - Divine intervention used to avoid combat death or other fatal circumstances. Use is automatic. Does not refill.
 * Armor_Penalty: {player.armor_penalty} - Penalty against mana pool based on armor worn.
 * Hit Points: {player.hp} - Life points. When it falls to < ½ skill penalties are assessed. If it falls to 0 death occurs.
 * Mana: {player.mana} ({player.mage}*2 base - {player.armor_penalty} armor penalty) - Used by spell casting. Only refills during sleep or meditation.
@@ -133,35 +135,10 @@ long ago the studious monks became corrupted by some evil and were destroyed by
 a band of wizards.
 
 As a new adventurer you have come seeking loot. Hopefully stuff that will help
-with future adventures, or at least enough money to get a meal and room at a
-decent inn.
-
-You walk up the hill to the ruins.
-
-Digging through the rumble you happen upon a flight of stairs leading down
-underground.
-
-You walk down a flight of stairs and come to a short 10ft passageway which ends
-at a wall with an opening to another flight of stairs heading down into
-darkness.
-
-You light a torch and enter the passageway turning to the right and follow the
-stairs down a landing which leads straight ahead to another set of stairs going
-down. You follow those stairs down and walk through a short passageway that
-makes a right turn into a much longer passageway disappearing into darkness.
-
-You stop and listening carefully before proceeding. You only hear your own
-breathing. Deciding there is nothing waiting to attack you in the darkness beyond
-the reach of the torch light you continue on.
-
-You follow the passage for 60ft and come to a four way intersection. The
-passages to the {facing.n}, to the {facing.w}, and to the {facing.s} disappear into darkness.
+with future adventures.
 """
 
-direction "{facing.dn}" "5" facing "n";
-direction "{facing.de}" "1" facing "e";
-direction "{facing.ds}" "3 Way" facing "s";
-direction "{facing.dw}" "4" facing "w";
+goto "town" facing "w";
 
 [5]
 room looted;
@@ -197,7 +174,7 @@ if (!looted) {
     }
 }
 
-direction "Exit the crypt using the portcullis to your {facing.s}." "4 Way" facing "s";
+direction "Exit the crypt using the portcullis to your {facing.s}." "4way" facing "s";
 
 [5a]
 
@@ -210,7 +187,7 @@ once {
 
 direction "Exit room" "5" facing "w";
 
-[4 Way]
+[4way]
 
 once {
     """
@@ -235,18 +212,33 @@ A flight of stairs leads up to the {facing.n}. A long passageway is to your {fac
 
 option "Climb up stairs" {
     """
-    You climb up two flights of stairs, turn left, then continue up.
+    You climb up two flights of stairs, turn left, climb up one more flight of stairs, and come
+    out into the ruins of the Abbey.
     """
     goto "ruins" facing "w";
+    "dead code"
 }
 direction "Follow passageway" "4way" facing "w";
 
 [ruins]
 
+once {
+"""
+You walk up the hill to the ruins.
+
+Digging through the rumble you happen upon a flight of stairs leading down
+underground to your {facing.e}.
+"""
+} else {
+"You see the rubble of destroyed buildings all about. Stairs leading down are to your {facing.e}."
+}
+
+direction "Return to town" "town" facing "n";
+
 """
 ## Abbey Ruins
 
-Rubble and collapsed buildings are all about. You see a flight of stairs heading down to your {player.e}
+Rubble and collapsed buildings are all about. You see a flight of stairs heading down to your {facing.e}
 """
 
 direction "Visit town" "town" facing "n";
@@ -257,6 +249,70 @@ option "Climb down stairs" {
     """
     goto "1" facing "s";
 }
+
+[town]
+
+"""
+You are in the main town square.
+
+You see an alchemy shop to your {facing.n}.
+There is a weapons and armory shop to your {facing.w}.
+The inn where you have a room is to the the {facing.e}.
+To the {facing.s} is the road leading out of town which goes by the ruins of the abbey.
+"""
+
+option "Visit magic shop" {
+    "You walk into the local magic shop."
+    goto "potion-shop" facing "n";
+}
+
+option "Go weapon and armor shopping" {
+    "You walk into the local armory."
+    goto "armory-shop" facing "w";
+}
+
+direction "Retire to the inn [end the game]" "end-game" facing "e";
+direction "Head down road and go to the abbey" "ruins" facing "e";
+
+[potion-shop]
+room health_in_stock
+once {
+    health_in_stock = 3
+}
+if (health_in_stock>0) {
+    "A sign says: Only health potions are in stock. 10sp each."
+
+    option "Purchase a health potion" {
+        if (player.money.sp < 10) {
+            "You don't have enough money."
+        } else {
+            "You hand over 10sp to the merchant and he gives you a potion."
+            player.money.sp -= 10
+            player.add_item(Item("Healing potion"))
+        }
+    }
+} else {
+    "A sign says: No potions are in stock. Try back again later."
+    if (3@6 == 1) {
+        health_in_stock = 1@10
+    }
+}
+
+direction "Exit the shop" "town" facing "s";
+
+[armory-shop]
+
+direction "Exit the armory" "town" facing "e";
+
+[end-game]
+
+"Found Items:"
+
+player.found_items;
+
+"Full Inventory:"
+
+player.inv;
 
 [2]
 
@@ -300,7 +356,7 @@ if (wander!="") {
     wander;
 }
 
-direction "{facing.dn}" "4 Way" facing "n";
+direction "{facing.dn}" "4way" facing "n";
 direction "{facing.de}" "2" facing "e";
 direction "{facing.ds}" "3" facing "s";
 

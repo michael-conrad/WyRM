@@ -62,7 +62,7 @@ next_room: STRING
 
 ?compound_statement: "{" _nl? "}" _nl? | "{" _nl?  block_item_list "}" _nl?
 ?block_item_list: block_item | block_item_list block_item
-?block_item.1: declaration | statement
+?block_item: declaration | statement
 
 type_name: specifier_qualifier_list abstract_declarator
     | specifier_qualifier_list
@@ -224,7 +224,7 @@ assignment_operator: ASSIGN
     | SUB_ASSIGN
 
 ?expression: assignment_expression
-    | expression "," assignment_expression
+    // | expression "," assignment_expression
     // | "[" expression "]"
 
 constant_expression: conditional_expression    // with constraints

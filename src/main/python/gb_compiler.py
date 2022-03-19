@@ -61,9 +61,7 @@ def out(text: str = ""):
 
 
 def end_room() -> None:
-    pass
     out("recurse_depth -= 1")
-    pass
     out("out += state[room_name]['vars']['items'].inv")
     out("out += \"\\n\"")
     out("for _ in option_list:")
@@ -77,8 +75,8 @@ def end_room() -> None:
     out("out += \"* \" + _md_link")
     out("out += \"\\n\"")
     indent_dec()
-    out("_output[room_node_id] = out")
-    out("return room_node_id")
+    out("_output[node_id] = out")
+    out("return node_id")
     indent_dec()
     out()
     out()
@@ -140,9 +138,9 @@ class GamebookCompiler(lark.visitors.Interpreter):
     def start(self, tree: Tree) -> str:
         _ = ""
         out("# START")
-        pass
 
         # system required imports
+        out("import re")
         out("import gamebook_core")
         out("import shutil")
         out("import os")
@@ -151,10 +149,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out("import hashlib")
         out("import random")
         out("import jsonpickle")
-        out("from types import SimpleNamespace")
         out("from collections.abc import Callable")
-        pass
-        pass
 
         for child in tree.children:
             if isinstance(child, Token):
@@ -228,7 +223,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
         indent_dec()
         out(f"state['world']['__builtins__'] = globals()['__builtins__']")
         out("state['world']['facing'] = state['world']['Facing']().with_facing('n')")
-        pass
         out("# build up list of keys not to pickle or checksum")
         out("ignore_pickle_keys: set[str] = set()")
         out(f"for attr in [*imports]:")
@@ -307,39 +301,40 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out()
         out("def state_checksum() -> str:")
         indent_inc()
-        out("pickled: str = jsonpickle.encode(save_state(), keys=True)")
-        out("room_hash: str = hashlib.sha512(pickled.encode('utf-8')).hexdigest()")
-        out("return room_hash")
+        out("pickled: str = save_state()")
+        out("node_hash: str = hashlib.sha512(pickled.encode('utf-8')).hexdigest()")
+        out("return node_hash")
         indent_dec()
         out()
         out()
-        out("def save_state() -> dict[str, str]:")
+        out("def save_state() -> str:")
         indent_inc()
         sorted_track = sorted(self.state_track_set)
-        out("states: dict[str, dict | str] = dict()")
-        out("states['world_vars']: dict[str, any] = dict()")
+        out("saved_states: dict[str, dict | str] = dict()")
+        out("saved_states['world_vars']: dict[str, any] = dict()")
         out("for var in state['world'].keys():")
         indent_inc()
         out("if var in ignore_pickle_keys:")
         indent_inc()
         out("continue")
         indent_dec()
-        out("states['world_vars'][var] = jsonpickle.encode(state['world'][var], keys=True)")
+        out("saved_states['world_vars'][var] = state['world'][var]")
         indent_dec()
         for state in sorted_track:
-            out(f"states['{state}'] = jsonpickle.encode(state['{state}'], keys=True)")
-        out("return states")
+            out(f"saved_states['{state}'] = state['{state}']")
+        out("return jsonpickle.encode(saved_states, keys=True)")
         indent_dec()
         out()
         out()
-        out("def restore_state(states: dict[str, str]) -> None:")
+        out("def restore_state(_saved_states: str) -> None:")
         indent_inc()
-        out("for var in states['world_vars'].keys():")
+        out("saved_states = jsonpickle.decode(_saved_states, keys=True)")
+        out("for var in saved_states['world_vars'].keys():")
         indent_inc()
-        out("state['world'][var] = jsonpickle.decode(states['world_vars'][var], keys=True)")
+        out("state['world'][var] = saved_states['world_vars'][var]")
         indent_dec()
         for state in sorted_track:
-            out(f"state['{state}'] = jsonpickle.decode(states['{state}'], keys=True)")
+            out(f"state['{state}'] = saved_states['{state}']")
         out("return")
         indent_dec()
 
@@ -354,17 +349,21 @@ for append_to in _output_post_append:
     append_from: str = _output_post_append[append_to]
     _output[append_to] += '\\n\\n' + _output[append_from]
 for key in _output:
+    out = _output[key]
+    out = re.sub("\\n\\\\s+\\n", "\\n\\n", out) 
     with open("md/" + key + ".md", "w") as w:
         w.write("\\n")
         w.write("# " + key)
-        w.write(_output[key])
+        w.write(out)
         w.write("\\n")
         
 with open("md/index.md", "w") as w:
-        w.write("\\n")
-        w.write("# " + index_node)
-        w.write(_output[index_node])
-        w.write("\\n")        
+    out = _output[index_node]
+    out = re.sub("\\n\\\\s+\\n", "\\n\\n", out)
+    w.write("\\n")
+    w.write("# " + index_node)
+    w.write(out)
+    w.write("\\n")        
 """)
 
     def room(self, tree: Tree):
@@ -419,16 +418,14 @@ with open("md/index.md", "w") as w:
 
                     out("# see if this is a repeating state, if yes, just use original node id")
                     out("global node_id_by_hash")
-                    out("room_hash: str = room"
-                        " + ' (' + state['world']['facing'].facing + ') '"
-                        " + state_checksum()")
-                    out("if room_hash in node_id_by_hash:")
+                    out("node_hash: str = room_name + state_checksum()")
+                    out("if node_hash in node_id_by_hash:")
                     indent_inc()
-                    out("return node_id_by_hash[room_hash]")
+                    out("return node_id_by_hash[node_hash]")
                     indent_dec()
-                    out(f"room_node_id: str = new_label(room_name)")
+                    out(f"node_id: str = new_label(room_name)")
                     out("out = ''")
-                    out("node_id_by_hash[room_hash] = room_node_id")
+                    out("node_id_by_hash[node_hash] = node_id")
                     out(f"room_func: Callable = {room_name}")
                     out("recurse_depth += 1")
                     out("if recurse_depth > 1000:")
@@ -520,7 +517,6 @@ with open("md/index.md", "w") as w:
             out(f"_ = html.escape(str(segment))")
             out(f"out += textwrap.dedent(_)")
             indent_dec()
-            pass
 
     def selection_statement(self, tree: Tree):
         _ = ""
@@ -613,7 +609,6 @@ with open("md/index.md", "w") as w:
         indent_dec()
         out("break")
         indent_dec()
-        pass
 
     # for_statement: FOR "(" assignment_statement expression_statement expression ")" statement
     def for_statement(self, tree: Tree):
@@ -633,8 +628,6 @@ with open("md/index.md", "w") as w:
 
         out(f"{ae}")
         indent_dec()
-
-        pass
 
     def repeat_statement(self, tree: Tree):
         out(f"# repeat statement {self.__top_level_children(tree)}")
@@ -684,7 +677,9 @@ with open("md/index.md", "w") as w:
         out(f"random.setstate(_state['random_state'])")
         out(f"return goto_destination_node")
         indent_dec()
-        out(f"go_function = {func}")
+        out(f"append_node: str = {func}()")
+        out("_output_post_append[node_id] = append_node")
+        out("node_id_by_hash[node_hash] = node_id")
         return None
 
     def comment(self, tree: Tree):
@@ -742,6 +737,20 @@ with open("md/index.md", "w") as w:
         indent_dec()
         out(f"option_list.append(({option_description}, {func}))")
 
+    def visit_until_goto(self, tree: Tree) -> bool:
+        for child in tree.children:
+            if isinstance(child, Tree):
+                out(f"# visit_until_goto {child.data}")
+                if child.data == "block_item_list":
+                    if self.visit_until_goto(child):
+                        out(f"# abort [1]")
+                        return True
+                self.visit(child)
+                if child.data == "goto_statement":
+                    out(f"# abort [2]")
+                    return True
+        return False
+
     def option_statement(self, tree: Tree):
         _ = ""
         block: Tree = tree.children[1]
@@ -755,36 +764,31 @@ with open("md/index.md", "w") as w:
         out("global _output")
         out("nonlocal _state")
         out("nonlocal room_func")
-        out(f"option_hash: str = room + '{func}-' + '-' + state['world']['facing'].facing + '-' + state_checksum()")
-        out("if option_hash in node_id_by_hash:")
+        out(f"node_hash: str = '{func}' + state_checksum()")
+        out("if node_hash in node_id_by_hash:")
         indent_inc()
-        out("return node_id_by_hash[option_hash]")
+        out("return node_id_by_hash[node_hash]")
         indent_dec()
         out("# new node id is needed")
-        out(f"option_node_id: str = new_label('{func}')")
+        out(f"node_id: str = new_label('{func}')")
         out(f"option_saved_state = save_state()")
         out("out = ''")
-        implicit_go: bool = True
-        for child in block.children:
-            if isinstance(child, Tree):
-                self.visit(child)
-                if child.data == "goto_statement":
-                    implicit_go = False
-                    break
-        if implicit_go:
+        explicit_go: bool = False
+        if isinstance(block, Tree):
+            for child in block.children:
+                if isinstance(child, Tree):
+                    out(f"# option cmd: {child.data}")
+                    explicit_go = self.visit_until_goto(child)
+        if not explicit_go:
             out(f"append_node: str = room_func()")
-        else:
-            out(f"append_node: str = go_function()")
-        out("_output_post_append[option_node_id] = append_node")
-        out("node_id_by_hash[option_hash] = option_node_id")
+            out("_output_post_append[node_id] = append_node")
+            out("node_id_by_hash[node_hash] = node_id")
         out(f"restore_state(option_saved_state)")
         out(f"random.setstate(_state['random_state'])")
-        out("_output[option_node_id] = out")
-        out("return option_node_id")
+        out("_output[node_id] = out")
+        out("return node_id")
         indent_dec()
-        pass
         out(f"option_list.append((\"{basic_escape(option_description)}\", {func}))")
-        pass
 
     def once_statement(self, tree: Tree):
         # out(f"# once: {self.__top_level_children(tree.children)}")
@@ -1045,9 +1049,13 @@ with open("md/index.md", "w") as w:
                 if var not in already and field_var:
                     already.add(var)
                     _ = _.replace("{" + var, "{" + field_var)
+            do_comma: bool = False
             for kv in key_var:
-                formatter += f"{kv}, "
-            # formatter += f"world=state['world'], room=state[room_name]['vars'])"
+                if do_comma:
+                    formatter += ", "
+                else:
+                    do_comma = True
+                formatter += f"{kv}"
             formatter += f")"
             _ += formatter
         return _
@@ -1108,11 +1116,9 @@ with open("md/index.md", "w") as w:
         out(f"# {comment[1:].strip()}")
 
     def long_comment(self, tree: Tree):
-        pass
         comment: str = tree.children[0]
         for line in comment[3:-3].strip().split("\n"):
             out(f"# {line}")
-        pass
 
     def addition(self, tree: Tree) -> str:
         return self.__binary_op("+", tree)
@@ -1133,7 +1139,6 @@ with open("md/index.md", "w") as w:
         return self.__binary_op("%", tree)
 
     def dice_roll(self, tree: Tree) -> str:
-        explode = False
         tree_count, tree_die, tree_explode = tree.children
         _ = "int(dice.roll("
         _ += f"str({self.visit(tree_count)})"

@@ -8,6 +8,8 @@ exec python "$0" "$@"
 exit $?
 ''"""
 import os
+import time
+from datetime import timedelta
 
 from gb_compiler import GamebookCompiler
 from lark import UnexpectedCharacters
@@ -17,6 +19,7 @@ base_name: str = "gb1"
 
 
 def main() -> None:
+    start = time.time()
     parser: Lark
     with open("lark/gamebook.lark") as r:
         # parser = Lark(r, cache=None, parser="earley", lexer="dynamic_complete", ambiguity="resolve")  # parser="lalr")
@@ -45,6 +48,8 @@ def main() -> None:
         w.write("\n")
 
     os.system("cd gamebooks; python " + base_name + ".py")
+    execution_time = time.time() - start
+    print(timedelta(seconds=execution_time))
 
 
 if __name__ == '__main__':

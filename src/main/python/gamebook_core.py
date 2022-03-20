@@ -4,7 +4,7 @@ from abc import ABC
 
 
 @dataclasses.dataclass(slots=True)
-class Item(ABC):
+class AbstractItem(ABC):
     @property
     @abc.abstractmethod
     def name(self) -> str:
@@ -12,7 +12,7 @@ class Item(ABC):
 
 
 @dataclasses.dataclass(slots=True)
-class Character(ABC):
+class AbstractCharacter(ABC):
     pass
 
 
@@ -64,7 +64,18 @@ class Facing:
             return self.e == "rear"
         elif direction == "s":
             return self.s == "rear"
-        return self.n == "rear"
+        return self.w == "rear"
+
+    @property
+    def behind(self) -> str:
+        txt: str = ""
+        if self.facing == "n":
+            return "s"
+        elif self.facing == "e":
+            return "e"
+        elif self.facing == "s":
+            return "n"
+        return "e"
 
     @property
     def compass(self) -> str:
@@ -140,20 +151,20 @@ class Facing:
 
 
 class Items:
-    _inv: list[Item] = list()
+    _inv: list[AbstractItem] = list()
 
     def __init__(self):
-        self._inv: list[Item] = list()
+        self._inv: list[AbstractItem] = list()
 
-    def add(self, item: Item):
+    def add(self, item: AbstractItem):
         self._inv.append(item)
 
-    def drop(self, item: Item):
-        if isinstance(item, Item):
+    def drop(self, item: AbstractItem):
+        if isinstance(item, AbstractItem):
             self._inv.remove(item)
             return
 
-    def item(self, item_name: str) -> Item:
+    def item(self, item_name: str) -> AbstractItem:
         for item in self._inv:
             if item.name.startswith(item_name):
                 return item

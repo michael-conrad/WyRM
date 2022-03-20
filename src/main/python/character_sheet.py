@@ -9,6 +9,7 @@ import jsonpickle
 import gamebook_core
 from equipment import Armor
 from equipment import Item
+from equipment import Money
 from equipment import Shield
 from equipment import Weapon
 from gb_utils import dl_check
@@ -27,7 +28,7 @@ def copy_of(o) -> any:
 
 
 @dataclass(slots=True)
-class CharacterSheet(gamebook_core.Character):
+class CharacterSheet(gamebook_core.AbstractCharacter):
     xp: int = 0
     _name: str = ""
     location: str = ""
@@ -37,7 +38,7 @@ class CharacterSheet(gamebook_core.Character):
     skills: list[CharacterSkill] = field(default_factory=list)
     talents: list[CharacterTalent] = field(default_factory=list)
     spells: list[MageSpell] = field(default_factory=list)
-    equipment: list[Item | Weapon | Armor | Shield] = field(default_factory=list)
+    equipment: list[Item | Weapon | Armor | Shield | Money] = field(default_factory=list)
 
     warrior_base: int = 0
     rogue_base: int = 0
@@ -144,10 +145,6 @@ class CharacterSheet(gamebook_core.Character):
         self.reset_mana_max()
 
     @property
-    def inv(self) -> str:
-        return self.equipment_list
-
-    @property
     def is_full_health(self) -> str:
         at_full_health: bool = self.hp >= self.hit_points_max
         if at_full_health:
@@ -165,11 +162,17 @@ class CharacterSheet(gamebook_core.Character):
             _ += f"\n;## {armor}"
         return _
 
-    def add_item(self, item: Shield | Armor | Item | Weapon | str) -> str:
+    def add_item(self, item: Shield | Armor | Item | Weapon | Money | str) -> None:
         if isinstance(item, str):
             item = Item(item)
         self.equipment.append(item)
-        return f"{item.name}"
+
+    def add_items(self, items: list[Shield | Armor | Item | Weapon | Money | str]) -> None:
+        if not isinstance(items, list):
+            items = [items]
+        item: Shield | Armor | Item | Weapon | Money | str
+        for item in items:
+            self.add_item(item)
 
     @property
     def name(self) -> str:
@@ -367,12 +370,12 @@ class CharacterSheet(gamebook_core.Character):
         self.armor_penalty = 0
         return f"Mana: {self.mana}/{self.mana_max}"
 
-    def equip_weapon(self, new_weapon: Weapon) -> str:
+    def equip_weapon(self, new_weapon: Weapon):
         for weapon in self.weapons.copy():
             if weapon.name.lower() == new_weapon.name.lower():
                 self.weapons.remove(weapon)
         self.weapons.insert(0, new_weapon)
-        return new_weapon.name
+        return None
 
     def set_armor(self, defense: int, penalty: int) -> str:
         self.armor = defense
@@ -381,9 +384,9 @@ class CharacterSheet(gamebook_core.Character):
         self.hit_points_armor = 0  # 5 * self.armor
         return f"Total defense: {self.defense}, Mana Penalty: {self.armor_penalty}, Mana: {self.mana}"
 
-    def equip_armor(self, armor: Armor) -> str:
+    def equip_armor(self, armor: Armor) -> None:
         self.armor_worn.insert(0, armor)
-        return self.set_armor(armor.defense, armor.armor_penalty)
+        self.set_armor(armor.defense, armor.armor_penalty)
 
     def print(self) -> None:
         print(f"Warrior: {self.warrior}, Adv. Taken: {self.adv_taken}")
@@ -478,7 +481,7 @@ class CharacterSheet(gamebook_core.Character):
         for spell in self.spells:
             if spell.mana_cost > self.mana:
                 continue
-            spells += f"\n;## {spell.name}: {spell.difficulty.name}, Mana: {spell.mana_cost:,}"
+            spells += f"* {spell.name}: {spell.difficulty.name}, Mana: {spell.mana_cost:,}\n"
         return spells
 
     def spell_add(self, name: str) -> MageSpell:
@@ -780,47 +783,72 @@ class CharacterSheet(gamebook_core.Character):
         return combat_log
 
     @property
-    def equipment_list(self) -> str:
-        # try and combine moneys
-        cp: int = 0
-        sp: int = 0
-        ep: int = 0
-        gp: int = 0
-        pp: int = 0
+    def list_gear(self) -> str:
+        _ = list()
         item: Item
-        for item in self.equipment.copy():
-            if item.name.startswith("CP: "):
-                cp += int(item.name[4:item.name.index(" ", 4)])
-                self.equipment.remove(item)
-            if item.name.startswith("SP: "):
-                sp += int(item.name[4:item.name.index(" ", 4)])
-                self.equipment.remove(item)
-            if item.name.startswith("EP: "):
-                ep += int(item.name[4:item.name.index(" ", 4)])
-                self.equipment.remove(item)
-            if item.name.startswith("GP: "):
-                gp += int(item.name[4:item.name.index(" ", 4)])
-                self.equipment.remove(item)
-            if item.name.startswith("PP: "):
-                pp += int(item.name[4:item.name.index(" ", 4)])
-                self.equipment.remove(item)
-        if cp:
-            self.equipment.append(Item(f"CP: {cp:,}"))
-        if sp:
-            self.equipment.append(Item(f"SP: {sp:,}"))
-        if ep:
-            self.equipment.append(Item(f"EP: {ep:,}"))
-        if gp:
-            self.equipment.append(Item(f"GP: {gp:,}"))
-        if pp:
-            self.equipment.append(Item(f"PP: {pp:,}"))
-
-        _ = ""
-        for armor in self.armor_worn:
-            _ += f"\n;## {armor.name}"
-        for weapon in self.weapons:
-            _ += f"\n;## {weapon.name}"
+        counts: dict[str, int] = dict()
         for item in self.equipment:
-            _ += f"\n;## {item.name}"
+            if item.name not in counts:
+                counts[item.name] = 0
+            counts[item.name] += 1
+        for item in self.equipment:
+            if item.name not in counts:
+                continue
+            qty = counts[item.name]
+            del counts[item.name]
+            if qty>1:
+                _.append(f"* {item.name} ({qty} each)")
+            else:
+                _.append(f"* {item.name}")
+        _.sort()
+        return "\n".join(_)
 
+    @property
+    def list_money(self) -> str:
+        _ = ""
+        for item in self.equipment:
+            if isinstance(item, Money):
+                _ += f"* {item.name} = {item.cp} CP\n"
+        return _
+
+    def spend_money(self, cost: Money) -> None:
+        cp = self.money_cp
+        for item in [*self.equipment]:
+            if isinstance(item, Money):
+                self.equipment.remove(item)
+        cp = max(cp - cost.cp, 0)
+        m: Money = Money().as_type("C").at_qty(cp)
+        for change in Money.money_changer([m]):
+            self.add_item(change)
+
+    @property
+    def money_sp(self):
+        sp: int = 0
+        for item in self.equipment:
+            if isinstance(item, Money):
+                sp += item.sp
+        return sp
+
+    @property
+    def money_cp(self):
+        cp: int = 0
+        for item in self.equipment:
+            if isinstance(item, Money):
+                cp += item.cp
+        return cp
+
+    @property
+    def list_armor(self) -> str:
+        _ = ""
+        for item in self.armor_worn:
+            if isinstance(item, Armor):
+                _ += f"* {item.name}. Defense: {item.defense}. Mana penalty: -{item.armor_penalty}.\n"
+        return _
+
+    @property
+    def list_weapons(self) -> str:
+        _ = ""
+        for item in self.weapons:
+            if isinstance(item, Weapon):
+                _ += f"* {item.name}. Damage: {item.damage}.\n"
         return _

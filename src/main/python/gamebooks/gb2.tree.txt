@@ -1,5 +1,5 @@
 start
-  metadata
+  metadata_entries
     metadata_entry
       Title
       Slash'n Up! Book 0.5
@@ -83,8 +83,8 @@ start
 
 
 
-  sections
-    section
+  rooms
+    room
       Start
       
 
@@ -94,81 +94,64 @@ start
       player
       
 
-    scope_statement
-      world
-      facing
-      
-
 
     once_statement
-      block_item_list
-        block_item_list
-          block_item_list
-            block_item_list
-              empty_statement	
+      compound_statement
+        
 
-              assignment_statement
-                postfix_expression
-                  primary_expression	player
-                assignment_operator	=
-                assignment_expression
-                  conditional_expression
-                    postfix_expression
-                      postfix_function_void
-                        postfix_expression
-                          postfix_dot
-                            postfix_expression
-                              primary_expression	PCs
-                            .
-                            player_forsaken_alley
-                        param_void
-            empty_statement	
+        assignment_statement
+          postfix_expression
+            primary_expression	player
+          assignment_operator	=
+          assignment_expression
+            conditional_expression
+              postfix_expression
+                postfix_function_void
+                  postfix_expression
+                    postfix_dot
+                      postfix_expression
+                        primary_expression	PCs
+                      .
+                      player_forsaken_alley
+                  param_void
+          
 
-          assignment_statement
-            postfix_expression
-              primary_expression	facing
-            assignment_operator	=
-            assignment_expression
-              conditional_expression
-                postfix_expression
-                  postfix_function_void
-                    postfix_expression
-                      primary_expression	Facing
-                    param_void
-        empty_statement	
-
-    empty_statement	
+        
 
 
     expression_statement
-      assignment_expression
-        conditional_expression
-          postfix_expression
-            primary_expression
-              string_constant	"""
+      string_constant	"""
 Welcome New Adventurer!
 """
       
 
 
+    option_statement
+      "Restart"
+      compound_statement
+        
+
+        expression_statement
+          string_constant	"Restarted"
+          
+
+        
+
+
     direction_statement
       short_format_string	"Start the game"
-      direction_section	"Start the Game"
+      direction_room	"Start the Game"
       direction_facing	"w"
       
 
 
-    section
+    room
       Start the Game
       
 
 
     expression_statement
-      assignment_expression
-        conditional_expression
-          postfix_expression
-            primary_expression
-              string_constant	"""
+      string_constant	"""
 You've come to explore the ruins of an abbey whose name has been forgotten.
 """
       
@@ -176,12 +159,12 @@ You've come to explore the ruins of an abbey whose name has been forgotten.
 
     direction_statement
       short_format_string	"Continue"
-      direction_section	"1"
+      direction_room	"1"
       direction_facing	"w"
       
 
 
-    section
+    room
       1
       
 
@@ -195,227 +178,307 @@ You've come to explore the ruins of an abbey whose name has been forgotten.
 
 
     expression_statement
-      assignment_expression
-        conditional_expression
-          postfix_expression
-            primary_expression
-              string_constant	"You are at the bottom of stairs to your {facing.n}."
+      string_constant	"You are at the bottom of stairs to your {facing.n}."
       
 
 
     direction_statement
       short_format_string	"{facing.dw}"
-      direction_section	"4way"
+      direction_room	"4way"
       direction_facing	"w"
       
 
 
-    section
+    room
       4way
       
 
 
     expression_statement
-      assignment_expression
-        conditional_expression
-          postfix_expression
-            primary_expression
-              string_constant	"You are at a 4-way intersection."
+      string_constant	"You are at a 4-way intersection."
       
 
 
-    direction_statement
-      short_format_string	"{facing.dn}"
-      direction_section	"5"
-      direction_facing	"n"
-      
-
-    direction_statement
-      short_format_string	"{facing.de}"
-      direction_section	"1"
-      direction_facing	"e"
-      
-
-    direction_statement
-      short_format_string	"{facing.ds}"
-      direction_section	"3way"
-      direction_facing	"s"
-      
-
-    direction_statement
-      short_format_string	"{facing.dw}"
-      direction_section	"4"
-      direction_facing	"w"
+    expression_statement
+      string_constant	"You are facing: {facing.facing}."
       
 
 
-    section
+    selection_statement
+      if_statement
+        if
+        assignment_expression
+          conditional_expression
+            unary_cast
+              logical_not
+              postfix_expression
+                postfix_function_params
+                  postfix_expression
+                    postfix_dot
+                      postfix_expression
+                        primary_expression	facing
+                      .
+                      is_behind
+                  param_args
+                    argument_expression_list
+                      assignment_expression
+                        conditional_expression
+                          postfix_expression
+                            primary_expression
+                              string_constant	"n"
+        direction_statement
+          short_format_string	"N: {facing.dn}"
+          direction_room	"5"
+          direction_facing	"n"
+          
+
+    selection_statement
+      if_statement
+        if
+        assignment_expression
+          conditional_expression
+            unary_cast
+              logical_not
+              postfix_expression
+                postfix_function_params
+                  postfix_expression
+                    postfix_dot
+                      postfix_expression
+                        primary_expression	facing
+                      .
+                      is_behind
+                  param_args
+                    argument_expression_list
+                      assignment_expression
+                        conditional_expression
+                          postfix_expression
+                            primary_expression
+                              string_constant	"e"
+        direction_statement
+          short_format_string	"E: {facing.de}"
+          direction_room	"1"
+          direction_facing	"e"
+          
+
+    selection_statement
+      if_statement
+        if
+        assignment_expression
+          conditional_expression
+            unary_cast
+              logical_not
+              postfix_expression
+                postfix_function_params
+                  postfix_expression
+                    postfix_dot
+                      postfix_expression
+                        primary_expression	facing
+                      .
+                      is_behind
+                  param_args
+                    argument_expression_list
+                      assignment_expression
+                        conditional_expression
+                          postfix_expression
+                            primary_expression
+                              string_constant	"s"
+        direction_statement
+          short_format_string	"S: {facing.ds}"
+          direction_room	"3way"
+          direction_facing	"s"
+          
+
+    selection_statement
+      if_statement
+        if
+        assignment_expression
+          conditional_expression
+            unary_cast
+              logical_not
+              postfix_expression
+                postfix_function_params
+                  postfix_expression
+                    postfix_dot
+                      postfix_expression
+                        primary_expression	facing
+                      .
+                      is_behind
+                  param_args
+                    argument_expression_list
+                      assignment_expression
+                        conditional_expression
+                          postfix_expression
+                            primary_expression
+                              string_constant	"w"
+        direction_statement
+          short_format_string	"W: {facing.dw}"
+          direction_room	"4"
+          direction_facing	"w"
+          
+
+
+    option_statement
+      "Rush to the cave of killer spiders"
+      compound_statement
+        
+
+        block_item_list
+          expression_statement
+            string_constant	"You rush off to the cave of killer spiders to your {facing.w}"
+            
+
+          goto_statement
+            goto
+            assignment_expression
+              conditional_expression
+                postfix_expression
+                  primary_expression
+                    string_constant	"4"
+            direction_facing	"w"
+            
+
+        
+
+
+    room
       5
       
 
 
     expression_statement
-      assignment_expression
-        conditional_expression
-          postfix_expression
-            primary_expression
-              string_constant	"You are in a crypt."
+      string_constant	"You are in a crypt."
       
 
 
     direction_statement
       short_format_string	"{facing.de}"
-      direction_section	"5a"
+      direction_room	"5a"
       direction_facing	"e"
       
 
     direction_statement
       short_format_string	"{facing.ds}"
-      direction_section	"4way"
+      direction_room	"4way"
       direction_facing	"s"
       
 
 
-    section
+    room
       5a
       
 
 
     expression_statement
-      assignment_expression
-        conditional_expression
-          postfix_expression
-            primary_expression
-              string_constant	"You are in a room with a crucified monk."
+      string_constant	"You are in a room with a crucified monk."
       
 
 
     direction_statement
       short_format_string	"{facing.dw}"
-      direction_section	"5"
+      direction_room	"5"
       direction_facing	"w"
       
 
 
-    section
+    room
       4
       
 
 
     expression_statement
-      assignment_expression
-        conditional_expression
-          postfix_expression
-            primary_expression
-              string_constant	"You are in a cave with a pond in the middle."
+      string_constant	"You are in a cave with a pond in the middle."
       
 
 
     direction_statement
       short_format_string	"{facing.de}"
-      direction_section	"4way"
+      direction_room	"4way"
       direction_facing	"e"
       
 
     direction_statement
       short_format_string	"Enter the crack in the wall to your {facing.s}"
-      direction_section	"4a"
+      direction_room	"4a"
       direction_facing	"s"
       
 
 
-    section
+    room
       4a
       
 
 
     expression_statement
-      assignment_expression
-        conditional_expression
-          postfix_expression
-            primary_expression
-              string_constant	"You are in a spider filled crack."
+      string_constant	"You are in a spider filled crack."
       
 
 
     direction_statement
       short_format_string	"{facing.dn}"
-      direction_section	"4"
+      direction_room	"4"
       direction_facing	"n"
       
 
 
-    section
+    room
       3
       
 
 
     expression_statement
-      assignment_expression
-        conditional_expression
-          postfix_expression
-            primary_expression
-              string_constant	"You are in a winery. The only exit is to your {facing.n}."
+      string_constant	"You are in a winery. The only exit is to your {facing.n}."
       
 
 
     direction_statement
       short_format_string	"{facing.dn}"
-      direction_section	"3way"
+      direction_room	"3way"
       direction_facing	"n"
       
 
 
-    section
+    room
       2
       
 
 
     expression_statement
-      assignment_expression
-        conditional_expression
-          postfix_expression
-            primary_expression
-              string_constant	"You are in a cave with a fancy axe on a plinth."
+      string_constant	"You are in a cave with a fancy axe on a plinth."
       
 
 
     direction_statement
       short_format_string	"{facing.dw}"
-      direction_section	"3way"
+      direction_room	"3way"
       direction_facing	"w"
       
 
 
-    section
+    room
       3way
       
 
 
     expression_statement
-      assignment_expression
-        conditional_expression
-          postfix_expression
-            primary_expression
-              string_constant	"You are at a 3-way intersection. You see stairs down the passage to your {facing.s}."
+      string_constant	"You are at a 3-way intersection. You see stairs down the passage to your {facing.s}."
       
 
 
     direction_statement
       short_format_string	"{facing.dn}"
-      direction_section	"4way"
+      direction_room	"4way"
       direction_facing	"n"
       
 
     direction_statement
       short_format_string	"{facing.de}"
-      direction_section	"2"
+      direction_room	"2"
       direction_facing	"e"
       
 
     direction_statement
       short_format_string	"{facing.ds}"
-      direction_section	"3"
+      direction_room	"3"
       direction_facing	"s"
       
 

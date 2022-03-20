@@ -19,19 +19,21 @@ Library: mob_combat
 
 [Start]
 
-world player
-world facing
+world player;
 
 once {
-    player = PCs.player_forsaken_alley()
-    facing = Facing()
+    player = PCs.player_forsaken_alley();
 }
 
 """
 Welcome New Adventurer!
 """
 
-direction "Start the game" "Start the Game" facing "w"
+option "Restart" {
+    "Restarted"
+}
+
+direction "Start the game" "Start the Game" facing "w";
 
 [Start the Game]
 
@@ -39,67 +41,74 @@ direction "Start the game" "Start the Game" facing "w"
 You've come to explore the ruins of an abbey whose name has been forgotten.
 """
 
-direction "Continue" "1" facing "w"
+direction "Continue" "1" facing "w";
 
 [1]
 
-facing
+facing;
 
 "You are at the bottom of stairs to your {facing.n}."
 
-direction "{facing.dw}" "4way" facing "w"
+direction "{facing.dw}" "4way" facing "w";
 
 [4way]
 
 "You are at a 4-way intersection."
 
-direction "{facing.dn}" "5" facing "n"
-direction "{facing.de}" "1" facing "e"
-direction "{facing.ds}" "3way" facing "s"
-direction "{facing.dw}" "4" facing "w"
+"You are facing: {facing.facing}."
+
+if (!facing.is_behind("n")) direction "N: {facing.dn}" "5" facing "n";
+if (!facing.is_behind("e")) direction "E: {facing.de}" "1" facing "e";
+if (!facing.is_behind("s")) direction "S: {facing.ds}" "3way" facing "s";
+if (!facing.is_behind("w")) direction "W: {facing.dw}" "4" facing "w";
+
+option "Rush to the cave of killer spiders" {
+    "You rush off to the cave of killer spiders to your {facing.w}"
+    goto "4" facing "w";
+}
 
 [5]
 
 "You are in a crypt."
 
-direction "{facing.de}" "5a" facing "e"
-direction "{facing.ds}" "4way" facing "s"
+direction "{facing.de}" "5a" facing "e";
+direction "{facing.ds}" "4way" facing "s";
 
 [5a]
 
 "You are in a room with a crucified monk."
 
-direction "{facing.dw}" "5" facing "w"
+direction "{facing.dw}" "5" facing "w";
 
 [4]
 
 "You are in a cave with a pond in the middle."
 
-direction "{facing.de}" "4way" facing "e"
-direction "Enter the crack in the wall to your {facing.s}" "4a" facing "s"
+direction "{facing.de}" "4way" facing "e";
+direction "Enter the crack in the wall to your {facing.s}" "4a" facing "s";
 
 [4a]
 
 "You are in a spider filled crack."
 
-direction "{facing.dn}" "4" facing "n"
+direction "{facing.dn}" "4" facing "n";
 
 [3]
 
 "You are in a winery. The only exit is to your {facing.n}."
 
-direction "{facing.dn}" "3way" facing "n"
+direction "{facing.dn}" "3way" facing "n";
 
 [2]
 
 "You are in a cave with a fancy axe on a plinth."
 
-direction "{facing.dw}" "3way" facing "w"
+direction "{facing.dw}" "3way" facing "w";
 
 [3way]
 
 "You are at a 3-way intersection. You see stairs down the passage to your {facing.s}."
 
-direction "{facing.dn}" "4way" facing "n"
-direction "{facing.de}" "2" facing "e"
-direction "{facing.ds}" "3" facing "s"
+direction "{facing.dn}" "4way" facing "n";
+direction "{facing.de}" "2" facing "e";
+direction "{facing.ds}" "3" facing "s";

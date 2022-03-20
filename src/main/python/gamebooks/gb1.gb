@@ -20,21 +20,27 @@ Library: mob_combat
 
 world player;
 world facing;
+world know_of_tunnel;
 
-once {
-    player = PCs.player_forsaken_alley();
-}
-
+player = PCs.player_forsaken_alley();
+know_of_tunnel = false;
 
 """
 Welcome New Adventurer!
 
 I hope you enjoy this experiment in static interactive fiction ebook creation.
+
+This ebook is not meant to be read by hitting the "next page" button over and over. Instead, at the end of each
+section, you will be presented with one or more choices. You need to tap or otherwise select a choice to have
+the story continue. Your choices determine the story you read.
+
+Please select one of the following options to continue.
+
 """
 
 direction "About this book" "About" facing "w";
 direction "Show your support" "Show Your Support" facing "w";
-direction "Start the game" "Start the Game" facing "w";
+direction "Start reading" "Start the Game" facing "w";
 
 [About]
 
@@ -42,13 +48,14 @@ direction "Start the game" "Start the Game" facing "w";
 """
 This is a Warrior, Rogue, Mage rules based gamebook.
 
-You are playing a gamebook using the one page dungeon for the quest:
+You are playing the one page dungeon quest:
 
     "Dungeons of the Forsaken Abbey"
     By Gabriel P. (urudnd@gmail.com)
     Copyright 2010, CC-BY-SA
 
 The original one page dungeon is from "One Page Dungeon Compendium", 2010 Edition.
+
 """
 
 direction "Show your support" "Show Your Support" facing "w";
@@ -56,9 +63,9 @@ direction "Start the game" "Start the Game" facing "w";
 
 [Show Your Support]
 
-
 """
 Don't forget to leave a five star review with comments.
+
 Adding a brief description of your adventure to the review would be appreciated.
 
 My husband is also a writer, so please look for "Forgiving Judas" by Spencer Conrad.
@@ -98,39 +105,48 @@ find it. You've decided you're that someone.
 
 ## Talents
 
-* Massive Attack: You can add your Warrior level to your melee attack damage once per combat.
+* Massive Attack: You automatically add your Warrior level to your melee attack damage once per combat sequence.
+"""
 
-## Spells
+"## Spells"
 
-* Frost Burn, Mana: 1, Difficulty: Easy, Touch. 1d6-2 damage. Mana burn raises damage by +1.
-* Healing Hand, Mana: 1, Difficulty: Easy, Touch. 1d6 HP healed. Mana burn raises heal by +1.
+player.spell_list;
 
-## Equipment
+"## Equipment"
 
-* Adventurer's Kit: Flint and tinder. Water flask. Blanket. Bed roll. Small tent.
-* Backpack
-* Clothing Common
-* Clothing Travel
-* Iron Rations 1 week
-* Pickaxe
-* Rations 1 week
-* Rope 30 feet
-* Spellbook: Lose this and you can't cast spells until you locate another.
-* Torches: 3 each
+player.add_item("Flint and tinder");
+player.add_item("Water flask");
+player.add_item("Blanket");
+player.add_item("Bedroll");
+player.add_item("Small tent");
+player.add_item("Backpack");
+repeat 7 player.add_item("Iron Ration");
+player.add_item("Pickaxe");
+repeat 7 player.add_item("Standard Ration");
+player.add_item("Rope, 30 ft");
+player.add_item("Spellbook");
+repeat 3 player.add_item("Torch");
 
-## Money
+player.list_gear;
 
-* SP: 122
+"## Money"
 
-## Weapons
+player.add_items(Money.money_changer(Money().as_type("s").at_qty(166)));
+player.list_money;
 
-Axe (Axes) [1d6]
+"## Weapons"
 
-## Armor
+player.equip_weapon(Weapon.by_name("Axe"));
+player.list_weapons;
 
-Chain, Defense: +5, Mana: -4
+"## Armor"
 
-Atop of the hill stand the ruins of what was once an abbey. Legend has it that
+player.equip_armor(Armor.by_name("Chain"));
+player.list_armor;
+
+"""
+Near this town there is a hill where stand the ruins of what was once an abbey.
+Legend has it that
 long ago the studious monks became corrupted by some evil and were destroyed by
 a band of wizards.
 
@@ -144,8 +160,8 @@ goto "town" facing "w";
 room looted;
 room alcove;
 once {
-    looted = False;
-    alcove = False;
+    looted = false;
+    alcove = false;
     """
     You come to a portcullis. Beyond you see a 90ft x 40ft room with
     alcoves in the walls. You can't see into the alcoves from here.
@@ -160,8 +176,9 @@ once {
 
 if (!alcove) {
     option "Examine empty alcove" {
-        alcove = True;
+        alcove = true;
         "You discover a cleverly disguised door."
+        face("e");
     }
 } else {
     direction "Go through door in alcove to your {facing.e}." "5a" facing "e";
@@ -169,12 +186,13 @@ if (!alcove) {
 
 if (!looted) {
     option "Loot alcoves" {
-        looted = True;
+        looted = true;
         "You go crazy looting"
+        face("e");
     }
 }
 
-direction "Exit the crypt using the portcullis to your {facing.s}." "4way" facing "s";
+if (facing.behind != "s") direction "Exit the crypt using the portcullis to your {facing.s}." "4way" facing "s";
 
 [5a]
 
@@ -199,10 +217,10 @@ once {
     "You are at a four way intersection. The passage to your {facing.e} leads to the ruins above."
 }
 
-direction "{facing.dn}" "5" facing "n";
-direction "{facing.dw}" "4" facing "w";
-direction "{facing.de}" "1" facing "e";
-direction "{facing.ds}" "3 Way" facing "s";
+if (facing.behind !="n") direction "{facing.dn}" "5" facing "n";
+if (facing.behind !="w") direction "{facing.dw}" "4" facing "w";
+if (facing.behind !="e") direction "{facing.de}" "1" facing "e";
+if (facing.behind !="s") direction "{facing.ds}" "3 Way" facing "s";
 
 [1]
 
@@ -210,17 +228,21 @@ direction "{facing.ds}" "3 Way" facing "s";
 A flight of stairs leads up to the {facing.n}. A long passageway is to your {facing.w}.
 """
 
-option "Climb up stairs" {
+if (facing.behind != "n") option "Climb up stairs" {
     """
     You climb up two flights of stairs, turn left, climb up one more flight of stairs, and come
     out into the ruins of the Abbey.
     """
     goto "ruins" facing "w";
+
     "dead code"
 }
-direction "Follow passageway" "4way" facing "w";
+
+if (facing.behind != "w") direction "Follow passageway" "4way" facing "w";
 
 [ruins]
+
+"## Abbey Ruins"
 
 once {
 """
@@ -233,16 +255,13 @@ underground to your {facing.e}.
 "You see the rubble of destroyed buildings all about. Stairs leading down are to your {facing.e}."
 }
 
-direction "Return to town" "town" facing "n";
-
 """
-## Abbey Ruins
-
 Rubble and collapsed buildings are all about. You see a flight of stairs heading down to your {facing.e}
 """
 
-direction "Visit town" "town" facing "n";
-option "Climb down stairs" {
+if (facing.behind != "n") direction "Return to town" "town" facing "n";
+
+if (facing.behind != "e") option "Climb down stairs" {
     """
     You climb down a flight of stairs, come to a landing, then turning right go down an additional
     two flights of stairs
@@ -261,42 +280,65 @@ The inn where you have a room is to the the {facing.e}.
 To the {facing.s} is the road leading out of town which goes by the ruins of the abbey.
 """
 
-option "Visit magic shop" {
-    "You walk into the local magic shop."
+if (facing.behind != "n") option "Visit alchemy shop" {
+    "You walk into the local alchemy shop."
     goto "potion-shop" facing "n";
 }
 
-option "Go weapon and armor shopping" {
+if (facing.behind != "w") option "Go weapon and armor shopping" {
     "You walk into the local armory."
     goto "armory-shop" facing "w";
 }
 
 direction "Retire to the inn [end the game]" "end-game" facing "e";
-direction "Head down road and go to the abbey" "ruins" facing "e";
+
+if (facing.behind != "s") direction "Head down road and go to the abbey" "ruins-fork" facing "e";
+
+[ruins-fork]
+world know_of_tunnel;
+if (!know_of_tunnel) {
+    goto "ruins" facing "e";
+} else {
+    "You arrive at the hillside."
+    direction "Climb up to the ruins." "ruins" facing "e";
+    direction "Go to the tunnel." "4b" facing "n";
+}
 
 [potion-shop]
-room health_in_stock
+room health_in_stock;
 once {
-    health_in_stock = 3
+    health_in_stock = 1@3;
 }
+room health_in_stock;
 if (health_in_stock>0) {
-    "A sign says: Only health potions are in stock. 10sp each."
+    if (health_in_stock == 1) {
+        "A sign says: Only {health_in_stock} health potions is in stock. 10sp."
+    } else {
+        "A sign says: Only {health_in_stock} health potions are in stock. 10sp each."
+    }
 
     option "Purchase a health potion" {
-        if (player.money.sp < 10) {
+        if (player.money_sp < 10) {
             "You don't have enough money."
         } else {
             "You hand over 10sp to the merchant and he gives you a potion."
-            player.money.sp -= 10
-            player.add_item(Item("Healing potion"))
+            player.spend_money(Money().as_type("S").at_qty(10));
+            player.add_item(Item("Healing potion"));
+            health_in_stock -= 1;
         }
     }
 } else {
     "A sign says: No potions are in stock. Try back again later."
     if (3@6 == 1) {
-        health_in_stock = 1@10
+        health_in_stock = 1@10;
     }
 }
+
+if (player.money_cp) {
+    "Your available funds:"
+    player.list_money;
+}
+
 
 direction "Exit the shop" "town" facing "s";
 
@@ -306,13 +348,18 @@ direction "Exit the armory" "town" facing "e";
 
 [end-game]
 
-"Found Items:"
+"### Found Items:"
 
 player.found_items;
 
-"Full Inventory:"
+"### Gear and non-equipped weapons and armor:"
 
-player.inv;
+player.list_gear;
+
+"### Equipped weapons and armor:"
+
+player.list_weapons;
+player.list_armor;
 
 [2]
 
@@ -356,9 +403,9 @@ if (wander!="") {
     wander;
 }
 
-direction "{facing.dn}" "4way" facing "n";
-direction "{facing.de}" "2" facing "e";
-direction "{facing.ds}" "3" facing "s";
+if (facing.behind != "n") direction "{facing.dn}" "4way" facing "n";
+if (facing.behind != "e") direction "{facing.de}" "2" facing "e";
+if (facing.behind != "s") direction "{facing.ds}" "3" facing "s";
 
 [3]
 
@@ -368,18 +415,20 @@ once {
     passages leading from the room.
     """
 } else {
-    "You enter the room full of empty and broken casks."
+    "You enter the room full of empty and broken casks. There are stairs leading up to your {facing.n}."
 }
 
-direction "{facing.dn}" "3 Way" facing "n";
+direction "Climb up the stairs" "3 Way" facing "n";
 
 [4]
 
-if (facing.is_facing("w")) {
+if (facing.facing == "w") {
     "You go down a 60ft passageway and step out into a large cave. The cave is about 100 ft x 70 ft."
 }
 
 once {
+    room examine_pond;
+    examine_pond = false;
     """
     Water oozes down the walls of this natural cave and forms a 30ft diameter pond
     in the middle of it. You notice water dripping from the cave roof about 30ft
@@ -395,18 +444,43 @@ once {
     """
 }
 
-option "Examine pond" {
+if (!examine_pond) option "Examine pond" {
     "You examine the pond and are suddenly turned around in a different direction!"
+    examine_pond = true;
 }
 
-option "Examine crack" {
-    "You examine the crack in the wall"
-}
+direction "Examine crack" "4a" facing "s";
 
 [4a]
 
-"The crack is empty!"
+if (facing.facing=="s") {
+    "You are in an upward sloping tunnel."
+    direction "Continue upwards" "4b" facing "s";
+}
 
-direction "{facing.dn}" "4" facing "n";
+if (facing.facing=="n") {
+    "You are in a downward sloping tunnel."
+    direction "Continue downwards" "4" facing "n";
+}
 
+[4b]
+once {
+    know_of_tunnel = true;
+    """
+    You step out and find yourself on the hillside with the ruins of the abbey a short ways above.
+    You have discovered another way in and out of the complex.
+    """
+} else {
+    """
+    You are on the hillside with the ruins of the abbey a short ways above.
+    """
+}
 
+direction "Climb hill back to ruins" "ruins" facing "e";
+direction "Visit town" "town" facing "n";
+
+[dead]
+
+"You have perished."
+
+direction "Start Over" "Start" facing "n";

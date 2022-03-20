@@ -1,5 +1,6 @@
 import random
 from dataclasses import dataclass
+from dataclasses import field
 
 import gamebook_core
 from skills import CharacterSkill
@@ -7,7 +8,124 @@ from skills import CharacterSkillsList
 
 
 @dataclass(slots=True)
-class Shield(gamebook_core.Item):
+class Money(gamebook_core.AbstractItem):
+    _type: str = "C"
+    _qty: int = 0
+
+    @classmethod
+    def money_changer(cls, monies: list["Money"]) -> list["Money"]:
+        if not monies:
+            return list()
+        if not isinstance(monies, list):
+            monies = [monies]
+        cp: int = 0
+        for money in monies:
+            cp += money.cp
+        monies = list()
+        if cp >= 1000:
+            pp = cp // 1000
+            cp = cp % 1000
+            if pp:
+                monies.append(Money(_type="P", _qty=pp))
+        if cp >= 100:
+            gp = cp // 100
+            cp = cp % 100
+            if gp:
+                monies.append(Money(_type="G", _qty=gp))
+        if cp >= 50:
+            ep = cp // 50
+            cp = cp % 50
+            if ep:
+                monies.append(Money(_type="E", _qty=ep))
+        if cp >= 10:
+            sp = cp // 10
+            cp = cp % 10
+            if sp:
+                monies.append(Money(_type="S", _qty=sp))
+        if cp:
+            monies.append(Money(_type="C", _qty=cp))
+        return monies
+
+    @property
+    def name(self) -> str:
+        return f"{self._qty:,} {self.type}P"
+
+    @property
+    def cp(self) -> int:
+        if self._type == "C":
+            return self._qty
+        if self._type == "S":
+            return self._qty * 10
+        if self._type == "E":
+            return self._qty * 50
+        if self._type == "G":
+            return self._qty * 100
+        if self._type == "P":
+            return self._qty * 1000
+        return 0
+
+    @property
+    def sp(self) -> int:
+        return self.cp // 10
+
+    @property
+    def ep(self) -> int:
+        return self.cp // 50
+
+    @property
+    def gp(self) -> int:
+        return self.cp // 100
+
+    @property
+    def pp(self) -> int:
+        return self.cp // 1000
+
+    @property
+    def base_name(self) -> str:
+        return self._type
+
+    @property
+    def type(self) -> str:
+        return self._type
+
+    @type.setter
+    def type(self, _type: str) -> None:
+        if not _type:
+            return
+        _type = _type.strip()[0].upper()
+        if _type == "C":
+            self._type = "C"
+        elif _type == "S":
+            self._type = "S"
+        elif _type == "E":
+            self._type = "E"
+        elif _type == "G":
+            self._type = "G"
+        elif _type == "P":
+            self._type = "P"
+
+    def as_type(self, _type: str) -> "Money":
+        self.type = _type
+        return self
+
+    def at_qty(self, _qty: int) -> "Money":
+        self._qty = _qty
+        return self
+
+
+@dataclass(slots=True)
+class Moneys:
+    cp: Money = field(default_factory=Money)
+    sp: Money = field(default_factory=Money)
+    ep: Money = field(default_factory=Money)
+    gp: Money = field(default_factory=Money)
+    pp: Money = field(default_factory=Money)
+    def __post_init__(self):
+        pass
+
+
+@dataclass(slots=True)
+class Shield(gamebook_core.AbstractItem):
     _name: str = ""
     location: str = ""
     defense_bonus: int = 0
@@ -63,54 +181,28 @@ class Shield(gamebook_core.Item):
         return shields[0]
 
 
-_item_counter: dict[str, int] = dict()
-
-
-def item_counter() -> dict[str, int]:
-    global _item_counter
-    return _item_counter
-
-
 @dataclass(slots=True)
-class Item(gamebook_core.Item):
+class Item(gamebook_core.AbstractItem):
     _uses: int | None = None
     _name: str = ""
     _desc: str = ""
-    location: str = ""
     cost_sp: int = 0
 
     @property
     def base_name(self) -> str:
         return self._name
 
-    @classmethod
-    def _counter(cls, name: str) -> str:
-        global _item_counter
-        if name not in _item_counter:
-            _item_counter[name] = 0
-        _item_counter[name] = _item_counter[name] + 1
-        return f"{name} (#{_item_counter[name]})"
-
     def __init__(self, name: str, location: str = "", cost_sp: int = 0):
-        global _item_counter
-        self._name = Item._counter(name)
+        self._name = name
         self._desc = ""
-        self.location = location
         self.cost_sp = cost_sp
         self._uses = None
 
     def __str__(self) -> str:
         return self.name
 
-    def set_location(self, location: str) -> "Item":
-        return self.with_location(location)
-
-    def with_location(self, location: str) -> "Item":
-        self.location = location
-        return self
-
     def with_new_name(self, name: str) -> "Item":
-        self._name = self._counter(name)
+        self._name = name
         return self
 
     @property
@@ -142,10 +234,7 @@ class Item(gamebook_core.Item):
 
     @name.setter
     def name(self, name: str) -> None:
-        if "#" in name:
-            self._name = name
-        else:
-            self._name = Item._counter(name)
+        self._name = name
 
     @classmethod
     def list(cls) -> list["Item"]:
@@ -176,7 +265,7 @@ class Item(gamebook_core.Item):
 
 
 @dataclass(slots=True)
-class Armor(gamebook_core.Item):
+class Armor(gamebook_core.AbstractItem):
     _name: str = ""
     _defense: int = 0
     defense_bonus: int = 0
@@ -231,9 +320,7 @@ class Armor(gamebook_core.Item):
 
     @property
     def name(self) -> str:
-        _: str = f"{self._name}, Defense: +{self.defense}, Mana: -{self.armor_penalty}"
-        if hasattr(self, "location") and self.location:
-            return f"{_} <loc:{self.location}>"
+        _: str = f"{self._name}"
         return _
 
     @name.setter
@@ -244,7 +331,7 @@ class Armor(gamebook_core.Item):
         self.location = location
         return self
 
-    def with_location(self, location: str) -> "Item":
+    def with_location(self, location: str) -> "Armor":
         self.location = location
         return self
 
@@ -270,7 +357,7 @@ class Armor(gamebook_core.Item):
         return cls.list()[0]
 
 
-class Weapon(gamebook_core.Item):
+class Weapon(gamebook_core.AbstractItem):
     _name: str = ""
     location: str = ""
     skill: CharacterSkill = None
@@ -280,14 +367,6 @@ class Weapon(gamebook_core.Item):
     _attack_bonus: int = 0
     _damage_bonus: int = 0
     _two_handed: bool = False
-
-    def set_location(self, location: str) -> "Weapon":
-        self.location = location
-        return self
-
-    def with_location(self, location: str) -> "Weapon":
-        self.location = location
-        return self
 
     @property
     def description(self) -> str:
@@ -313,10 +392,8 @@ class Weapon(gamebook_core.Item):
 
     @property
     def name(self) -> str:
-        two: str = " Two-handed." if self.two_handed else ""
-        _: str = f"{self._name} ({self.attack_bonus:+}/{self.damage_bonus:+}).{two}"
-        if hasattr(self, "location") and self.location:
-            return f"{_} <loc:{self.location}>"
+        two: str = ", two-handed" if self.two_handed else ", one-handed"
+        _: str = f"{self._name}{two}"
         return _
 
     @name.setter
@@ -418,7 +495,7 @@ class Weapon(gamebook_core.Item):
         weapons.append(Weapon("Sword", CharacterSkillsList.skill_by_name("Swords"), "1d6x", 5))
         weapons.append(Weapon("Throwing Star", CharacterSkillsList.skill_by_name("Thrown"), "1d6x-2", 2))
         weapons.append(Weapon("Warhammer", CharacterSkillsList.skill_by_name("Blunt"), "1d6x", 5))
-        two_handed_flame_axe: Weapon = Weapon("Axe (Dark Enchanted)",  #
+        two_handed_flame_axe: Weapon = Weapon("Black Axe",  #
                                               skill=CharacterSkillsList.skill_by_name("Axes"),  #
                                               base_damage="2d6x",  #
                                               cost_sp=50000,  #

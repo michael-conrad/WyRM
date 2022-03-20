@@ -61,9 +61,11 @@ def out(text: str = ""):
 
 
 def end_room() -> None:
+    out("break  # end room")
+    indent_dec()
     out("recurse_depth -= 1")
     out("out += state[room_name]['vars']['items'].inv")
-    out("out += \"\\n\"")
+    out("out += \"\\n\\n\"")
     out("for _ in option_list:")
     indent_inc()
     out("saved_state = save_state()")
@@ -441,6 +443,8 @@ with open("md/index.md", "w") as w:
                     indent_dec()
                     out(f"random.setstate(state['{room_name}']['random_state'])")
                     out("option_list: list[tuple[str, Callable]] = list()")
+                    out("while True:")
+                    indent_inc()
                     continue
                 if child.type == "NEWLINE":
                     continue
@@ -471,12 +475,16 @@ with open("md/index.md", "w") as w:
 
     def compound_statement(self, tree: Tree):
         out("# compound statement")
+        out("while True:")
+        indent_inc()
         _ = ""
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
         if _.strip():
             out(_)
+        out("break  # end compound statement")
+        indent_dec()
 
     def block_item_list(self, tree: Tree):
         _ = ""
@@ -503,11 +511,11 @@ with open("md/index.md", "w") as w:
                 _ += visit
         if _.strip():
             out(f"segment: any = {_.rstrip()}")
-            out("if isinstance(segment, gamebook_core.Item):")
+            out("if isinstance(segment, gamebook_core.AbstractItem):")
             indent_inc()
             out("state[room_name]['vars']['items'].add(segment)")
             indent_dec()
-            out("elif isinstance(segment, gamebook_core.Character):")
+            out("elif isinstance(segment, gamebook_core.AbstractCharacter):")
             indent_inc()
             out("state[room_name]['vars']['items'].add(segment)")
             indent_dec()
@@ -605,9 +613,9 @@ with open("md/index.md", "w") as w:
         e = self.visit(assignment_express)
         out(f"if {e}:")
         indent_inc()
-        out("continue")
+        out("continue # continue do while loop")
         indent_dec()
-        out("break")
+        out("break  # exit do while loop")
         indent_dec()
 
     # for_statement: FOR "(" assignment_statement expression_statement expression ")" statement
@@ -621,7 +629,7 @@ with open("md/index.md", "w") as w:
         out(f"_ = {es}")
         out(f"if not _:")
         indent_inc()
-        out("break")
+        out("break  # exit for loop")
         indent_dec()
 
         self.visit(compound_statement)
@@ -677,9 +685,11 @@ with open("md/index.md", "w") as w:
         out(f"random.setstate(_state['random_state'])")
         out(f"return goto_destination_node")
         indent_dec()
+        out(f"has_go_func = True")
         out(f"append_node: str = {func}()")
         out("_output_post_append[node_id] = append_node")
         out("node_id_by_hash[node_hash] = node_id")
+        out("break  # end processing after goto")
         return None
 
     def comment(self, tree: Tree):
@@ -737,20 +747,6 @@ with open("md/index.md", "w") as w:
         indent_dec()
         out(f"option_list.append(({option_description}, {func}))")
 
-    def visit_until_goto(self, tree: Tree) -> bool:
-        for child in tree.children:
-            if isinstance(child, Tree):
-                out(f"# visit_until_goto {child.data}")
-                if child.data == "block_item_list":
-                    if self.visit_until_goto(child):
-                        out(f"# abort [1]")
-                        return True
-                self.visit(child)
-                if child.data == "goto_statement":
-                    out(f"# abort [2]")
-                    return True
-        return False
-
     def option_statement(self, tree: Tree):
         _ = ""
         block: Tree = tree.children[1]
@@ -764,6 +760,7 @@ with open("md/index.md", "w") as w:
         out("global _output")
         out("nonlocal _state")
         out("nonlocal room_func")
+        out("has_go_func: bool = False")
         out(f"node_hash: str = '{func}' + state_checksum()")
         out("if node_hash in node_id_by_hash:")
         indent_inc()
@@ -773,16 +770,13 @@ with open("md/index.md", "w") as w:
         out(f"node_id: str = new_label('{func}')")
         out(f"option_saved_state = save_state()")
         out("out = ''")
-        explicit_go: bool = False
-        if isinstance(block, Tree):
-            for child in block.children:
-                if isinstance(child, Tree):
-                    out(f"# option cmd: {child.data}")
-                    explicit_go = self.visit_until_goto(child)
-        if not explicit_go:
-            out(f"append_node: str = room_func()")
-            out("_output_post_append[node_id] = append_node")
-            out("node_id_by_hash[node_hash] = node_id")
+        self.visit(block)
+        out(f"if not has_go_func:")
+        indent_inc()
+        out(f"append_node: str = room_func()")
+        out("_output_post_append[node_id] = append_node")
+        out("node_id_by_hash[node_hash] = node_id")
+        indent_dec()
         out(f"restore_state(option_saved_state)")
         out(f"random.setstate(_state['random_state'])")
         out("_output[node_id] = out")

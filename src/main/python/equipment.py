@@ -2,6 +2,8 @@ import random
 from dataclasses import dataclass
 from dataclasses import field
 
+import dice
+
 import gamebook_core
 from skills import CharacterSkill
 from skills import CharacterSkillsList
@@ -9,8 +11,26 @@ from skills import CharacterSkillsList
 
 @dataclass(slots=True)
 class Money(gamebook_core.AbstractItem):
-    _type: str = "C"
+    _kind: str = "C"
     _qty: int = 0
+
+    @classmethod
+    def money_combine(cls, monies: list["Money"]) -> list["Money"]:
+        if not monies:
+            return list()
+        if isinstance(monies, Money):
+            monies = [monies]
+        if not isinstance(monies, list):
+            return monies
+        new_monies: list[Money] = list()
+        for coin_kind in ["P", "G", "E", "S", "C"]:
+            new_money: Money = Money().as_kind(coin_kind)
+            new_monies.append(new_money)
+            for old_money in monies.copy():
+                if old_money.is_kind(coin_kind):
+                    monies.remove(old_money)
+                    new_money.qty += old_money.qty
+        return new_monies
 
     @classmethod
     def money_changer(cls, monies: list["Money"]) -> list["Money"]:
@@ -26,41 +46,61 @@ class Money(gamebook_core.AbstractItem):
             pp = cp // 1000
             cp = cp % 1000
             if pp:
-                monies.append(Money(_type="P", _qty=pp))
+                monies.append(Money(_kind="P", _qty=pp))
         if cp >= 100:
             gp = cp // 100
             cp = cp % 100
             if gp:
-                monies.append(Money(_type="G", _qty=gp))
+                monies.append(Money(_kind="G", _qty=gp))
         if cp >= 50:
             ep = cp // 50
             cp = cp % 50
             if ep:
-                monies.append(Money(_type="E", _qty=ep))
+                monies.append(Money(_kind="E", _qty=ep))
         if cp >= 10:
             sp = cp // 10
             cp = cp % 10
             if sp:
-                monies.append(Money(_type="S", _qty=sp))
+                monies.append(Money(_kind="S", _qty=sp))
         if cp:
-            monies.append(Money(_type="C", _qty=cp))
+            monies.append(Money(_kind="C", _qty=cp))
         return monies
+
+    def add(self, qty: int) -> "Money":
+        combined: Money = Money()
+        combined.as_kind(self.kind)
+        combined.qty += qty
+        return combined
+
+    @property
+    def qty(self) -> int:
+        return self._qty
+
+    @qty.setter
+    def qty(self, qty: int) -> None:
+        self._qty = qty
+
+    def is_kind(self, _kind: str) -> bool:
+        if not _kind:
+            return False
+        _kind = _kind[0].upper()
+        return _kind == self.kind[0]
 
     @property
     def name(self) -> str:
-        return f"{self._qty:,} {self.type}P"
+        return f"{self._qty:,} {self.kind}P"
 
     @property
     def cp(self) -> int:
-        if self._type == "C":
+        if self._kind == "C":
             return self._qty
-        if self._type == "S":
+        if self._kind == "S":
             return self._qty * 10
-        if self._type == "E":
+        if self._kind == "E":
             return self._qty * 50
-        if self._type == "G":
+        if self._kind == "G":
             return self._qty * 100
-        if self._type == "P":
+        if self._kind == "P":
             return self._qty * 1000
         return 0
 
@@ -82,30 +122,30 @@ class Money(gamebook_core.AbstractItem):
 
     @property
     def base_name(self) -> str:
-        return self._type
+        return self._kind
 
     @property
-    def type(self) -> str:
-        return self._type
+    def kind(self) -> str:
+        return self._kind
 
-    @type.setter
-    def type(self, _type: str) -> None:
-        if not _type:
+    @kind.setter
+    def kind(self, _kind: str) -> None:
+        if not _kind:
             return
-        _type = _type.strip()[0].upper()
-        if _type == "C":
-            self._type = "C"
-        elif _type == "S":
-            self._type = "S"
-        elif _type == "E":
-            self._type = "E"
-        elif _type == "G":
-            self._type = "G"
-        elif _type == "P":
-            self._type = "P"
+        _kind = _kind.strip()[0].upper()
+        if _kind == "C":
+            self._kind = "C"
+        elif _kind == "S":
+            self._kind = "S"
+        elif _kind == "E":
+            self._kind = "E"
+        elif _kind == "G":
+            self._kind = "G"
+        elif _kind == "P":
+            self._kind = "P"
 
-    def as_type(self, _type: str) -> "Money":
-        self.type = _type
+    def as_kind(self, _kind: str) -> "Money":
+        self.kind = _kind
         return self
 
     def at_qty(self, _qty: int) -> "Money":
@@ -114,23 +154,17 @@ class Money(gamebook_core.AbstractItem):
 
 
 @dataclass(slots=True)
-class Moneys:
-    cp: Money = field(default_factory=Money)
-    sp: Money = field(default_factory=Money)
-    ep: Money = field(default_factory=Money)
-    gp: Money = field(default_factory=Money)
-    pp: Money = field(default_factory=Money)
-    def __post_init__(self):
-        pass
-
-
-@dataclass(slots=True)
 class Shield(gamebook_core.AbstractItem):
     _name: str = ""
     location: str = ""
     defense_bonus: int = 0
     armor_penalty: int = 0
-    cost_sp: int = 0
+    cost: int = 0
+    cost_unit: str = "GP"
+
+    @property
+    def is_cursed(self) -> bool:
+        return self.defense_bonus < 0
 
     @property
     def name(self) -> str:
@@ -144,14 +178,15 @@ class Shield(gamebook_core.AbstractItem):
     def base_name(self) -> str:
         return self._name
 
-    def __init__(self, name: str, defense_bonus: int, armor_penalty: int, cost_sp: int):
+    def __init__(self, name: str, defense_bonus: int, armor_penalty: int, cost: int):
         self.name = name
         self.defense_bonus = defense_bonus
         self.armor_penalty = armor_penalty
-        self.cost_sp = cost_sp
+        self.cost = cost
+        self.cost_unit = "GP"
 
     def __str__(self) -> str:
-        name: str = f"{self.name}, Defense: +{self.defense_bonus}, Mana: -{self.armor_penalty}"
+        name: str = f"{self.name}, Defense: {self.defense_bonus:+}, Mana: {-self.armor_penalty:+}"
         if hasattr(self, 'location') and self.location:
             return f"{name} <{self.location}>"
         return name
@@ -186,16 +221,22 @@ class Item(gamebook_core.AbstractItem):
     _uses: int | None = None
     _name: str = ""
     _desc: str = ""
-    cost_sp: int = 0
+    cost: int = 0
+    cursed: bool = False
+    cost_unit: str = "GP"
+
+    @property
+    def is_cursed(self) -> bool:
+        return self.cursed
 
     @property
     def base_name(self) -> str:
         return self._name
 
-    def __init__(self, name: str, location: str = "", cost_sp: int = 0):
+    def __init__(self, name: str, location: str = "", cost: int = 0):
         self._name = name
         self._desc = ""
-        self.cost_sp = cost_sp
+        self.cost = cost
         self._uses = None
 
     def __str__(self) -> str:
@@ -271,15 +312,20 @@ class Armor(gamebook_core.AbstractItem):
     defense_bonus: int = 0
     mana_bonus: int = 0
     _armor_penalty: int = 0
-    cost_sp: int = 0
+    cost: int = 0
+    cost_unit: str = "GP"
     location: str = ""
     _desc: str = ""
 
-    def __init__(self, name: str, defense: int, armor_penalty: int, cost_sp: int):
+    @property
+    def is_cursed(self) -> bool:
+        return self.defense_bonus < 0
+
+    def __init__(self, name: str, defense: int, armor_penalty: int, cost: int):
         self.name = name
         self.defense = defense
         self.armor_penalty = armor_penalty
-        self.cost_sp = cost_sp
+        self.cost = cost
         self.location = ""
         self.mana_bonus = 0
         self.defense_bonus = 0
@@ -361,12 +407,26 @@ class Weapon(gamebook_core.AbstractItem):
     _name: str = ""
     location: str = ""
     skill: CharacterSkill = None
-    _damage: str = "1d6"
-    cost_sp: int = 1
+    _damage: str = "1d6x"
+    _damage_alt: str = ""
+    cost: int = 0
+    cost_unit: str = "GP"
     _desc: str = ""
     _attack_bonus: int = 0
     _damage_bonus: int = 0
     _two_handed: bool = False
+
+    @property
+    def damage_max(self) -> int:
+        return dice.roll_max(self.damage)
+
+    @property
+    def damage_min(self) -> int:
+        return dice.roll_min(self.damage)
+
+    @property
+    def is_cursed(self) -> bool:
+        return self._attack_bonus < 0 or self._damage_bonus < 0
 
     @property
     def description(self) -> str:
@@ -402,9 +462,21 @@ class Weapon(gamebook_core.AbstractItem):
 
     @property
     def damage(self) -> str:
-        if not hasattr(self, "_damage_bonus"):
-            setattr(self, "_damage_bonus", 0)
+        if self.two_handed and self._damage_alt:
+            return self.damage2
         return f"{self._damage}{self._damage_bonus:+}"
+
+    @damage.setter
+    def damage(self, damage: str) -> None:
+        self._damage = damage
+
+    @property
+    def damage2(self) -> str:
+        return f"{self._damage_alt}{self._damage_bonus:+}"
+
+    @damage2.setter
+    def damage2(self, damage: str) -> None:
+        self._damage_alt = damage
 
     @property
     def two_handed(self) -> bool:
@@ -446,13 +518,13 @@ class Weapon(gamebook_core.AbstractItem):
     def __init__(self, name: str,  #
                  skill: CharacterSkill = CharacterSkillsList.skill_by_name("Unarmed"),  #
                  base_damage: str = "1d4x",  #
-                 cost_sp: int = 0,  #
+                 cost: int = 0,  #
                  two_handed: bool = False):
         self._name = name
         self.location = ""
         self.skill = skill
         self._damage = base_damage
-        self.cost_sp = cost_sp
+        self.cost = cost
         self._desc = ""
         self._description = ""
         self._attack_bonus = 0
@@ -498,7 +570,7 @@ class Weapon(gamebook_core.AbstractItem):
         two_handed_flame_axe: Weapon = Weapon("Black Axe",  #
                                               skill=CharacterSkillsList.skill_by_name("Axes"),  #
                                               base_damage="2d6x",  #
-                                              cost_sp=50000,  #
+                                              cost=50000,  #
                                               two_handed=True)
         two_handed_flame_axe.attack_bonus = 1
         two_handed_flame_axe.damage_bonus = 1

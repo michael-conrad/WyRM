@@ -151,15 +151,11 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
             return f"At full health. {self.hp}/{self.hit_points_max}"
         return f"Not at full health. {self.hp}/{self.hit_points_max}"
 
-    def set_location(self, location: str) -> "CharacterSheet":
-        self.location = location
-        return self
-
     @property
-    def armor_worn_list(self) -> str:
+    def list_armor_equipped(self) -> str:
         _ = ""
         for armor in self.armor_worn:
-            _ += f"\n;## {armor}"
+            _ += f"* {armor.base_name}\n"
         return _
 
     def add_item(self, item: Shield | Armor | Item | Weapon | Money | str) -> None:
@@ -805,37 +801,48 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
 
     @property
     def list_money(self) -> str:
+        self.combine_monies()
         _ = ""
         for item in self.equipment:
-            if isinstance(item, Money):
-                _ += f"* {item.name} = {item.cp} CP\n"
+            if isinstance(item, Money) and item.cp:
+                _ += f"* {item.name}\n"
         return _
 
-    def spend_money(self, cost: Money) -> None:
-        cp = self.money_cp
-        for item in [*self.equipment]:
+    def combine_monies(self) -> list[Money]:
+        new_list: list[Money] = list()
+        for item in self.equipment.copy():
             if isinstance(item, Money):
+                new_list.append(item)
                 self.equipment.remove(item)
+        if new_list:
+            new_list = Money.money_combine(new_list)
+            self.equipment.extend(new_list)
+        return new_list
+
+    def spend_money(self, cost: Money) -> None:
+        cp = 0
+        for kind in ["C", "S", "E", "G", "P"]:
+            for item in [*self.equipment]:
+                if isinstance(item, Money):
+                    cp += item.cp
+                    self.equipment.remove(item)
+                    if cp >= cost.cp:
+                        break
         cp = max(cp - cost.cp, 0)
-        m: Money = Money().as_type("C").at_qty(cp)
-        for change in Money.money_changer([m]):
-            self.add_item(change)
+        if cp:
+            m: Money = Money().as_kind("C").at_qty(cp)
+            for change in Money.money_changer([m]):
+                self.add_item(change)
+        self.combine_monies()
 
     @property
-    def money_sp(self):
-        sp: int = 0
-        for item in self.equipment:
-            if isinstance(item, Money):
-                sp += item.sp
-        return sp
-
-    @property
-    def money_cp(self):
+    def money(self):
         cp: int = 0
         for item in self.equipment:
             if isinstance(item, Money):
                 cp += item.cp
-        return cp
+        m = Money(_kind="C", _qty=cp)
+        return m
 
     @property
     def list_armor(self) -> str:

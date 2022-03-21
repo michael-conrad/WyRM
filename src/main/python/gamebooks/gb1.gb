@@ -131,12 +131,16 @@ player.list_gear;
 
 "## Money"
 
-player.add_items(Money.money_changer(Money().as_type("s").at_qty(166)));
+player.add_items(Money.money_changer(Money().as_kind("s").at_qty(166)));
 player.list_money;
 
 "## Weapons"
 
-player.equip_weapon(Weapon.by_name("Axe"));
+item = Weapon("Handaxe");
+item.damage = "1d6x";
+item.cost = 5;
+item.cost_unit = "GP";
+player.equip_weapon(item);
 player.list_weapons;
 
 "## Armor"
@@ -311,18 +315,27 @@ once {
 }
 room health_in_stock;
 if (health_in_stock>0) {
-    if (health_in_stock == 1) {
-        "A sign says: Only {health_in_stock} health potions is in stock. 10sp."
+    cost = 7;
+    if (health_in_stock > 2) {
+        cost = 7;
+    } else if (health_in_stock > 1) {
+        cost = 9;
     } else {
-        "A sign says: Only {health_in_stock} health potions are in stock. 10sp each."
+        cost = 25;
+    }
+    if (health_in_stock == 1) {
+        "A sign says: Only {health_in_stock} health potions is in stock. {cost} sp."
+    } else {
+        "A sign says: Only {health_in_stock} health potions are in stock. {cost} sp each."
     }
 
     option "Purchase a health potion" {
-        if (player.money_sp < 10) {
+        cost = health_in_stock == 1 ? 15 : 9;
+        if (player.money.sp < cost) {
             "You don't have enough money."
         } else {
-            "You hand over 10sp to the merchant and he gives you a potion."
-            player.spend_money(Money().as_type("S").at_qty(10));
+            "You hand over {cost}sp to the merchant. You receive a potion."
+            player.spend_money(Money().as_kind("S").at_qty(cost));
             player.add_item(Item("Healing potion"));
             health_in_stock -= 1;
         }
@@ -334,17 +347,87 @@ if (health_in_stock>0) {
     }
 }
 
-if (player.money_cp) {
+if (player.money.cp) {
     "Your available funds:"
     player.list_money;
 }
-
 
 direction "Exit the shop" "town" facing "s";
 
 [armory-shop]
 
+"You see various weapons and armors on display."
+
+armor = list();
+p_max = player.weapon.damage_max;
+if (p_max <= maxof 1@6) {
+    item = Weapon("Handaxe");
+    item.damage = "1d6x";
+    item.cost = 5;
+    item.cost_unit = "GP";
+    armor.append(item);
+}
+if (p_max <= maxof 1@10) {
+    item = Weapon("Battleaxe");
+    item.damage = "1d8x";
+    item.damage2 = "1d10x";
+    item.cost = 10;
+    item.cost_unit = "GP";
+    armor.append(item);
+}
+if (p_max <= maxof 1@12) {
+    item = Weapon("Greataxe");
+    item.damage = "1d12x";
+    item.two_handed = true;
+    item.cost = 30;
+    item.cost_unit = "GP";
+    armor.append(item);
+}
+if (p_max <= maxof 1@10) {
+    item = Weapon("Halberd");
+    item.damage = "1d10x";
+    item.two_handed = true;
+    item.cost = 20;
+    item.cost_unit = "GP";
+    armor.append(item);
+}
+
+if (player.weapon.is_cursed) {
+    "None of the axes or halberds on display seem better than your current item. Which you decide you will never part with."
+} else if (len(armor)) {
+   "The following weapons on display suit your fighting style and include what the proprietor indicates is better than what you have now:"
+
+    refund = int(player.weapon.cost / 2);
+    for (item: armor) {
+        cost = item.cost-refund;
+        cost = max(cost, 0);
+        "* {item.name}. Cost with trade-in: {cost} {item.cost_unit}. Player has {player.money.gp} GP."
+        if (player.money.gp >= cost) {
+            option "Exchange your {player.weapon.name} for a new {item.name}." {
+                discard = player.drop(player.weapon.name);
+                player.equip_weapon(item);
+                "You purchased a {player.weapon.name}."
+            }
+         } else {
+            option "Exchange your equipped {player.weapon.name} for a new {item.name}." {
+                "You don't have enough money."
+            }
+        }
+    }
+} else {
+    "None of weapons the shop has in stock seem useful."
+}
+
+// if (!player.armor
+
+
+
 direction "Exit the armory" "town" facing "e";
+
+if (player.money.cp) {
+    "Your available funds:"
+    player.list_money;
+}
 
 [end-game]
 

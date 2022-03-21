@@ -169,6 +169,9 @@ class Items:
             if item.name.startswith(item_name):
                 return item
 
+    def clear(self) -> None:
+        self._inv.clear()
+
     @property
     def inv(self) -> str:
         result: str = ""

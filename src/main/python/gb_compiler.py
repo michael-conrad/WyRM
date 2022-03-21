@@ -198,7 +198,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
             out(f"gamebook_metadata[\"{tag}\"] = \"{value}\"\n")
         out()
 
-
     def metadata_entry(self, tree: Tree | Token) -> tuple[str, str]:
         tag: Token
         value: Token
@@ -637,6 +636,17 @@ with open("md/index.md", "w") as w:
         out(f"{ae}")
         indent_dec()
 
+    # for_each_statement: FOR "(" IDENTIFIER ":" expression")" statement
+    def for_each_statement(self, tree: Tree):
+        var: Tree
+        expression: Tree
+        compound_statement: Tree
+        _, var, expression, compound_statement = tree.children
+        out(f"for {self.visit(var)} in {self.visit(expression)}:")
+        indent_inc()
+        self.visit(compound_statement)
+        indent_dec()
+
     def repeat_statement(self, tree: Tree):
         out(f"# repeat statement {self.__top_level_children(tree)}")
         _, expression, statement = tree.children
@@ -750,7 +760,7 @@ with open("md/index.md", "w") as w:
     def option_statement(self, tree: Tree):
         _ = ""
         block: Tree = tree.children[1]
-        option_description = basic_unescape(tree.children[0][1:-1])
+        option_description = self.visit(tree.children[0])  # basic_unescape(tree.children[0][1:-1])
         func: str = self.next_option
         out()
         out(f"def {func}() -> str:")
@@ -782,7 +792,7 @@ with open("md/index.md", "w") as w:
         out("_output[node_id] = out")
         out("return node_id")
         indent_dec()
-        out(f"option_list.append((\"{basic_escape(option_description)}\", {func}))")
+        out(f"option_list.append(({option_description}, {func}))")
 
     def once_statement(self, tree: Tree):
         # out(f"# once: {self.__top_level_children(tree.children)}")
@@ -814,6 +824,23 @@ with open("md/index.md", "w") as w:
         out(f"_state = {_}")
         self.visit(block)
         indent_dec()
+
+    def python_list(self, tree: Tree):
+        out(f"# python list {self.__top_level_children(tree)}")
+        _ = "list("
+        for visit in self.visit_children(tree):
+            if visit:
+                _ += visit
+        _ += ")"
+        return _
+
+    def python_tuple(self, tree: Tree):
+        out(f"# python tuple {self.__top_level_children(tree)}")
+        _ = ""
+        for visit in self.visit_children(tree):
+            if visit:
+                _ += visit
+        return _
 
     def postfix_function_void(self, tree: Tree):
         _ = ""
@@ -1089,6 +1116,20 @@ with open("md/index.md", "w") as w:
                 _ += visit
         return f"({_})"
 
+    def list_args(self, tree: Tree) -> str:
+        _ = ""
+        for visit in self.visit_children(tree):
+            if visit:
+                _ += visit
+        return f"({_})"
+
+    def list_void(self, tree):
+        _ = ""
+        for visit in self.visit_children(tree):
+            if visit:
+                _ += visit
+        return f"({_})"
+
     def comma(self, tree):
         return ", "
 
@@ -1135,6 +1176,30 @@ with open("md/index.md", "w") as w:
     def dice_roll(self, tree: Tree) -> str:
         tree_count, tree_die, tree_explode = tree.children
         _ = "int(dice.roll("
+        _ += f"str({self.visit(tree_count)})"
+        _ += " + \"d\" + "
+        _ += f"str({self.visit(tree_die)})"
+        if self.visit(tree_explode):
+            _ += " + \"x\""
+        _ += "))"
+        return _
+    
+    # max_dice_roll: "max" unary_expression "@" unary_expression dice_explode
+    def max_dice_roll(self, tree: Tree) -> str:
+        tree_count, tree_die, tree_explode = tree.children
+        _ = "int(dice.roll_max("
+        _ += f"str({self.visit(tree_count)})"
+        _ += " + \"d\" + "
+        _ += f"str({self.visit(tree_die)})"
+        if self.visit(tree_explode):
+            _ += " + \"x\""
+        _ += "))"
+        return _
+
+    # min_dice_roll: "min" unary_expression "@" unary_expression dice_explode
+    def min_dice_roll(self, tree: Tree) -> str:
+        tree_count, tree_die, tree_explode = tree.children
+        _ = "int(dice.roll_min("
         _ += f"str({self.visit(tree_count)})"
         _ += " + \"d\" + "
         _ += f"str({self.visit(tree_die)})"

@@ -72,7 +72,7 @@ class Facing:
         if self.facing == "n":
             return "s"
         elif self.facing == "e":
-            return "e"
+            return "w"
         elif self.facing == "s":
             return "n"
         return "e"

@@ -67,11 +67,11 @@ class NPC:
         sheet.warrior_base = 4
         sheet.rogue_base = 4
         sheet.mage_base = 0
-        sheet.armor = 3
+        sheet.armor_class = 3
         bite: Weapon = Weapon("Bite", CharacterSkillsList.skill_by_name("Unarmed"), "1d6", 0)
         sheet.weapons.append(bite)
         sheet.reset_pools()
-        sheet.base_defense = 8 - sheet.armor
+        sheet.base_defense = 8 - sheet.armor_class
         sheet.hit_points_max = 14
         sheet.hp = 14
         sheet.fate = 0
@@ -88,12 +88,12 @@ class NPC:
         sheet.warrior_base = 3
         sheet.rogue_base = 3
         sheet.mage_base = 0
-        sheet.armor = 1
+        sheet.armor_class = 1
         sword: Weapon = copy.copy(Weapon.by_name("Sword"))
         sword.name = "Sword - Rusty"
         sheet.weapons.append(sword)
         sheet.reset_pools()
-        sheet.base_defense = 7 - sheet.armor
+        sheet.base_defense = 7 - sheet.armor_class
         sheet.hit_points_max = 9
         sheet.hp = 9
         sheet.equip_armor(Armor("Rusted chain mail", 1, 0, 0))
@@ -112,12 +112,12 @@ class NPC:
         sheet.warrior_base = 3
         sheet.rogue_base = 3
         sheet.mage_base = 0
-        sheet.armor = 1
+        sheet.armor_class = 1
         wpn: Weapon = Weapon.by_name("Bow")
         wpn.name = "Bow - Dry rotting"
         sheet.weapons.append(wpn)
         sheet.reset_pools()
-        sheet.base_defense = 7 - sheet.armor
+        sheet.base_defense = 7 - sheet.armor_class
         sheet.hit_points_max = 9
         sheet.hp = 9
         sheet.fate = 0
@@ -134,7 +134,7 @@ class NPC:
         sheet.warrior_base = 6
         sheet.rogue_base = 0
         sheet.mage_base = 0
-        sheet.armor = 0
+        sheet.armor_class = 0
         wpn: Weapon = Weapon(name="Infected Bite", base_damage="1d6x")
         sheet.weapons.append(wpn)
         sheet.reset_pools()
@@ -156,7 +156,7 @@ class NPC:
         sheet.warrior_base = 4
         sheet.rogue_base = 2
         sheet.mage_base = 0
-        sheet.armor = 0
+        sheet.armor_class = 0
         wpn: Weapon = Weapon(name="Bite (Warrior)", base_damage="1d6x")
         sheet.weapons.append(wpn)
         sheet.reset_pools()
@@ -180,7 +180,7 @@ class NPC:
         sheet.warrior_base = 6
         sheet.rogue_base = 6
         sheet.mage_base = 0
-        sheet.armor = 4
+        sheet.armor_class = 4
         sheet.attack_attribute = SkillAttribute.Rogue
         wpn: Weapon = Weapon(name="Venomous Bite (Rogue)", base_damage="1d6x")
         wpn.damage_bonus = 2

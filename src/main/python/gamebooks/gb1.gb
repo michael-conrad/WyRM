@@ -180,7 +180,7 @@ if (!alcove) {
     option "Examine empty alcove" {
         alcove = true;
         "You discover a cleverly disguised door."
-        face("e");
+        facing.face("e");
     }
 } else {
     direction "Go through door in alcove to your {facing.e}." "5a" facing "e";
@@ -190,7 +190,7 @@ if (!looted) {
     option "Loot alcoves" {
         looted = true;
         "You go crazy looting"
-        face("e");
+        facing.face("e");
     }
 }
 
@@ -280,6 +280,7 @@ You see an alchemy shop to your {facing.n}.
 There is a weapons and armory shop to your {facing.w}.
 The inn where you have a room is to the the {facing.e}.
 To the {facing.s} is the road leading out of town which goes by the ruins of the abbey.
+Behind is {facing.behind}.
 """
 
 if (facing.behind != "n") option "Visit alchemy shop" {
@@ -307,6 +308,7 @@ if (!know_of_tunnel) {
 }
 
 [potion-shop]
+
 room swiftness_in_stock;
 room mana_renew_in_stock;
 room darkvision_in_stock;

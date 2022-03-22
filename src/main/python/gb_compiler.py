@@ -224,7 +224,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
         indent_inc()
         out(f"state['world'][attr] = imports[attr]")
         indent_dec()
-        out(f"state['world']['__builtins__'] = globals()['__builtins__']")
         out("state['world']['facing'] = state['world']['Facing']().with_facing('n')")
         out("# build up list of keys not to pickle or checksum")
         out("ignore_pickle_keys: set[str] = set()")
@@ -266,6 +265,9 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out("_output: dict[str, str] = dict()")
         out("_output_post_append: dict[str, str] = dict()")
         out("node_id_by_hash: dict[str, str] = dict()")
+        out()
+        out(f"state['world']['__builtins__'] = globals()['__builtins__']")
+        out()
 
         # scan ahead for room names to build room to function lookup table
 
@@ -700,13 +702,14 @@ with open("md/index.md", "w") as w:
         out(f"raise KeyError(f\"room {{lookup}} not found.\")")
         indent_dec()
 
+        out(f"goto_saved_state = save_state()")
+
         facing = ""
         for _ in self.visit_children(direction_facing):
             facing += _
         if facing:
             out(f"state['world']['facing'].face({facing})")
 
-        out(f"goto_saved_state = save_state()")
         out(f"goto_destination_node: str = room_function_lookup[lookup]()")
         out(f"restore_state(goto_saved_state)")
         out(f"random.setstate(_state['random_state'])")

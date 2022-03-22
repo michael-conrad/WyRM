@@ -197,3 +197,22 @@ class Items:
             result = "\n\nItems:" + result
 
         return result + "\n\n"
+
+
+_turn: list[int] = [0]
+
+
+def next_turn() -> None:
+    global _turn
+    _turn.append(_turn[-1]+1)
+
+
+def turn() -> int:
+    global _turn
+    return _turn[-1]
+
+
+def restore_turn() -> None:
+    global _turn
+    if len(_turn) > 1:
+        _turn.pop(-1)

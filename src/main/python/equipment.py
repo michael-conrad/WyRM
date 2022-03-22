@@ -321,16 +321,6 @@ class Armor(gamebook_core.AbstractItem):
     def is_cursed(self) -> bool:
         return self.defense_bonus < 0
 
-    def __init__(self, name: str, defense: int, armor_penalty: int, cost: int):
-        self.name = name
-        self.defense = defense
-        self.armor_penalty = armor_penalty
-        self.cost = cost
-        self.location = ""
-        self.mana_bonus = 0
-        self.defense_bonus = 0
-        self._desc = ""
-
     def __str__(self) -> str:
         return self.name
 
@@ -418,11 +408,11 @@ class Weapon(gamebook_core.AbstractItem):
 
     @property
     def damage_max(self) -> int:
-        return dice.roll_max(self.damage)
+        return dice.roll_max(self.damage.replace("x", ""))
 
     @property
     def damage_min(self) -> int:
-        return dice.roll_min(self.damage)
+        return dice.roll_min(self.damage.replace("x", ""))
 
     @property
     def is_cursed(self) -> bool:

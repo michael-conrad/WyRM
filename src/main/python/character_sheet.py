@@ -60,7 +60,7 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
     mana: int = 0
     base_defense: int = 0
     _defense_mod: int = 0
-    armor: int = 0
+    armor_class: int = 0
     armor_mod: int = 0
     hit_points_armor: int = 0
 
@@ -151,13 +151,6 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
             return f"At full health. {self.hp}/{self.hit_points_max}"
         return f"Not at full health. {self.hp}/{self.hit_points_max}"
 
-    @property
-    def list_armor_equipped(self) -> str:
-        _ = ""
-        for armor in self.armor_worn:
-            _ += f"* {armor.base_name}\n"
-        return _
-
     def add_item(self, item: Shield | Armor | Item | Weapon | Money | str) -> None:
         if isinstance(item, str):
             item = Item(item)
@@ -228,7 +221,7 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
 
     @property
     def defense(self) -> int:
-        return self.base_defense + self.armor + self.armor_mod
+        return self.base_defense + self.armor_class + self.armor_mod
 
     @property
     def is_alive(self) -> bool:
@@ -256,11 +249,13 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
         if self.weapons:
             weapon: Weapon = self.weapons[0]
             damage = weapon.damage
-        if self.hit_points < self.hit_points_max // 2:
-            damage = f"({damage})-3"
         if self.massive_attack:
             damage = f"{damage}{self.warrior:+}"
             self.massive_attack = False
+        if self.hit_points < self.hit_points_max // 2:
+            m = dice.roll_max(damage)
+            m = max(min(m-1, 3), 0)
+            damage = f"({damage})-{m}"
         return damage
 
     @property
@@ -278,8 +273,12 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
     @property
     def weapon(self) -> Weapon:
         if not self.weapons:
-            return Weapon("")
+            hands = Weapon("Bare hands")
+            hands.damage = "1d2x"
+            self.equip_weapon(hands)
         return self.weapons[0]
+
+
 
     @property
     def hps(self) -> tuple[int, int]:
@@ -288,6 +287,9 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
     @hps.setter
     def hps(self, hit_points: tuple[int, int]) -> None:
         self.hit_points, self.hit_points_armor = hit_points
+
+    def discard(self, name: str) -> None:
+        self.drop(name)
 
     def drop(self, name: str) -> Weapon | Armor | Shield | Item | None:
         name = name.lower()
@@ -373,8 +375,8 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
         self.weapons.insert(0, new_weapon)
         return None
 
-    def set_armor(self, defense: int, penalty: int) -> str:
-        self.armor = defense
+    def set_armor_class(self, defense: int, penalty: int) -> str:
+        self.armor_class = defense
         self.armor_penalty = penalty
         self.mana = min(self.mana_max - self.armor_penalty, self.mana)
         self.hit_points_armor = 0  # 5 * self.armor
@@ -382,7 +384,7 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
 
     def equip_armor(self, armor: Armor) -> None:
         self.armor_worn.insert(0, armor)
-        self.set_armor(armor.defense, armor.armor_penalty)
+        self.set_armor_class(armor.defense, armor.armor_penalty)
 
     def print(self) -> None:
         print(f"Warrior: {self.warrior}, Adv. Taken: {self.adv_taken}")
@@ -391,7 +393,7 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
         print()
         print(f"HP: {self.hit_points} ({self.hit_points_max})")
         print(f"Mana: {self.mana} ({self.mana_max})")
-        print(f"Defense: {self.defense} = {self.base_defense=} | {self.armor=}")
+        print(f"Defense: {self.defense} = {self.base_defense=} | {self.armor_class=}")
         print()
 
         print("=== SKILLS ===")
@@ -847,14 +849,26 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
     @property
     def list_armor(self) -> str:
         _ = ""
+        if not self.armor_worn:
+            self.equip_armor(Armor.by_name("Clothes"))
         for item in self.armor_worn:
             if isinstance(item, Armor):
                 _ += f"* {item.name}. Defense: {item.defense}. Mana penalty: -{item.armor_penalty}.\n"
         return _
 
     @property
+    def armor(self) -> Armor:
+        if not self.armor_worn:
+            self.equip_armor(Armor.by_name("Clothes"))
+        return self.armor_worn[0]
+
+    @property
     def list_weapons(self) -> str:
         _ = ""
+        if not self.weapons:
+            hands = Weapon("Bare hands")
+            hands.damage = "1d2x"
+            self.equip_weapon(hands)
         for item in self.weapons:
             if isinstance(item, Weapon):
                 _ += f"* {item.name}. Damage: {item.damage}.\n"

@@ -77,6 +77,7 @@ def end_room() -> None:
     out("out += \"* \" + _md_link")
     out("out += \"\\n\"")
     indent_dec()
+    out("restore_turn()")
     out("_output[node_id] = out")
     out("return node_id")
     indent_dec()
@@ -143,7 +144,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
 
         # system required imports
         out("import re")
-        out("import gamebook_core")
+        out("from gamebook_core import *")
         out("import shutil")
         out("import os")
         out("import html")
@@ -233,6 +234,12 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out(f"ignore_pickle_keys.add('__builtins__')")
         out("# Intentionally not tracked in state")
         out("_node_id: dict[str, int] = dict()")
+        out()
+        out()
+        out("def copy(o: any) -> any:")
+        indent_inc()
+        out("return jsonpickle.decode(jsonpickle.encode(any, keys=True), keys=True)")
+        indent_dec()
         out()
         out()
         out("def face(facing: str):")
@@ -354,7 +361,7 @@ for key in _output:
     out = re.sub("\\n\\\\s+\\n", "\\n\\n", out) 
     with open("md/" + key + ".md", "w") as w:
         w.write("\\n")
-        w.write("# " + key)
+        # w.write("# " + key)
         w.write(out)
         w.write("\\n")
         
@@ -362,7 +369,7 @@ with open("md/index.md", "w") as w:
     out = _output[index_node]
     out = re.sub("\\n\\\\s+\\n", "\\n\\n", out)
     w.write("\\n")
-    w.write("# " + index_node)
+    # w.write("# " + index_node)
     w.write(out)
     w.write("\\n")        
 """)
@@ -379,8 +386,6 @@ with open("md/index.md", "w") as w:
                 self.visit(child)
                 continue
             if isinstance(child, Token):
-                if child.type == "NL":
-                    continue
                 if child.type == "ROOM_NAME":
                     name = child.strip()
                     room_name: str = self.room_lookup[name]
@@ -400,6 +405,7 @@ with open("md/index.md", "w") as w:
                     out(f"state['{room_name}']['vars']['items'] = gamebook_core.Items()")
                     out()
                     out()
+
                     out(f"def {room_name}() -> str:")
                     indent_inc()
                     value: str = basic_escape(f"{name}")
@@ -409,14 +415,8 @@ with open("md/index.md", "w") as w:
                     out("global recurse_depth")
                     out(f"_state: dict[str, any] = state['{room_name}']")
                     out(f"_once: set[int] = _state['once']")
-                    out(f"_local: dict[str, any] = dict()  # not persistent, discarded after processing")
                     out(f"room: str = {self.q1}{value}{self.q1}")
                     out(f"room_name: str = {self.q1}{room_name}{self.q1}")
-                    # out("out: str = ''")
-                    # if self.main_room == name:
-                    #     out("state['world']['facing'] = Facing().with_facing('n')"
-                    #         " # initial assumed facing for first room")
-
                     out("# see if this is a repeating state, if yes, just use original node id")
                     out("global node_id_by_hash")
                     out("node_hash: str = room_name + state_checksum()")
@@ -425,6 +425,7 @@ with open("md/index.md", "w") as w:
                     out("return node_id_by_hash[node_hash]")
                     indent_dec()
                     out(f"node_id: str = new_label(room_name)")
+                    out("next_turn()")
                     out("out = ''")
                     out("node_id_by_hash[node_hash] = node_id")
                     out(f"room_func: Callable = {room_name}")
@@ -553,8 +554,6 @@ with open("md/index.md", "w") as w:
         return _
 
     def if_else_statement(self, tree: Tree):
-        out(f"# if else: {len(tree.children)}")
-        out(f"# {self.__top_level_children(tree.children)}")
         _, expression, true_block, _, false_block = tree.children
 
         _ = "if "
@@ -623,6 +622,7 @@ with open("md/index.md", "w") as w:
         out(self.visit(assignment_expression))
         es = self.visit(expression_statement)
         ae = self.visit(assignment_express)
+
         out(f"while True:")
         indent_inc()
         out(f"_ = {es}")
@@ -638,14 +638,30 @@ with open("md/index.md", "w") as w:
 
     # for_each_statement: FOR "(" IDENTIFIER ":" expression")" statement
     def for_each_statement(self, tree: Tree):
-        var: Tree
+        out("# for each")
+        postfix: Tree
         expression: Tree
         compound_statement: Tree
-        _, var, expression, compound_statement = tree.children
-        out(f"for {self.visit(var)} in {self.visit(expression)}:")
+        _, postfix, expression, compound_statement = tree.children
+
+        lvalue: str = self.visit(postfix)
+        if lvalue == "state['world']":
+            raise SyntaxError(f"Can not set world to a value. Only world members may be set.")
+        saved_locals = self.scope_local.copy()
+        if lvalue.startswith("state['world']['"):
+            var = lvalue[len("state['world']['"):-2]
+            if var not in self.scope_world and var not in self.scope_room:
+                self.scope_local.add(var)
+                out(f"# foreach local var: {var}")
+            else:
+                out(f"# foreach global or room var: {var}")
+
+        out(f"# local vars: {self.scope_local}")
+        out(f"for {self.visit(postfix)} in {self.visit(expression)}:")
         indent_inc()
         self.visit(compound_statement)
         indent_dec()
+        self.scope_local.intersection_update(saved_locals)
 
     def repeat_statement(self, tree: Tree):
         out(f"# repeat statement {self.__top_level_children(tree)}")
@@ -698,7 +714,6 @@ with open("md/index.md", "w") as w:
         out(f"has_go_func = True")
         out(f"append_node: str = {func}()")
         out("_output_post_append[node_id] = append_node")
-        out("node_id_by_hash[node_hash] = node_id")
         out("break  # end processing after goto")
         return None
 
@@ -763,24 +778,34 @@ with open("md/index.md", "w") as w:
         option_description = self.visit(tree.children[0])  # basic_unescape(tree.children[0][1:-1])
         func: str = self.next_option
         out()
-        out(f"def {func}() -> str:")
+        saved_locals = self.scope_local.copy()
+        closures: str = ""
+        if self.scope_local:
+            for var in self.scope_local:
+                if closures:
+                    closures += ", "
+                # closures += f"_local_{var}=_ref_local_{var}"
+                closures += f"_local_{var}=_local_{var}"
+        out(f"def {func}({closures}) -> str:")
         indent_inc()
         out(f"\"\"\"{basic_escape(option_description)}\"\"\"")
+        # out()
         out("global node_id_by_hash")
         out("global _output")
         out("nonlocal _state")
         out("nonlocal room_func")
+        out()
         out("has_go_func: bool = False")
+        out("# new node id may be needed")
+        out(f"node_id: str = new_label('{func}')")
+        out(f"option_saved_state = save_state()")
+        out("out = ''")
+        self.visit(block)
         out(f"node_hash: str = '{func}' + state_checksum()")
         out("if node_hash in node_id_by_hash:")
         indent_inc()
         out("return node_id_by_hash[node_hash]")
         indent_dec()
-        out("# new node id is needed")
-        out(f"node_id: str = new_label('{func}')")
-        out(f"option_saved_state = save_state()")
-        out("out = ''")
-        self.visit(block)
         out(f"if not has_go_func:")
         indent_inc()
         out(f"append_node: str = room_func()")
@@ -793,6 +818,8 @@ with open("md/index.md", "w") as w:
         out("return node_id")
         indent_dec()
         out(f"option_list.append(({option_description}, {func}))")
+        self.scope_local.intersection_update(saved_locals)
+        out(f"# restored locals: {self.scope_local} was {saved_locals}")
 
     def once_statement(self, tree: Tree):
         # out(f"# once: {self.__top_level_children(tree.children)}")
@@ -807,23 +834,6 @@ with open("md/index.md", "w") as w:
         indent_dec()
         out("else:")
         indent_inc()
-
-    def with_statement(self, tree: Tree):
-        _ = ""
-
-        with_item, block = tree.children
-
-        for visit in self.visit(with_item):
-            if visit:
-                _ += visit
-
-        func = self.next_func
-        out(f"def {func}():")
-        indent_inc()
-        out(f"nonlocal {_}")
-        out(f"_state = {_}")
-        self.visit(block)
-        indent_dec()
 
     def python_list(self, tree: Tree):
         out(f"# python list {self.__top_level_children(tree)}")
@@ -985,7 +995,6 @@ with open("md/index.md", "w") as w:
             if var not in self.scope_world:
                 self.scope_local.add(var)
                 lvalue: str = self.visit(postfix)
-
         out(f"{lvalue} {op} {value}")
 
     def assignment_operator(self, tree: Tree):
@@ -1018,7 +1027,7 @@ with open("md/index.md", "w") as w:
                     if var in __builtins__:
                         _ += f"__builtins__.{var}"
                     elif var in self.scope_local:
-                        _ += f"_local['{var}']"
+                        _ += f"_local_{var}"
                     elif var in self.scope_room:
                         _ += f"state[room_name]['vars']['{var}']"
                     elif var in self.scope_world:
@@ -1056,7 +1065,7 @@ with open("md/index.md", "w") as w:
                 var = re.sub("(?i)^([a-z_][a-z_0-9]*).*", "\\1", var)
                 if var in self.scope_local:
                     field_var = var
-                    key_var.add(f"{var}=_local['{var}']")
+                    key_var.add(f"{var}=_local_{var}")
                 elif var in self.scope_room:
                     field_var = var
                     key_var.add(f"{var}=state[room_name]['vars']['{var}']")
@@ -1191,8 +1200,8 @@ with open("md/index.md", "w") as w:
         _ += f"str({self.visit(tree_count)})"
         _ += " + \"d\" + "
         _ += f"str({self.visit(tree_die)})"
-        if self.visit(tree_explode):
-            _ += " + \"x\""
+        # if self.visit(tree_explode):
+        #     _ += " + \"x\""
         _ += "))"
         return _
 
@@ -1203,8 +1212,8 @@ with open("md/index.md", "w") as w:
         _ += f"str({self.visit(tree_count)})"
         _ += " + \"d\" + "
         _ += f"str({self.visit(tree_die)})"
-        if self.visit(tree_explode):
-            _ += " + \"x\""
+        # if self.visit(tree_explode):
+        #     _ += " + \"x\""
         _ += "))"
         return _
 
@@ -1279,6 +1288,7 @@ with open("md/index.md", "w") as w:
             self.scope_room.add(var)
         if scope == "local":
             self.scope_local.add(var)
+            out(f"_local_{var}: any = None")
 
     def __default__(self, tree: Tree | Token):
         out(f"# __default__: {tree.data}")

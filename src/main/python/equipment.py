@@ -249,8 +249,8 @@ class Item(gamebook_core.AbstractItem):
     @property
     def description(self) -> str:
         if self._desc:
-            return f"\n{self.name}\n{self._desc}".replace("\n", '\n;## ')
-        return f"\n;## {self.name}"
+            return f"{self.name}: {self._desc}"
+        return f"{self.name}"
 
     @description.setter
     def description(self, desc: str) -> None:
@@ -408,11 +408,15 @@ class Weapon(gamebook_core.AbstractItem):
 
     @property
     def damage_max(self) -> int:
-        return dice.roll_max(self.damage.replace("x", ""))
+        if self._damage_alt:
+            return int(dice.roll_max(self._damage_alt.replace("x", "")))
+        return int(dice.roll_max(self._damage.replace("x", "")))
 
     @property
     def damage_min(self) -> int:
-        return dice.roll_min(self.damage.replace("x", ""))
+        if self._damage_alt:
+            return int(dice.roll_min(self._damage_alt.replace("x", "")))
+        return int(dice.roll_min(self._damage.replace("x", "")))
 
     @property
     def is_cursed(self) -> bool:

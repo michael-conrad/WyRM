@@ -307,42 +307,78 @@ if (!know_of_tunnel) {
 }
 
 [potion-shop]
+room swiftness_in_stock;
+room mana_renew_in_stock;
+room darkvision_in_stock;
 room health_in_stock;
+room option_ctr; //used to prevent option block from short-circuiting into a single block for no sale.
+option_ctr = 0;
 once {
-    health_in_stock = 1@3;
+    swiftness_in_stock = 1@4;
+    mana_renew_in_stock = 1@4;
+    darkvision_in_stock = 1@4;
+    health_in_stock = 1@4;
+} else {
+    if (!swiftness_in_stock && 1@6 == 1) swiftness_in_stock = 1@8;
+    if (!mana_renew_in_stock && 1@6 == 1) mana_renew_in_stock = 1@8;
+    if (!darkvision_in_stock && 1@6 == 1) darkvision_in_stock = 1@8;
+    if (!health_in_stock && 1@6 == 1) health_in_stock = 1@8;
 }
-room health_in_stock;
-if (health_in_stock>0) {
-    cost = 7;
-    if (health_in_stock > 2) {
-        cost = 7;
-    } else if (health_in_stock > 1) {
-        cost = 9;
-    } else {
-        cost = 25;
-    }
-    if (health_in_stock == 1) {
-        "A sign says: Only {health_in_stock} health potions is in stock. {cost} sp."
-    } else {
-        "A sign says: Only {health_in_stock} health potions are in stock. {cost} sp each."
-    }
 
-    option "Purchase a health potion" {
-        cost = health_in_stock == 1 ? 15 : 9;
-        if (player.money.sp < cost) {
-            "You don't have enough money."
+potions = list();
+if (swiftness_in_stock) {
+    potion = Item("Potion of Speed");
+    potion.description = "Defense bonus +1d3.";
+    potion.cost=50;
+    potion.cost_unit="gp";
+    potions.append(potion);
+}
+if (mana_renew_in_stock) {
+    potion = Item("Potion of Mana");
+    potion.description = "Gradually restores mana over time. Lasts 3d4 turns.";
+    potion.cost=25;
+    potion.cost_unit="gp";
+    potions.append(potion);
+}
+if (darkvision_in_stock) {
+    potion = Item("Potion of Darkvision");
+    potion.description = "Grants ability to see in the darkness. Lasts 3d4 rounds.";
+    potion.cost=50;
+    potion.cost_unit="gp";
+    potions.append(potion);
+}
+if (health_in_stock) {
+    potion = Item("Potion of Healing");
+    potion.description = "Heals 2d4+2.";
+    potion.cost=25;
+    potion.cost_unit="gp";
+    potions.append(potion);
+}
+if (potions) {
+    "The following potions are in stock:"
+    for_sale = "";
+    for (potion: potions) {
+        for_sale += "* {potion.description}\n";
+        m = Money();
+        m.qty = potion.cost;
+        m.kind = potion.cost_unit;
+        if (player.money.cp < m.cp) {
+            option "Purchase one {potion.name} for {potion.cost} {potion.cost_unit}." {
+                option_ctr += 1;
+                "You don't have {potion.cost} {potion.cost_unit} to purchase a {potion.name}."
+            }
         } else {
-            "You hand over {cost}sp to the merchant. You receive a potion."
-            player.spend_money(Money().as_kind("S").at_qty(cost));
-            player.add_item(Item("Healing potion"));
-            health_in_stock -= 1;
+            option "Purchase one {potion.name} for {potion.cost} {potion.cost_unit}." {
+                option_ctr += 1;
+                "You hand over {m.name} and receive back one {potion.name}."
+                player.spend_money(m);
+                player.add_item(potion);
+            }
         }
     }
+    for_sale;
 } else {
-    "A sign says: No potions are in stock. Try back again later."
-    if (1@6 == 1) {
-        health_in_stock = 1@10;
-    }
+    "A sign says: No potions are in stock."
 }
 
 if (player.money.cp) {
@@ -357,13 +393,15 @@ direction "Exit the shop" "town" facing "s";
 "You see various weapons and armors on display."
 
 weapons = list();
+refund = int(player.weapon.cost / 2);
 p_max = player.weapon.damage_max;
+"player damage max: {p_max}"
 if (p_max < maxof 1@6) {
     item = Weapon("Handaxe");
     item.damage = "1d6x";
     item.cost = 5;
     item.cost_unit = "GP";
-    weapons.append(item);
+    if (player.money.gp >= item.cost - refund) weapons.append(item);
 }
 if (p_max < maxof 1@10) {
     item = Weapon("Battleaxe");
@@ -371,7 +409,7 @@ if (p_max < maxof 1@10) {
     item.damage2 = "1d10x";
     item.cost = 10;
     item.cost_unit = "GP";
-    weapons.append(item);
+    if (player.money.gp >= item.cost - refund) weapons.append(item);
 }
 if (p_max < maxof 1@12) {
     item = Weapon("Greataxe");
@@ -379,7 +417,7 @@ if (p_max < maxof 1@12) {
     item.two_handed = true;
     item.cost = 30;
     item.cost_unit = "GP";
-    weapons.append(item);
+    if (player.money.gp >= item.cost - refund) weapons.append(item);
 }
 if (p_max < maxof 1@10) {
     item = Weapon("Halberd");
@@ -387,7 +425,7 @@ if (p_max < maxof 1@10) {
     item.two_handed = true;
     item.cost = 20;
     item.cost_unit = "GP";
-    weapons.append(item);
+    if (player.money.gp >= item.cost - refund) weapons.append(item);
 }
 
 "Your current armor and weapon ensemble:"
@@ -397,25 +435,21 @@ player.list_armor + player.list_weapons;
 if (player.weapon.is_cursed) {
     "None of the axes or halberds on display seem better than your current item. Which you decide you will never part with."
 } else if (len(weapons)) {
-   "The following weapons suit your fighting style, appear deadlier than what you have now, and you have the funds for:"
-    refund = int(player.weapon.cost / 2);
-    local idx;
+   "The following weapons within your budget suit your fighting style:"
     for_sale="";
     for (item: weapons) {
         cost = item.cost-refund;
         cost = max(cost, 0);
-        if (player.money.gp >= cost) {
-            for_sale += "* {item.name}. Cost with trade-in: {cost} {item.cost_unit}.\n";
-            option "Purchase a new {item.name}." {
-                player.discard(player.weapon.name);
-                player.equip_weapon(item);
-                "You purchased a {player.weapon.name} for {cost} {item.cost_unit}."
-                m = Money();
-                m.qty=cost;
-                m.kind=item.cost_unit;
-                player.spend_money(m);
-            }
-         }
+        for_sale += "* {item.name}. Cost with trade-in: {cost} {item.cost_unit}.\n";
+        option "Purchase a new {item.name}." {
+            player.discard(player.weapon.name);
+            player.equip_weapon(item);
+            "You purchased a {player.weapon.name} for {cost} {item.cost_unit}."
+            m = Money();
+            m.qty=cost;
+            m.kind=item.cost_unit;
+            player.spend_money(m);
+        }
     }
     for_sale;
 } else {
@@ -423,75 +457,74 @@ if (player.weapon.is_cursed) {
 }
 
 armors = list();
+refund = int(player.armor.cost / 2);
 if (player.armor_class < 1) {
     item = Armor("Padded Cloth");
     item.defense = 1;
     item.armor_penalty = 0;
     item.cost = 5;
-    armors.append(item);
+    if (player.money.gp >= item.cost - refund) armors.append(item);
 }
 if (player.armor_class < 2) {
     item = Armor("Leather Armor");
     item.defense = 2;
     item.armor_penalty = 1;
     item.cost = 10;
-    armors.append(item);
+    if (player.money.gp >= item.cost - refund) armors.append(item);
 }
 if (player.armor_class < 3) {
     item = Armor("Scale Mail Armor");
     item.defense = 3;
     item.armor_penalty = 2;
     item.cost = 50;
-    armors.append(item);
+    if (player.money.gp >= item.cost - refund) armors.append(item);
 }
 if (player.armor_class < 5) {
     item = Armor("Chain Mail Armor");
     item.defense = 5;
     item.armor_penalty = 4;
     item.cost = 75;
-    armors.append(item);
+    if (player.money.gp >= item.cost - refund) armors.append(item);
 }
 if (player.armor_class < 6) {
     item = Armor("Splint Mail Armor");
     item.defense = 6;
     item.armor_penalty = 5;
     item.cost = 200;
-    armors.append(item);
+    if (player.money.gp >= item.cost - refund) armors.append(item);
 }
 if (player.armor_class < 7) {
     item = Armor("Plate Mail Armor");
     item.defense = 7;
     item.armor_penalty = 5;
     item.cost = 200;
-    armors.append(item);
+    if (player.money.gp >= item.cost - refund) armors.append(item);
 }
 
 if (player.armor.is_cursed) {
     "None of the armor appears better than the excellent gear you have. Which you decide you will never part with."
 } else if (len(armors)) {
-   "The following armor appears more protective than what you have now, and you have the funds for:"
+   "The following armor within your budget appears more protective than what you have now:"
     refund = int(player.armor.cost / 2);
     local idx;
     for_sale="";
     for (item: armors) {
         cost = item.cost-refund;
         cost = max(cost, 0);
-        if (player.money.gp >= cost) {
-            for_sale += "* {item.name}. Cost with trade-in: {cost} {item.cost_unit}.\n";
-            option "Purchase a new {item.name}." {
-                player.discard(player.armor.name);
-                player.equip_armor(item);
-                "You purchased a {player.armor.name} for {cost} {item.cost_unit}."
-                m = Money();
-                m.qty=cost;
-                m.kind=item.cost_unit;
-                player.spend_money(m);
-            }
-         }
+        for_sale += "* {item.name}. Cost with trade-in: {cost} {item.cost_unit}.\n";
+        option "Purchase a new {item.name}." {
+            player.discard(player.armor.name);
+            player.equip_armor(item);
+            "You purchased a {player.armor.name} for {cost} {item.cost_unit}."
+            m = Money();
+            m.qty=cost;
+            m.kind=item.cost_unit;
+            player.spend_money(m);
+        }
     }
     for_sale;
 } else {
-    "None of armor the shop has in stock seems useful."
+    "There is no armor better than what you have that you can afford."
 }
 
 direction "Exit the armory" "town" facing "e";

@@ -47,7 +47,7 @@ direction "Start reading" "Start the Game" facing "w";
 
 
 """
-This is a Warrior, Rogue, Mage rules based gamebook.
+This is a Warrior, Rogue, Mage with some D&D 5e rules mixed in gamebook.
 
 You are playing the one page dungeon quest:
 
@@ -156,9 +156,12 @@ As a new adventurer you have come seeking loot. Hopefully stuff that will help
 with future adventures.
 """
 
+player.save_inv_list();
+
 goto "town" facing "w";
 
 [5]
+
 room looted;
 room alcove;
 once {
@@ -198,7 +201,6 @@ if (facing.behind != "s") direction "Exit the crypt using the portcullis to your
 
 [5a]
 
-
 once {
     rooms("5a").desc1;
 } else {
@@ -219,13 +221,12 @@ once {
     "You are at a four way intersection. The passage to your {facing.e} leads to the ruins above."
 }
 
-if (facing.behind !="n") direction "{facing.dn}" "5" facing "n";
-if (facing.behind !="w") direction "{facing.dw}" "4" facing "w";
-if (facing.behind !="e") direction "{facing.de}" "1" facing "e";
-if (facing.behind !="s") direction "{facing.ds}" "3 Way" facing "s";
+// if (facing.behind !="n") direction "{facing.dn}" "5" facing "n";
+// if (facing.behind !="w") direction "{facing.dw}" "4" facing "w";
+// if (facing.behind !="e") direction "{facing.de}" "1" facing "e";
+// if (facing.behind !="s") direction "{facing.ds}" "3 Way" facing "s";
 
 [1]
-
 """
 A flight of stairs leads up to the {facing.n}. A long passageway is to your {facing.w}.
 """
@@ -236,8 +237,6 @@ if (facing.behind != "n") option "Climb up stairs" {
     out into the ruins of the Abbey.
     """
     goto "ruins" facing "w";
-
-    "dead code"
 }
 
 if (facing.behind != "w") direction "Follow passageway" "4way" facing "w";
@@ -538,13 +537,11 @@ if (player.money.cp) {
 
 [end-game]
 
+"# END GAME"
+
 "### Found Items:"
 
 player.found_items;
-
-"### Gear and non-equipped weapons and armor:"
-
-player.list_gear;
 
 "### Equipped weapons and armor:"
 
@@ -552,7 +549,6 @@ player.list_weapons;
 player.list_armor;
 
 [2]
-
 once {
     """
     You follow the passage for 50ft and come to a cave with a tiled floor. You see a stone plinth on the far
@@ -598,7 +594,6 @@ if (facing.behind != "e") direction "{facing.de}" "2" facing "e";
 if (facing.behind != "s") direction "{facing.ds}" "3" facing "s";
 
 [3]
-
 once {
     """
     You enter a 90ft x 40ft room full of wine and ale casks. Many are open. You don't see any other doors or
@@ -642,7 +637,6 @@ if (!examine_pond) option "Examine pond" {
 direction "Examine crack" "4a" facing "s";
 
 [4a]
-
 if (facing.facing=="s") {
     "You are in an upward sloping tunnel."
     direction "Continue upwards" "4b" facing "s";

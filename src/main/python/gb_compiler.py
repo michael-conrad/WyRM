@@ -61,7 +61,6 @@ def out(text: str = ""):
 
 
 def end_room() -> None:
-    out("break  # end room")
     indent_dec()
     out("recurse_depth -= 1")
     out("out += state[room_name]['vars']['items'].inv")
@@ -74,7 +73,7 @@ def end_room() -> None:
     out("restore_state(saved_state)")
     out(f"_option_text: str = str(_[0])")
     out(f"_option_text = html.escape(_option_text)")
-    out(f"_md_link: str = \"[\" + _option_text + \"](\" + destination_node + \")\"")
+    out(f"_md_link: str = \"[\" + _option_text + \"](\" + destination_node + \".md)\"")
     out("out += \"* \" + _md_link")
     out("out += \"\\n\"")
     indent_dec()
@@ -95,6 +94,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
     room_pad_length: int = 1
     state_track_set: set[str] = set()
     _func_ctr: int = 0
+    _abort_ctr: int = 0
 
     room_lookup: dict[str, str] = dict()
     room_ctr_lookup: dict[str, int] = dict()
@@ -109,6 +109,8 @@ class GamebookCompiler(lark.visitors.Interpreter):
     scope_world: set[str] = set()
     scope_room: set[str] = set()
     scope_local: set[str] = set()
+
+    next_option_ctrs: dict[str, int] = dict()
 
     @property
     def func_ctr(self) -> int:
@@ -130,6 +132,11 @@ class GamebookCompiler(lark.visitors.Interpreter):
         return f"go_{self._func_ctr:06}"
 
     @property
+    def next_abort(self) -> str:
+        self._abort_ctr += 1
+        return f"abort_{self._abort_ctr:06x}"
+
+    @property
     def next_option(self) -> str:
         self._func_ctr += 1
         return f"option_{self._func_ctr:06}"
@@ -144,6 +151,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out("# START")
 
         # system required imports
+        out("from contextlib import contextmanager")
         out("import re")
         out("from gamebook_core import *")
         out("import shutil")
@@ -208,6 +216,32 @@ class GamebookCompiler(lark.visitors.Interpreter):
 
     def rooms(self, tree: Tree):
         self.room_pad_length = len(str(len([s for s in tree.find_data("room")])))
+
+        # enable proper use of "goto" to terminate all remaining code in a room
+        # see: https://stackoverflow.com/a/3171971/12407701
+
+        out("class NestedBreakException(Exception):")
+        indent_inc()
+        out("pass")
+        indent_dec()
+        out()
+        out()
+        out("@contextmanager")
+        out("def nested_break():")
+        indent_inc()
+        out('"""\nEnable proper use of "goto" to terminate all remaining code in a room.\nSee: '
+            'https://stackoverflow.com/a/3171971/12407701\n"""')
+        out()
+        out("try:")
+        indent_inc()
+        out("yield NestedBreakException()")
+        indent_dec()
+        out("except NestedBreakException as e:")
+        indent_inc()
+        out("pass")
+        indent_dec()
+        indent_dec()
+        out()
 
         # add the predefined dict, world, pointing to package locals
         out("# Rooms")
@@ -354,25 +388,25 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out()
         out(f"index_node: str = {self.room_lookup[self.main_room]}()")
         out("""
+import mdformat
+md_options: dict[str, any] = dict()
+md_options["wrap"] = 80
+
 shutil.rmtree("md", ignore_errors=True)
 os.makedirs("md", exist_ok=True)
 for append_to in _output_post_append:
     append_from: str = _output_post_append[append_to]
     _output[append_to] += '\\n\\n' + _output[append_from]
 for key in _output:
-    out = _output[key]
-    out = re.sub("\\n\\\\s+\\n", "\\n\\n", out) 
+    out = mdformat.text(_output[key], options=md_options)
     with open("md/" + key + ".md", "w") as w:
         w.write("\\n")
-        # w.write("# " + key)
         w.write(out)
         w.write("\\n")
         
 with open("md/index.md", "w") as w:
-    out = _output[index_node]
-    out = re.sub("\\n\\\\s+\\n", "\\n\\n", out)
+    out = mdformat.text(_output[index_node], options=md_options)
     w.write("\\n")
-    # w.write("# " + index_node)
     w.write(out)
     w.write("\\n")        
 """)
@@ -416,6 +450,8 @@ with open("md/index.md", "w") as w:
                     out("global _output")
                     out("global state")
                     out("global recurse_depth")
+                    out()
+                    out(f"_sub_func_counter: int = 0")
                     out(f"_state: dict[str, any] = state['{room_name}']")
                     out(f"_once: set[int] = _state['once']")
                     out(f"room: str = {self.q1}{value}{self.q1}")
@@ -428,9 +464,16 @@ with open("md/index.md", "w") as w:
                     out("return node_id_by_hash[node_hash]")
                     indent_dec()
                     out(f"node_id: str = new_label(room_name)")
-                    out("next_turn()")
-                    out("out = ''")
                     out("node_id_by_hash[node_hash] = node_id")
+                    out()
+                    out("next_turn()")
+                    out()
+                    out("if turn() % 100 == 0:")
+                    indent_inc()
+                    out("print(f'Turn: {turn()}')")
+                    indent_dec()
+                    out()
+                    out("out = ''")
                     out(f"room_func: Callable = {room_name}")
                     out("recurse_depth += 1")
                     out("if recurse_depth > 1000:")
@@ -446,7 +489,7 @@ with open("md/index.md", "w") as w:
                     indent_dec()
                     out(f"random.setstate(state['{room_name}']['random_state'])")
                     out("option_list: list[tuple[str, Callable]] = list()")
-                    out("while True:")
+                    out("with nested_break() as abort_processing:")
                     indent_inc()
                     continue
                 if child.type == "NEWLINE":
@@ -477,17 +520,14 @@ with open("md/index.md", "w") as w:
             out(_)
 
     def compound_statement(self, tree: Tree):
+        label: str = self.next_abort
         out("# compound statement")
-        out("while True:")
-        indent_inc()
         _ = ""
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
         if _.strip():
             out(_)
-        out("break  # end compound statement")
-        indent_dec()
 
     def block_item_list(self, tree: Tree):
         _ = ""
@@ -686,13 +726,24 @@ with open("md/index.md", "w") as w:
             out(_)
 
     def goto_statement(self, tree: Tree):
-        _, new_room, direction_facing, _ = tree.children
+        _, new_room, direction_facing, *_ = tree.children
         func = self.next_goto
         out()
         out(f"def {func}():")
         indent_inc()
         out("global room_function_lookup")
+        out("global node_id_by_hash")
+        out()
         out("nonlocal _state")
+        out()
+        out("nonlocal _sub_func_counter")
+        out("_sub_func_counter += 1")
+        out(f"node_hash: str = '{func}' + str(_sub_func_counter) + state_checksum()")
+        out("if node_hash in node_id_by_hash:")
+        indent_inc()
+        out("return node_id_by_hash[node_hash]")
+        indent_dec()
+        out()
         room: str = ""
         for _ in self.visit(new_room):
             room += _
@@ -711,6 +762,8 @@ with open("md/index.md", "w") as w:
             out(f"state['world']['facing'].face({facing})")
 
         out(f"goto_destination_node: str = room_function_lookup[lookup]()")
+        out("node_id_by_hash[node_hash] = goto_destination_node")
+        out()
         out(f"restore_state(goto_saved_state)")
         out(f"random.setstate(_state['random_state'])")
         out(f"return goto_destination_node")
@@ -718,7 +771,7 @@ with open("md/index.md", "w") as w:
         out(f"has_go_func = True")
         out(f"append_node: str = {func}()")
         out("_output_post_append[node_id] = append_node")
-        out("break  # end processing after goto")
+        out("raise abort_processing # end processing after goto")
         return None
 
     def comment(self, tree: Tree):
@@ -766,29 +819,40 @@ with open("md/index.md", "w") as w:
         out(f"def {func}() -> str:")
         indent_inc()
         out(f"\"\"\"{basic_escape(option_bin_description)}\"\"\"")
+        out()
+        out("global node_id_by_hash")
+        out("nonlocal _sub_func_counter")
+        out("_sub_func_counter += 1")
+        out(f"direction_node_hash: str = '{func}' + str(_sub_func_counter) + state_checksum()")
+        out("if direction_node_hash in node_id_by_hash:")
+        indent_inc()
+        out("return node_id_by_hash[direction_node_hash]")
+        indent_dec()
+        out()
         out(f"dir_saved_state = save_state()")
-        if facing:
-            out(f"state['world']['facing'].face({facing})")
-        out(f"direction_destination: str = {room_func}() + \".md\"")
+        out(f"state['world']['facing'].face({facing})")
+        out()
+        out(f"direction_node_id: str = {room_func}()")
+        out("node_id_by_hash[node_hash] = direction_node_id")
+        out()
         out(f"restore_state(dir_saved_state)")
         out(f"random.setstate(_state['random_state'])")
-        out(f"return direction_destination")
+        out(f"return direction_node_id")
         indent_dec()
         out(f"option_list.append(({option_description}, {func}))")
 
     def option_statement(self, tree: Tree):
+        next_option_ctrs = self.next_option_ctrs
         _ = ""
         block: Tree = tree.children[1]
         option_description = self.visit(tree.children[0])  # basic_unescape(tree.children[0][1:-1])
         func: str = self.next_option
-        out()
         saved_locals = self.scope_local.copy()
         closures: str = ""
         if self.scope_local:
             for var in self.scope_local:
                 if closures:
                     closures += ", "
-                # closures += f"_local_{var}=_ref_local_{var}"
                 closures += f"_local_{var}=_local_{var}"
         out(f"def {func}({closures}) -> str:")
         indent_inc()
@@ -800,21 +864,30 @@ with open("md/index.md", "w") as w:
         out("nonlocal room_func")
         out()
         out("has_go_func: bool = False")
-        out("# new node id may be needed")
-        out(f"node_id: str = new_label('{func}')")
+        out()
+        out("nonlocal _sub_func_counter")
+        out("_sub_func_counter += 1")
+        out()
+        out(f"node_hash: str = '{func}' + str(_sub_func_counter) + state_checksum()")
+        out("if node_hash in node_id_by_hash:")
+        indent_inc()
+        out("return node_id_by_hash[node_hash]")
+        indent_dec()
+        out()
+        out(f"option_node_id: str = new_label('{func}')")
+        out("node_id_by_hash[node_hash] = option_node_id")
+        out()
         out(f"option_saved_state = save_state()")
+        out()
         out("out = ''")
+        out("with nested_break() as abort_processing:")
+        indent_inc()
         self.visit(block)
-        out(f"node_hash: str = '{func}' + state_checksum()")
-        # out("if node_hash in node_id_by_hash:")
-        # indent_inc()
-        # out("return node_id_by_hash[node_hash]")
-        # indent_dec()
+        indent_dec()
         out(f"if not has_go_func:")
         indent_inc()
         out(f"append_node: str = room_func()")
         out("_output_post_append[node_id] = append_node")
-        out("node_id_by_hash[node_hash] = node_id")
         indent_dec()
         out(f"restore_state(option_saved_state)")
         out(f"random.setstate(_state['random_state'])")
@@ -1196,7 +1269,7 @@ with open("md/index.md", "w") as w:
             _ += " + \"x\""
         _ += "))"
         return _
-    
+
     # max_dice_roll: "max" unary_expression "@" unary_expression dice_explode
     def max_dice_roll(self, tree: Tree) -> str:
         tree_count, tree_die, tree_explode = tree.children

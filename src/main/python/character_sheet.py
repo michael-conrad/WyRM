@@ -95,20 +95,20 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
             self._saved_inv.append(item.base_name)
 
     @property
-    def found_items(self) -> list[str] | None:
+    def found_items(self) -> str | None:
         _ = list()
         for item in self.armor_worn:
             if item.base_name not in self._saved_inv:
-                _.append(f"* {item.base_name}")
+                _.append(f"* {item.name}")
         for item in self.weapons:
             if item.base_name not in self._saved_inv:
-                _.append(f"* {item.base_name}")
+                _.append(f"* {item.name}")
         for item in self.equipment:
             if item.base_name not in self._saved_inv:
-                _.append(f"* {item.base_name}")
+                _.append(f"* {item.name}")
         if not _:
             return None
-        return _
+        return "\n".join(_)
 
     @property
     def starting_items(self) -> str:

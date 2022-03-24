@@ -211,6 +211,8 @@ direction "Exit room" "5" facing "w";
 
 [4way]
 
+wander();
+
 once {
     """
     You are at a four way intersection.
@@ -221,10 +223,10 @@ once {
     "You are at a four way intersection. The passage to your {facing.e} leads to the ruins above."
 }
 
-// if (facing.behind !="n") direction "{facing.dn}" "5" facing "n";
-// if (facing.behind !="w") direction "{facing.dw}" "4" facing "w";
-// if (facing.behind !="e") direction "{facing.de}" "1" facing "e";
-// if (facing.behind !="s") direction "{facing.ds}" "3 Way" facing "s";
+if (facing.behind !="n") direction "{facing.dn}" "5" facing "n";
+if (facing.behind !="w") direction "{facing.dw}" "4" facing "w";
+if (facing.behind !="e") direction "{facing.de}" "1" facing "e";
+if (facing.behind !="s") direction "{facing.ds}" "3 Way" facing "s";
 
 [1]
 """
@@ -537,7 +539,7 @@ if (player.money.cp) {
 
 [end-game]
 
-"# END GAME"
+"## END GAME"
 
 "### Found Items:"
 
@@ -547,6 +549,8 @@ player.found_items;
 
 player.list_weapons;
 player.list_armor;
+
+start over;
 
 [2]
 once {
@@ -584,9 +588,9 @@ once {
     """
 }
 
-wander = wander();
-if (wander!="") {
-    wander;
+s = wander();
+if (s!="") {
+    s;
 }
 
 if (facing.behind != "n") direction "{facing.dn}" "4way" facing "n";
@@ -667,4 +671,4 @@ direction "Visit town" "town" facing "n";
 
 "You have perished."
 
-direction "Start Over" "Start" facing "n";
+start over;

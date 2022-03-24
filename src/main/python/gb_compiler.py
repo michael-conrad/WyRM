@@ -66,9 +66,9 @@ def end_room() -> None:
     out("out += state[room_name]['vars']['items'].inv")
     out("out += \"\\n\\n\"")
     out("option_list.sort(key=lambda x: x[0])")
+    out("saved_state = save_state()")
     out("for _ in option_list:")
     indent_inc()
-    out("saved_state = save_state()")
     out("destination_node = _[1]()")
     out("restore_state(saved_state)")
     out(f"_option_text: str = str(_[0])")
@@ -153,6 +153,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
         # system required imports
         out("from contextlib import contextmanager")
         out("import re")
+        out("import gamebook_core")
         out("from gamebook_core import *")
         out("import shutil")
         out("import os")
@@ -162,6 +163,8 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out("import random")
         out("import jsonpickle")
         out("from collections.abc import Callable")
+        out("import textwrap")
+        out()
 
         for child in tree.children:
             if isinstance(child, Token):
@@ -217,6 +220,14 @@ class GamebookCompiler(lark.visitors.Interpreter):
     def rooms(self, tree: Tree):
         self.room_pad_length = len(str(len([s for s in tree.find_data("room")])))
 
+        out("# Populate world vars with imported globals")
+        imports = dict()
+        for _ in self.import_block:
+            exec(f'import {_}', imports)
+            exec(f'from {_} import *', imports)
+        for attr in [*imports]:
+            self.scope_world.add(attr)
+
         # enable proper use of "goto" to terminate all remaining code in a room
         # see: https://stackoverflow.com/a/3171971/12407701
 
@@ -253,6 +264,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
         if "gamebook_core" not in self.import_block:
             self.import_block.append("gamebook_core")
         for _ in self.import_block:
+            out(f"exec('import {_}', imports)")
             out(f"exec('from {_} import *', imports)")
         out(f"for attr in [*imports]:")
         indent_inc()
@@ -433,13 +445,10 @@ with open("md/index.md", "w") as w:
                     self.room_lookup[name] = room_name
                     self.state_track_set.add(room_name)
                     out(f"state['{room_name}'] = dict()")
-                    out(f"state['{room_name}']['name'] = \"{basic_escape(name)}\"")
-                    out(f"state['{room_name}']['id'] = {room_no}")
-                    out(f"state['{room_name}']['func_name'] = \"{room_name}\"")
-                    out(f"state['{room_name}']['metadata'] = dict()")
                     out(f"state['{room_name}']['once'] = set()")
                     out(f"state['{room_name}']['vars'] = dict()")
                     out(f"state['{room_name}']['vars']['items'] = gamebook_core.Items()")
+                    out(f"state['{room_name}']['random_state'] = random.Random({self.next_random_seed}).getstate()")
                     out()
                     out()
 
@@ -479,13 +488,6 @@ with open("md/index.md", "w") as w:
                     out("if recurse_depth > 1000:")
                     indent_inc()
                     out("raise RecursionError()")
-                    indent_dec()
-                    self.once_counter += 1
-                    out(f"if {self.once_counter} not in _once:")
-                    indent_inc()
-                    out(f"_once.add({self.once_counter})")
-                    out(f"random.seed({self.next_random_seed})")
-                    out(f"state['{room_name}']['random_state'] = random.getstate()")
                     indent_dec()
                     out(f"random.setstate(state['{room_name}']['random_state'])")
                     out("option_list: list[tuple[str, Callable]] = list()")
@@ -661,6 +663,7 @@ with open("md/index.md", "w") as w:
 
     # for_statement: FOR "(" assignment_statement expression_statement expression ")" statement
     def for_statement(self, tree: Tree):
+        out("# for statement")
         _, assignment_expression, expression_statement, assignment_express, compound_statement = tree.children
         out(self.visit(assignment_expression))
         es = self.visit(expression_statement)
@@ -729,14 +732,15 @@ with open("md/index.md", "w") as w:
         _, new_room, direction_facing, *_ = tree.children
         func = self.next_goto
         out()
+        out()
         out(f"def {func}():")
         indent_inc()
         out("global room_function_lookup")
         out("global node_id_by_hash")
-        out()
         out("nonlocal _state")
-        out()
+        out("nonlocal node_id")
         out("nonlocal _sub_func_counter")
+        out()
         out("_sub_func_counter += 1")
         out(f"node_hash: str = '{func}' + str(_sub_func_counter) + state_checksum()")
         out("if node_hash in node_id_by_hash:")
@@ -744,6 +748,8 @@ with open("md/index.md", "w") as w:
         out("return node_id_by_hash[node_hash]")
         indent_dec()
         out()
+        out(f"goto_saved_state = save_state()")
+
         room: str = ""
         for _ in self.visit(new_room):
             room += _
@@ -752,23 +758,17 @@ with open("md/index.md", "w") as w:
         indent_inc()
         out(f"raise KeyError(f\"room {{lookup}} not found.\")")
         indent_dec()
-
-        out(f"goto_saved_state = save_state()")
-
         facing = ""
         for _ in self.visit_children(direction_facing):
             facing += _
-        if facing:
-            out(f"state['world']['facing'].face({facing})")
+        out(f"state['world']['facing'].face({facing})")
 
-        out(f"goto_destination_node: str = room_function_lookup[lookup]()")
-        out("node_id_by_hash[node_hash] = goto_destination_node")
-        out()
+        out(f"append_node: str = room_function_lookup[lookup]()")
+        out(f"node_id_by_hash[node_hash] = append_node")
         out(f"restore_state(goto_saved_state)")
         out(f"random.setstate(_state['random_state'])")
-        out(f"return goto_destination_node")
+        out(f"return append_node")
         indent_dec()
-        out(f"has_go_func = True")
         out(f"append_node: str = {func}()")
         out("_output_post_append[node_id] = append_node")
         out("raise abort_processing # end processing after goto")
@@ -821,7 +821,10 @@ with open("md/index.md", "w") as w:
         out(f"\"\"\"{basic_escape(option_bin_description)}\"\"\"")
         out()
         out("global node_id_by_hash")
+        out("nonlocal out")
+        out("nonlocal room")
         out("nonlocal _sub_func_counter")
+        out()
         out("_sub_func_counter += 1")
         out(f"direction_node_hash: str = '{func}' + str(_sub_func_counter) + state_checksum()")
         out("if direction_node_hash in node_id_by_hash:")
@@ -829,14 +832,12 @@ with open("md/index.md", "w") as w:
         out("return node_id_by_hash[direction_node_hash]")
         indent_dec()
         out()
-        out(f"dir_saved_state = save_state()")
         out(f"state['world']['facing'].face({facing})")
         out()
         out(f"direction_node_id: str = {room_func}()")
-        out("node_id_by_hash[node_hash] = direction_node_id")
+
+        out("node_id_by_hash[direction_node_hash] = direction_node_id")
         out()
-        out(f"restore_state(dir_saved_state)")
-        out(f"random.setstate(_state['random_state'])")
         out(f"return direction_node_id")
         indent_dec()
         out(f"option_list.append(({option_description}, {func}))")
@@ -854,6 +855,8 @@ with open("md/index.md", "w") as w:
                 if closures:
                     closures += ", "
                 closures += f"_local_{var}=_local_{var}"
+        # out("_sub_func_counter += 1")
+        out()
         out(f"def {func}({closures}) -> str:")
         indent_inc()
         out(f"\"\"\"{basic_escape(option_description)}\"\"\"")
@@ -862,30 +865,23 @@ with open("md/index.md", "w") as w:
         out("global _output")
         out("nonlocal _state")
         out("nonlocal room_func")
-        out()
-        out("has_go_func: bool = False")
-        out()
         out("nonlocal _sub_func_counter")
-        out("_sub_func_counter += 1")
         out()
+        out("_sub_func_counter += 1")
         out(f"node_hash: str = '{func}' + str(_sub_func_counter) + state_checksum()")
         out("if node_hash in node_id_by_hash:")
         indent_inc()
         out("return node_id_by_hash[node_hash]")
         indent_dec()
-        out()
-        out(f"option_node_id: str = new_label('{func}')")
-        out("node_id_by_hash[node_hash] = option_node_id")
-        out()
         out(f"option_saved_state = save_state()")
         out()
-        out("out = ''")
+        out(f"node_id: str = new_label('{func}')")
+        out("node_id_by_hash[node_hash] = node_id")
+        out()
         out("with nested_break() as abort_processing:")
         indent_inc()
+        out("out = ''")
         self.visit(block)
-        indent_dec()
-        out(f"if not has_go_func:")
-        indent_inc()
         out(f"append_node: str = room_func()")
         out("_output_post_append[node_id] = append_node")
         indent_dec()
@@ -1110,7 +1106,8 @@ with open("md/index.md", "w") as w:
                     elif var in self.scope_world:
                         _ += f"state['world']['{var}']"
                     else:
-                        _ += f"state['world']['{var}']"
+                        _ += f"_local_{var}"
+                        self.scope_local.add(var)
                 else:
                     _ += child.value
             if isinstance(child, Tree):
@@ -1366,6 +1363,13 @@ with open("md/index.md", "w") as w:
         if scope == "local":
             self.scope_local.add(var)
             out(f"_local_{var}: any = None")
+
+    def start_over(self, tree: Tree):
+        # out(f"index_node: str = {self.room_lookup[self.main_room]}()")
+        out("out += \"\\n\"")
+        # out("out += f\"* [Start Over]({index_node}.md)\"")
+        out("out += f\"* [Start Over](index.md)\"")
+        out("out += \"\\n\"")
 
     def __default__(self, tree: Tree | Token):
         out(f"# __default__: {tree.data}")

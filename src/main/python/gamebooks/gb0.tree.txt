@@ -1,0 +1,210 @@
+start
+  metadata_entry
+    Title
+    Test
+    
+
+
+  rooms
+    room
+      init
+      
+
+
+    expression_statement
+      string_constant	"# Init"
+      
+
+
+    goto_statement
+      goto
+      assignment_expression
+        conditional_expression
+          postfix_expression
+            primary_expression
+              string_constant	"Start"
+      direction_facing	"n"
+      
+
+
+    room
+      Start
+      
+
+    scope_statement
+      world
+      facing
+      
+
+
+    expression_statement
+      string_constant	"## Start"
+      
+
+
+    expression_statement
+      string_constant	"Facing: {facing.facing}"
+      
+
+
+    option_statement
+      short_format_string	"North"
+      compound_statement
+        
+
+        goto_statement
+          goto
+          assignment_expression
+            conditional_expression
+              postfix_expression
+                primary_expression
+                  string_constant	"1"
+          direction_facing	"n"
+          
+
+        
+
+
+    option_statement
+      short_format_string	"South"
+      compound_statement
+        
+
+        goto_statement
+          goto
+          assignment_expression
+            conditional_expression
+              postfix_expression
+                primary_expression
+                  string_constant	"2"
+          direction_facing	"s"
+          
+
+        
+
+
+    iteration_statement
+      for_statement
+        for
+        assignment_expression
+          postfix_expression
+            primary_expression	ix
+          assignment_operator	=
+          assignment_expression
+            conditional_expression
+              postfix_expression
+                primary_expression	0
+        assignment_expression
+          conditional_expression
+            is_lt
+              postfix_expression
+                primary_expression	ix
+              <
+              postfix_expression
+                primary_expression	3
+        assignment_expression
+          postfix_expression
+            primary_expression	ix
+          assignment_operator	+=
+          assignment_expression
+            conditional_expression
+              postfix_expression
+                primary_expression	1
+        compound_statement
+          
+
+          block_item_list
+            option_statement
+              short_format_string	"North Message {ix}"
+              compound_statement
+                
+
+                expression_statement
+                  string_constant	"North Message {ix}"
+                  
+
+                
+
+            option_statement
+              short_format_string	"South Message {ix}"
+              compound_statement
+                
+
+                expression_statement
+                  string_constant	"South Message {ix}"
+                  
+
+                
+
+          
+
+
+
+    room
+      1
+      
+
+
+    expression_statement
+      string_constant	"## 1"
+      
+
+
+    expression_statement
+      string_constant	"Facing: {facing.facing}"
+      
+
+
+
+    option_statement
+      short_format_string	"South"
+      compound_statement
+        
+
+        goto_statement
+          goto
+          assignment_expression
+            conditional_expression
+              postfix_expression
+                primary_expression
+                  string_constant	"Start"
+          direction_facing	"s"
+          
+
+        
+
+
+    room
+      2
+      
+
+
+    expression_statement
+      string_constant	"## 2"
+      
+
+
+    expression_statement
+      string_constant	"Facing: {facing.facing}"
+      
+
+
+
+    option_statement
+      short_format_string	"North"
+      compound_statement
+        
+
+        goto_statement
+          goto
+          assignment_expression
+            conditional_expression
+              postfix_expression
+                primary_expression
+                  string_constant	"Start"
+          direction_facing	"n"
+          
+
+        
+
+

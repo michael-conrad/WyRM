@@ -1,0 +1,54 @@
+Title: Test
+
+[init]
+
+"# Init"
+
+goto "Start" facing "n";
+
+[Start]
+world facing;
+
+"## Start"
+
+"Facing: {facing.facing}"
+
+option "North" {
+    goto "1" facing "n";
+}
+
+option "South" {
+    goto "2" facing "s";
+}
+
+for (ix=0; ix<3; ix+=1) {
+    option "North Message {ix}" {
+        "North Message {ix}"
+    }
+    option "South Message {ix}" {
+        "South Message {ix}"
+    }
+}
+
+
+[1]
+
+"## 1"
+
+"Facing: {facing.facing}"
+
+
+option "South" {
+    goto "Start" facing "s";
+}
+
+[2]
+
+"## 2"
+
+"Facing: {facing.facing}"
+
+
+option "North" {
+    goto "Start" facing "n";
+}

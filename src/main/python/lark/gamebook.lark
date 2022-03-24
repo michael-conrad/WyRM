@@ -47,6 +47,9 @@ once_else: "else"
     | empty_statement
     | scope_statement
     | comment_statement
+    | start_over
+
+start_over: "start" "over" _eos
 
 scope_statement: (WORLD | ROOM | LOCAL | EXTERN) IDENTIFIER _eos
 

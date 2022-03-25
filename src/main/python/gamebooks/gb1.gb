@@ -212,6 +212,7 @@ direction "Exit room" "5" facing "w";
 [4way]
 
 wander();
+turn();
 
 once {
     """
@@ -221,6 +222,11 @@ once {
     """
 } else {
     "You are at a four way intersection. The passage to your {facing.e} leads to the ruins above."
+}
+
+if (turn() > 15) {
+    "The ceiling collapses, crushing you."
+    goto "dead" facing "n";
 }
 
 if (facing.behind !="n") direction "{facing.dn}" "5" facing "n";
@@ -300,13 +306,7 @@ if (facing.behind != "s") direction "Head down road and go to the abbey" "ruins-
 
 [ruins-fork]
 world know_of_tunnel;
-if (!know_of_tunnel) {
-    goto "ruins" facing "e";
-} else {
-    "You arrive at the hillside."
-    direction "Climb up to the ruins." "ruins" facing "e";
-    direction "Go to the tunnel." "4b" facing "n";
-}
+goto "ruins" facing "e";
 
 [potion-shop]
 
@@ -639,6 +639,9 @@ if (!examine_pond) option "Examine pond" {
 }
 
 direction "Examine crack" "4a" facing "s";
+if (!facing.is_behind("e")) {
+    direction "Exit back through the entrance to your {facing.e}" "4way" facing "e";
+}
 
 [4a]
 if (facing.facing=="s") {
@@ -664,6 +667,7 @@ once {
     """
 }
 
+direction "Go back into the tunnel" "4a" facing "n";
 direction "Climb hill back to ruins" "ruins" facing "e";
 direction "Visit town" "town" facing "n";
 

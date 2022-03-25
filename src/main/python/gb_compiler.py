@@ -153,8 +153,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
         # system required imports
         out("from contextlib import contextmanager")
         out("import re")
-        out("import gamebook_core")
-        out("from gamebook_core import *")
         out("import shutil")
         out("import os")
         out("import html")
@@ -198,17 +196,11 @@ class GamebookCompiler(lark.visitors.Interpreter):
                 value: str = basic_escape(f"{value.strip()}")
                 info_block.append((tag.strip(), value))
 
-        if self.import_block:
-            out("# Imports from library metadata\n")
-        for import_lib in self.import_block:
-            out(f"from {import_lib} import *\n")
-        out()
-
         if info_block:
-            out("# Game Book Metadata\n")
-            out("gamebook_metadata: dict[str, str] = dict()\n")
+            out("# Game Book Metadata")
+            out("gamebook_metadata: dict[str, str] = dict()")
         for tag, value in info_block:
-            out(f"gamebook_metadata[\"{tag}\"] = \"{value}\"\n")
+            out(f"gamebook_metadata[\"{tag}\"] = \"{value}\"")
         out()
 
     def metadata_entry(self, tree: Tree | Token) -> tuple[str, str]:
@@ -218,6 +210,19 @@ class GamebookCompiler(lark.visitors.Interpreter):
         return tag.strip(), value.strip()
 
     def rooms(self, tree: Tree):
+        # always import the gamebook core module
+        if "gamebook_core" not in self.import_block:
+            self.import_block.append("gamebook_core")
+        if self.import_block:
+            self.import_block.sort()
+        out(f"# Imports from library metadata [{len(self.import_block)}]")
+        for import_lib in self.import_block:
+            out(f"import {import_lib}")
+        out()
+        for import_lib in self.import_block:
+            out(f"from {import_lib} import *")
+        out()
+
         self.room_pad_length = len(str(len([s for s in tree.find_data("room")])))
 
         out("# Populate world vars with imported globals")
@@ -230,7 +235,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
 
         # enable proper use of "goto" to terminate all remaining code in a room
         # see: https://stackoverflow.com/a/3171971/12407701
-
+        out()
         out("class NestedBreakException(Exception):")
         indent_inc()
         out("pass")
@@ -253,24 +258,25 @@ class GamebookCompiler(lark.visitors.Interpreter):
         indent_dec()
         indent_dec()
         out()
+        out()
 
         # add the predefined dict, world, pointing to package locals
         out("# Rooms")
-        out("repeat_state_tracking: dict[str, str] = dict()")
         out("state: dict[str, any] = dict()")
         out("state['world'] = dict()")
         out("recurse_depth: int = 0")
         out("imports = dict()")
-        if "gamebook_core" not in self.import_block:
-            self.import_block.append("gamebook_core")
+        out()
+        # for _ in self.import_block:
+        #     out(f"exec('import {_}', imports)")
+        # out()
         for _ in self.import_block:
-            out(f"exec('import {_}', imports)")
             out(f"exec('from {_} import *', imports)")
+        out()
         out(f"for attr in [*imports]:")
         indent_inc()
         out(f"state['world'][attr] = imports[attr]")
         indent_dec()
-        out("state['world']['facing'] = state['world']['Facing']().with_facing('n')")
         out("# build up list of keys not to pickle or checksum")
         out("ignore_pickle_keys: set[str] = set()")
         out(f"for attr in [*imports]:")
@@ -278,6 +284,9 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out(f"ignore_pickle_keys.add(attr)")
         indent_dec()
         out(f"ignore_pickle_keys.add('__builtins__')")
+        out()
+        out("state['world']['facing'] = state['world']['Facing']().with_facing('n')")
+        out()
         out("# Intentionally not tracked in state")
         out("_node_id: dict[str, int] = dict()")
         out()
@@ -416,8 +425,9 @@ for key in _output:
         w.write(out)
         w.write("\\n")
         
-with open("md/index.md", "w") as w:
+with open("index.md", "w") as w:
     out = mdformat.text(_output[index_node], options=md_options)
+    out = re.sub("\((.*?md)\)", "(md/\\\\1)", out)
     w.write("\\n")
     w.write(out)
     w.write("\\n")        
@@ -567,8 +577,8 @@ with open("md/index.md", "w") as w:
             out("elif segment is not None:")
             indent_inc()
             out(f"out += \"\\n\\n\"")
-            out(f"_ = html.escape(str(segment))")
-            out(f"out += textwrap.dedent(_)")
+            # out(f"_ = html.escape(str(segment))")
+            out(f"out += textwrap.dedent(str(segment))")
             indent_dec()
 
     def selection_statement(self, tree: Tree):

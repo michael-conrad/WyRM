@@ -662,13 +662,14 @@ class NPC:
         return sheet
 
 
-def wander(pct: int = 10) -> list[CharacterSheet]:
-    if random.randint(0, 100) < pct:
-        return wander_monsters()
-    return list()
+def wander(pct: int = 10) -> bool:
+    if random.randint(0, 99) <= pct:
+        return True
+    return False
 
 
 def wander_monsters(die_count: int = 1) -> list[CharacterSheet]:
+
     choices: list[list[CharacterSheet]] = list()
     d2: int = roll(f"{die_count}d2-{die_count-1}")
     d3: int = roll(f"{die_count}d3-{die_count-1}")
@@ -677,64 +678,64 @@ def wander_monsters(die_count: int = 1) -> list[CharacterSheet]:
     d8: int = roll(f"{die_count}d8-{die_count-1}")
     d10: int = roll(f"{die_count}d10-{die_count-1}")
 
-    i: list[CharacterSheet] = list()
+    i: list[CharacterSheet]
 
-    i.clear()
+    i = list()
     for _ in range(d3):
         i.append(NPC.skeleton_warrior())
     choices.append(i)
 
-    i.clear()
+    i = list()
     for _ in range(d2):
         i.append(NPC.zombie())
     choices.append(i)
 
-    i.clear()
+    i = list()
     for _ in range(d3):
         i.append(NPC.giant_rat())
     choices.append(i)
 
-    i.clear()
+    i = list()
     for _ in range(d2):
         i.append(NPC.giant_spider())
     choices.append(i)
 
-    i.clear()
+    i = list()
     for _ in range(d10):
         i.append(NPC.awakened_shrub())
     choices.append(i)
 
-    i.clear()
+    i = list()
     for _ in range(d2):
         i.append(NPC.giant_lizard())
     choices.append(i)
 
-    i.clear()
+    i = list()
     for _ in range(d4):
         i.append(NPC.giant_weasel())
     choices.append(i)
 
-    i.clear()
+    i = list()
     for _ in range(d2):
         i.append(NPC.goblin_warrior())
     choices.append(i)
 
-    i.clear()
+    i = list()
     for _ in range(d3):
         i.append(NPC.hobgoblin_warrior())
     choices.append(i)
 
-    i.clear()
+    i = list()
     for _ in range(d4):
         i.append(NPC.kobold_warrior())
     choices.append(i)
 
-    i.clear()
+    i = list()
     for _ in range(d2):
         i.append(NPC.worg())
     choices.append(i)
 
-    # choices.append(loot())
+    m = random.choice(choices)
     return random.choice(choices)
 
 

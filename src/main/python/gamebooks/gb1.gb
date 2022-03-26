@@ -18,23 +18,6 @@ Library: mob_combat
 
 [Start]
 
-world facing; //built in
-
-world darkvision;
-darkvision = 0;
-
-world torch;
-torch = 0;
-
-world is_dark;
-is_dark = false;
-
-world player;
-player = PCs.player_forsaken_alley();
-
-world know_of_tunnel;
-know_of_tunnel = false;
-
 """
 Welcome New Adventurer!
 
@@ -52,6 +35,51 @@ Please select one of the following options to continue.
 direction "About this book" "About" facing "w";
 direction "Show your support" "Show Your Support" facing "w";
 direction "Start reading" "Start the Game" facing "w";
+
+world facing; //built in
+
+world darkvision;
+darkvision = 0;
+
+world torch;
+torch = 0;
+
+world is_dark;
+is_dark = false;
+
+world player;
+player = PCs.player_forsaken_alley();
+
+world know_of_tunnel;
+know_of_tunnel = false;
+
+macro torch {
+    is_dark = !is_outside && darkvision-turn() < 0 && torch-turn() < 0;
+    if (is_dark && player.has_item("torch")) {
+        "You light a torch."
+        is_dark = false;
+        player.discard("torch");
+        torch = turn() + 60;
+    } else if (torch-turn()==0) {
+        "Your torch sputters."
+    }
+}
+
+macro wander {
+    wander_pct = int(turn()/5) * 5 + 10;
+    wander_cnt = int(turn()/20) + 1;
+    m = MobUnit();
+    if (wander(wander_pct)) {
+        wander_monsters(wander_cnt);
+    }
+    if (items.mobs) {
+        m.add_units(items.mobs);
+        m.combat(player);
+        if (!player.is_alive) {
+            goto "dead" facing "n";
+        }
+    }
+}
 
 [About]
 
@@ -177,6 +205,10 @@ goto "town" facing "w";
 
 [5]
 
+is_outside = false;
+macro torch;
+macro wander;
+
 room looted;
 room alcove;
 local m;
@@ -249,6 +281,9 @@ if (!looted) {
 if (facing.behind != "s") direction "Exit the crypt using the portcullis to your {facing.s}." "4way" facing "s";
 
 [5a]
+is_outside = false;
+macro torch;
+macro wander;
 
 once {
     rooms("5a").desc1;
@@ -259,11 +294,12 @@ once {
 direction "Exit room" "5" facing "w";
 
 [4way]
+is_outside = false;
+macro torch;
+macro wander;
 
-w = wander();
-if (w) {
-    w;
-    "Wandering monsters have ambushed and killed you"
+if (turn()>100) {
+    "too many turns"
     goto "dead" facing "n";
 }
 
@@ -283,6 +319,10 @@ if (facing.behind !="e") direction "{facing.de}" "1" facing "e";
 if (facing.behind !="s") direction "{facing.ds}" "3 Way" facing "s";
 
 [1]
+is_outside = false;
+macro torch;
+macro wander;
+
 """
 A flight of stairs leads up to the {facing.n}. A long passageway is to your {facing.w}.
 """
@@ -298,6 +338,7 @@ if (facing.behind != "n") option "Climb up stairs" {
 if (facing.behind != "w") direction "Follow passageway" "4way" facing "w";
 
 [ruins]
+is_outside = true;
 
 "## Abbey Ruins"
 
@@ -318,22 +359,12 @@ Rubble and collapsed buildings are all about. You see a flight of stairs heading
 
 if (facing.behind != "n") direction "Return to town" "town" facing "n";
 
-macro torch_light {
-    is_dark = !is_outside && darkvision-turn() < 0 && torch-turn() < 0;
-    if (is_dark && player.has_item("torch")) {
-        "You light a torch."
-        is_dark = false;
-        player.discard("torch");
-        torch = turn() + 10;
-    }
-}
-
 if (player.has_item("torch")) {
     option "Climb down stairs" {
         is_outside = false;
-        macro torch_light;
+        macro torch;
         """
-        You climb down a flight of stairs, come to a landing, then turning right go down an additional
+        You climb down a flight of stairs, come to a landing, then turning right going down an additional
         two flights of stairs
         """
         goto "1" facing "s";
@@ -345,6 +376,7 @@ if (player.has_item("torch")) {
 }
 
 [town]
+is_outside = true;
 
 """
 You are in the main town square.
@@ -356,7 +388,7 @@ To the {facing.s} is the road leading out of town which goes by the ruins of the
 Behind is {facing.behind}.
 """
 
-if (facing.behind != "n") option "Visit alchemy shop" {
+if (facing.behind != "n" && player.money.gp>=25) option "Visit alchemy shop" {
     "You walk into the local alchemy shop."
     goto "potion-shop" facing "n";
 }
@@ -366,16 +398,22 @@ if (facing.behind != "w") option "Go weapon and armor shopping" {
     goto "armory-shop" facing "w";
 }
 
+if (facing.behind != "w" && !player.has_item("torch")) option "Go to the supplies store" {
+    "You walk into the supplies store."
+    goto "armory-shop" facing "w";
+}
+
 direction "Retire to the inn [end the game]" "end-game" facing "e";
 
 if (facing.behind != "s") direction "Head down road and go to the abbey" "ruins-fork" facing "e";
 
 [ruins-fork]
+is_outside = true;
 world know_of_tunnel;
 goto "ruins" facing "e";
 
 [potion-shop]
-
+is_outside = true;
 room swiftness_in_stock;
 room mana_renew_in_stock;
 room darkvision_in_stock;
@@ -458,7 +496,7 @@ if (player.money.cp) {
 direction "Exit the shop" "town" facing "s";
 
 [armory-shop]
-
+is_outside = true;
 "You see various weapons and armors on display."
 
 weapons = list();
@@ -604,6 +642,7 @@ if (player.money.cp) {
 }
 
 [end-game]
+is_outside = true;
 
 "## END GAME"
 
@@ -619,6 +658,11 @@ player.list_armor;
 start over;
 
 [2]
+
+is_outside = false;
+macro torch;
+macro wander;
+
 once {
     """
     You follow the passage for 50ft and come to a cave with a tiled floor. You see a stone plinth on the far
@@ -638,6 +682,10 @@ once {
 direction "{facing.dw}" "3 Way" facing "w";
 
 [3 Way]
+
+is_outside = false;
+macro torch;
+macro wander;
 
 once {
     """
@@ -664,6 +712,11 @@ if (facing.behind != "e") direction "{facing.de}" "2" facing "e";
 if (facing.behind != "s") direction "{facing.ds}" "3" facing "s";
 
 [3]
+
+is_outside = false;
+macro torch;
+macro wander;
+
 once {
     """
     You enter a 90ft x 40ft room full of wine and ale casks. Many are open. You don't see any other doors or
@@ -676,6 +729,10 @@ once {
 direction "Climb up the stairs" "3 Way" facing "n";
 
 [4]
+
+is_outside = false;
+macro torch;
+macro wander;
 
 if (facing.facing == "w") {
     "You go down a 60ft passageway and step out into a large cave. The cave is about 100 ft x 70 ft."
@@ -710,6 +767,10 @@ if (!facing.is_behind("e")) {
 }
 
 [4a]
+is_outside = false;
+macro torch;
+macro wander;
+
 if (facing.facing=="s") {
     "You are in an upward sloping tunnel."
     direction "Continue upwards" "4b" facing "s";
@@ -721,6 +782,7 @@ if (facing.facing=="n") {
 }
 
 [4b]
+is_outside = true;
 once {
     know_of_tunnel = true;
     """
@@ -738,6 +800,7 @@ direction "Climb hill back to ruins" "ruins" facing "e";
 direction "Visit town" "town" facing "n";
 
 [dead]
+is_outside = true;
 
 "You have perished."
 

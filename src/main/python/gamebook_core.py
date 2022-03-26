@@ -181,6 +181,7 @@ class Items:
     def clear(self) -> None:
         self._inv.clear()
 
+    @property
     def mobs(self) -> list[AbstractCharacter]:
         mobs = list()
         if not self._inv:

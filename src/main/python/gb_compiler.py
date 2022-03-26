@@ -109,6 +109,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
     scope_world: set[str] = set()
     scope_room: set[str] = set()
     scope_local: set[str] = set()
+    defined_macros: dict[str, Tree] = dict()
 
     next_option_ctrs: dict[str, int] = dict()
 
@@ -452,6 +453,7 @@ with open("index.md", "w") as w:
                     # always make sure previous room has correct return code
                     if room_no > 1:
                         end_room()
+                    self.scope_room.add("items")
                     self.room_lookup[name] = room_name
                     self.state_track_set.add(room_name)
                     out(f"state['{room_name}'] = dict()")
@@ -565,21 +567,32 @@ with open("index.md", "w") as w:
             if visit:
                 _ += visit
         if _.strip():
-            out(f"segment: any = {_.rstrip()}")
-            out("if isinstance(segment, gamebook_core.AbstractItem):")
-            indent_inc()
-            out("state[room_name]['vars']['items'].add(segment)")
-            indent_dec()
-            out("elif isinstance(segment, gamebook_core.AbstractCharacter):")
-            indent_inc()
-            out("state[room_name]['vars']['items'].add(segment)")
-            indent_dec()
-            out("elif segment is not None:")
-            indent_inc()
+            out(f"rvalues: any = {_.rstrip()}")
+            out("if rvalues is not None:")
+            indent_inc()  # 1
+            out(f"if not isinstance(rvalues, list):")
+            indent_inc()  # 2
+            out("rvalues = [rvalues]")
+            indent_dec()  # 2
+            out()
+            out("for rvalue in rvalues:")
+            indent_inc()  # 2
+            out("if isinstance(rvalue, gamebook_core.AbstractItem):")
+            indent_inc()  # 3
+            out("state[room_name]['vars']['items'].add(rvalue)")
+            indent_dec()  # 2
+            out("elif isinstance(rvalue, gamebook_core.AbstractCharacter):")
+            indent_inc()  # 3
+            out("state[room_name]['vars']['items'].add(rvalue)")
+            indent_dec()  # 2
+            out("elif rvalue is not None:")
+            indent_inc()  # 3
             out(f"out += \"\\n\\n\"")
             # out(f"_ = html.escape(str(segment))")
-            out(f"out += textwrap.dedent(str(segment))")
-            indent_dec()
+            out(f"out += textwrap.dedent(str(rvalue))")
+            indent_dec()  # 2
+            indent_dec()  # 1
+            indent_dec()  # 0
 
     def selection_statement(self, tree: Tree):
         _ = ""

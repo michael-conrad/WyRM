@@ -322,6 +322,20 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
                 return item
         return Item("NOT FOUND")
 
+    def item_count(self, name: str) -> int:
+        count: int =0
+        name = name.lower()
+        for wpn in self.weapons:
+            if name in wpn.name.lower():
+                count += 1
+        for arm in self.armor_worn:
+            if name in arm.name.lower():
+                count += 1
+        for item in self.equipment:
+            if name in item.name.lower():
+                count += 1
+        return count
+
     def has_item(self, name: str) -> bool:
         name = name.lower()
         for wpn in self.weapons:

@@ -13,7 +13,11 @@ class AbstractItem(ABC):
 
 @dataclasses.dataclass(slots=True)
 class AbstractCharacter(ABC):
-    pass
+
+    @property
+    @abc.abstractmethod
+    def is_alive(self) -> bool:
+        return False
 
 
 @dataclasses.dataclass
@@ -171,6 +175,16 @@ class Items:
 
     def clear(self) -> None:
         self._inv.clear()
+
+    def mobs(self) -> list[AbstractCharacter]:
+        mobs = list()
+        if not self._inv:
+            return mobs
+        for item in self._inv:
+            if isinstance(item, AbstractCharacter):
+                if item.is_alive:
+                    mobs.append(item)
+        return mobs
 
     @property
     def inv(self) -> str:

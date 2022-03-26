@@ -21,6 +21,13 @@ Library: mob_combat
 world player;
 world facing;
 world know_of_tunnel;
+world darkvision;
+world torch;
+world is_dark;
+
+darkvision = 0;
+torch = 0;
+is_dark = true;
 
 player = PCs.player_forsaken_alley();
 know_of_tunnel = false;
@@ -164,6 +171,40 @@ goto "town" facing "w";
 
 room looted;
 room alcove;
+local m;
+local t_count;
+m = None;
+t_count = None;
+
+if (darkvision==0 && torch>0 && torch-turn()<0) {
+    "You torch sputters and dies. Everything goes dark."
+    torch = 0;
+    if (player.has_item("torch")) {
+        "You quickly light another torch."
+        player.discard("torch");
+        t_count = player.item_count("torch");
+        if (t_count==0) {
+            "You have no more torches remaining."
+        } else if (t_count==1) {
+            "You have 1 torch remaining."
+        } else {
+            "You have {t_count} torches remaining."
+        }
+        torch = turn() + 10;
+    } else {
+        "You feel a cold chill as you hear something moving in the dark."
+        wander_monsters();
+        m = MobUnit();
+        m.add_units(items.mobs());
+        m.combat(player);
+        if (player.hp < 1) {
+            goto "dead" facing "n";
+        }
+    }
+}
+
+is_dark = (darkvision==0 && torch==0);
+
 once {
     looted = false;
     alcove = false;
@@ -211,8 +252,12 @@ direction "Exit room" "5" facing "w";
 
 [4way]
 
-wander();
-turn();
+w = wander();
+if (w) {
+    w;
+    "Wandering monsters have ambushed and killed you"
+    goto "dead" facing "n";
+}
 
 once {
     """
@@ -222,11 +267,6 @@ once {
     """
 } else {
     "You are at a four way intersection. The passage to your {facing.e} leads to the ruins above."
-}
-
-if (turn() > 15) {
-    "The ceiling collapses, crushing you."
-    goto "dead" facing "n";
 }
 
 if (facing.behind !="n") direction "{facing.dn}" "5" facing "n";
@@ -270,13 +310,28 @@ Rubble and collapsed buildings are all about. You see a flight of stairs heading
 
 if (facing.behind != "n") direction "Return to town" "town" facing "n";
 
-if (facing.behind != "e") option "Climb down stairs" {
-    """
-    You climb down a flight of stairs, come to a landing, then turning right go down an additional
-    two flights of stairs
-    """
-    goto "1" facing "s";
+is_dark = !darkvision && torch-turn() < 0;
+if (is_dark) {
+    if (player.has_item("torch")) {
+        "You light a torch."
+        is_dark = false;
+        player.discard("torch");
+        torch = turn() + 10;
+        option "Climb down stairs" {
+            """
+            You climb down a flight of stairs, come to a landing, then turning right go down an additional
+            two flights of stairs
+            """
+            goto "1" facing "s";
+        }
+    } else {
+    option "Climb down stairs" {
+        "It's too dark to go down the stairs."
+        }
+    }
 }
+
+
 
 [town]
 

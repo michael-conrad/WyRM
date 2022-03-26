@@ -1,4 +1,5 @@
 import copy
+import random
 import types
 
 import dice
@@ -14,6 +15,10 @@ from skills import SkillAttribute
 _npc_section_tag: str | None = ""
 
 
+def roll(d: str) -> int:
+    return int(dice.roll(d))
+
+
 def npc_section_tag(tag: str) -> str:
     global _npc_section_tag
     _npc_section_tag = tag
@@ -27,7 +32,7 @@ class NPC:
     def spawn(cls, creature: types.FunctionType, count: str | int = 1, location: str | None = None) -> list[str]:
         result: list[str] = list()
         if isinstance(count,str):
-            count = int(dice.roll(count))
+            count = int(roll(count))
         for _ in range(count):
             if location:
                 result.append(f"!rooms(\"{location}\").add_item(NPC.{creature.__name__}())")
@@ -657,5 +662,82 @@ class NPC:
         return sheet
 
 
+def wander(pct: int = 10) -> list[CharacterSheet]:
+    if random.randint(0, 100) < pct:
+        return wander_monsters()
+    return list()
+
+
+def wander_monsters(die_count: int = 1) -> list[CharacterSheet]:
+    choices: list[list[CharacterSheet]] = list()
+    d2: int = roll(f"{die_count}d2-{die_count-1}")
+    d3: int = roll(f"{die_count}d3-{die_count-1}")
+    d4: int = roll(f"{die_count}d4-{die_count-1}")
+    d6: int = roll(f"{die_count}d6-{die_count-1}")
+    d8: int = roll(f"{die_count}d8-{die_count-1}")
+    d10: int = roll(f"{die_count}d10-{die_count-1}")
+
+    i: list[CharacterSheet] = list()
+
+    i.clear()
+    for _ in range(d3):
+        i.append(NPC.skeleton_warrior())
+    choices.append(i)
+
+    i.clear()
+    for _ in range(d2):
+        i.append(NPC.zombie())
+    choices.append(i)
+
+    i.clear()
+    for _ in range(d3):
+        i.append(NPC.giant_rat())
+    choices.append(i)
+
+    i.clear()
+    for _ in range(d2):
+        i.append(NPC.giant_spider())
+    choices.append(i)
+
+    i.clear()
+    for _ in range(d10):
+        i.append(NPC.awakened_shrub())
+    choices.append(i)
+
+    i.clear()
+    for _ in range(d2):
+        i.append(NPC.giant_lizard())
+    choices.append(i)
+
+    i.clear()
+    for _ in range(d4):
+        i.append(NPC.giant_weasel())
+    choices.append(i)
+
+    i.clear()
+    for _ in range(d2):
+        i.append(NPC.goblin_warrior())
+    choices.append(i)
+
+    i.clear()
+    for _ in range(d3):
+        i.append(NPC.hobgoblin_warrior())
+    choices.append(i)
+
+    i.clear()
+    for _ in range(d4):
+        i.append(NPC.kobold_warrior())
+    choices.append(i)
+
+    i.clear()
+    for _ in range(d2):
+        i.append(NPC.worg())
+    choices.append(i)
+
+    # choices.append(loot())
+    return random.choice(choices)
+
+
 if __name__ == '__main__':
     print(NPC.giant_beetle().name)
+

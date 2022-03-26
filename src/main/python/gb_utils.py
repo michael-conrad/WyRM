@@ -4,7 +4,6 @@ import random
 import dice
 import jsonpickle
 
-import character_sheet
 from equipment import Armor
 from equipment import Item
 from equipment import Shield
@@ -182,36 +181,6 @@ def dl_check(difficulty_name: str, attribute_value: int) -> str:
 def stat_check(stat: int, bonus: int) -> bool:
     check: int = roll(f"1d6x + {bonus}")
     return check >= stat
-
-
-def wander(die: int = 6, die_count: int = 1) -> str:
-    yes: bool = roll(f"1d{die}") == 1
-    return random_encounter(die_count) if yes else ""
-
-
-def random_encounter(die_count: int) -> str:
-    choices: list[str] = list()
-    d2: int = roll(f"{die_count}d2-{die_count-1}")
-    d3: int = roll(f"{die_count}d3-{die_count-1}")
-    d4: int = roll(f"{die_count}d4-{die_count-1}")
-    d6: int = roll(f"{die_count}d6-{die_count-1}")
-    d8: int = roll(f"{die_count}d8-{die_count-1}")
-    d10: int = roll(f"{die_count}d10-{die_count-1}")
-
-    choices.append(f"{d4} giant beetles")
-    choices.append(f"{d3} skeleton warriors")
-    choices.append(f"{d2} zombies")
-    choices.append(f"{d3} giant rats")
-    choices.append(f"{d2} spiders")
-    choices.append(f"{d10} awakened shrubs")
-    choices.append(f"{d2} giant lizards")
-    choices.append(f"{d4} giant weasals")
-    choices.append(f"{d2} goblin warriors")
-    choices.append(f"{d2} hobgoblin warriors")
-    choices.append(f"{d4} kobold warriors")
-    choices.append(f"{d2} worgs")
-    choices.append(loot())
-    return random.choice(choices)
 
 
 def initiative(side_a=None,  #

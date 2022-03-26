@@ -13,6 +13,11 @@ from skills import CharacterSkillsList
 class Money(gamebook_core.AbstractItem):
     _kind: str = "C"
     _qty: int = 0
+    _cursed: bool = False
+
+    @property
+    def is_cursed(self) -> bool:
+        return self._cursed
 
     @classmethod
     def money_combine(cls, monies: list["Money"]) -> list["Money"]:
@@ -161,6 +166,11 @@ class Shield(gamebook_core.AbstractItem):
     armor_penalty: int = 0
     cost: int = 0
     cost_unit: str = "GP"
+    _cursed = False
+
+    @property
+    def is_cursed(self) -> bool:
+        return self._cursed
 
     @property
     def is_cursed(self) -> bool:
@@ -218,26 +228,29 @@ class Shield(gamebook_core.AbstractItem):
 
 @dataclass(slots=True)
 class Item(gamebook_core.AbstractItem):
-    _uses: int | None = None
     _name: str = ""
     _desc: str = ""
     cost: int = 0
-    cursed: bool = False
     cost_unit: str = "GP"
+    _uses: int | None = None
+    _cursed: bool = False
+
 
     @property
     def is_cursed(self) -> bool:
-        return self.cursed
+        return self._cursed
 
     @property
     def base_name(self) -> str:
         return self._name
 
-    def __init__(self, name: str, location: str = "", cost: int = 0):
+    def __init__(self, name: str, cost: int = 0):
         self._name = name
         self._desc = ""
         self.cost = cost
         self._uses = None
+        self.cost_unit = "GP"
+        self._cursed = False
 
     def __str__(self) -> str:
         return self.name

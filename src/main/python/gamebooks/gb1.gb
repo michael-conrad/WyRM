@@ -18,18 +18,21 @@ Library: mob_combat
 
 [Start]
 
-world player;
-world facing;
-world know_of_tunnel;
+world facing; //built in
+
 world darkvision;
-world torch;
-world is_dark;
-
 darkvision = 0;
-torch = 0;
-is_dark = true;
 
+world torch;
+torch = 0;
+
+world is_dark;
+is_dark = false;
+
+world player;
 player = PCs.player_forsaken_alley();
+
+world know_of_tunnel;
 know_of_tunnel = false;
 
 """
@@ -83,6 +86,11 @@ direction "About this book" "About" facing "w";
 direction "Start the game" "Start the Game" facing "w";
 
 [Start the Game]
+
+world is_dark;
+world is_outside;
+is_dark = false;
+is_outside = true;
 
 item = Weapon("Handaxe");
 item.damage = "1d6x";
@@ -310,28 +318,31 @@ Rubble and collapsed buildings are all about. You see a flight of stairs heading
 
 if (facing.behind != "n") direction "Return to town" "town" facing "n";
 
-is_dark = !darkvision && torch-turn() < 0;
-if (is_dark) {
-    if (player.has_item("torch")) {
+macro torch_light {
+    is_dark = !is_outside && darkvision-turn() < 0 && torch-turn() < 0;
+    if (is_dark && player.has_item("torch")) {
         "You light a torch."
         is_dark = false;
         player.discard("torch");
         torch = turn() + 10;
-        option "Climb down stairs" {
-            """
-            You climb down a flight of stairs, come to a landing, then turning right go down an additional
-            two flights of stairs
-            """
-            goto "1" facing "s";
-        }
-    } else {
-    option "Climb down stairs" {
-        "It's too dark to go down the stairs."
-        }
     }
 }
 
-
+if (player.has_item("torch")) {
+    option "Climb down stairs" {
+        is_outside = false;
+        macro torch_light;
+        """
+        You climb down a flight of stairs, come to a landing, then turning right go down an additional
+        two flights of stairs
+        """
+        goto "1" facing "s";
+    }
+} else {
+    option "Climb down stairs" {
+        "It's too dark to go down the stairs and you don't have any torches."
+    }
+}
 
 [town]
 

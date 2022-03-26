@@ -10,6 +10,11 @@ class AbstractItem(ABC):
     def name(self) -> str:
         return ""
 
+    # @property
+    # @abc.abstractmethod
+    # def is_cursed(self) -> bool:
+    #     return False
+
 
 @dataclasses.dataclass(slots=True)
 class AbstractCharacter(ABC):

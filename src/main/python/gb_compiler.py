@@ -431,7 +431,14 @@ with open("index.md", "w") as w:
     out = re.sub("\((.*?md)\)", "(md/\\\\1)", out)
     w.write("\\n")
     w.write(out)
-    w.write("\\n")        
+    w.write("\\n")
+    
+with open("md/index.md", "w") as w:
+    out = mdformat.text(_output[index_node], options=md_options)
+    out = re.sub("\((.*?md)\)", "(md/\\\\1)", out)
+    w.write("\\n")
+    w.write(out)
+    w.write("\\n")
 """)
 
     def room(self, tree: Tree):
@@ -930,6 +937,30 @@ with open("index.md", "w") as w:
         indent_dec()
         out("else:")
         indent_inc()
+
+    def macro_define(self, tree: Tree) -> None:
+        out("# macro_define macro_id compound_statement")
+        macro_id_tree, compound_statement = tree.children
+        macro_id: str = ""
+        for _ in self.visit(macro_id_tree):
+            macro_id += _
+        if macro_id in self.defined_macros:
+            raise Exception(f"Macro {macro_id} previously defined. Macros can only be defined once.")
+        self.defined_macros[macro_id] = compound_statement
+
+    def macro_invoke(self, tree: Tree) -> None:
+        out("# macro_invoke: macro macro_id eos")
+        macro_id_tree, _ = tree.children
+        macro_id: str = ""
+        for _ in self.visit(macro_id_tree):
+            macro_id += _
+        if macro_id not in self.defined_macros:
+            raise Exception(f"Macro {macro_id} not defined.")
+        self.visit(self.defined_macros[macro_id])
+
+    def macro_id(self, tree: Tree) -> any:
+        return self.visit_children(tree)
+
 
     def python_list(self, tree: Tree):
         out(f"# python list {self.__top_level_children(tree)}")

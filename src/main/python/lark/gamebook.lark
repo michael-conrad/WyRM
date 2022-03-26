@@ -48,6 +48,12 @@ once_else: "else"
     | scope_statement
     | comment_statement
     | start_over
+    | macro_define
+    | macro_invoke
+
+macro_define: "macro" macro_id compound_statement
+macro_invoke: "macro" macro_id _eos
+macro_id: IDENTIFIER
 
 start_over: "start" "over" _eos
 

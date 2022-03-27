@@ -6,9 +6,86 @@ import jsonpickle
 
 from equipment import Armor
 from equipment import Item
+from equipment import Money
 from equipment import Shield
 from equipment import Weapon
 from skills import Difficulty
+
+
+def get_loot(challenge: int) -> list[Item | Weapon | Armor | Shield | Money | str]:
+    result: list[Item | Weapon | Armor | Shield | Money | str] = list()
+
+    cp: int = 0
+    sp: int = 0
+    ep: int = 0
+    gp: int = 0
+    pp: int = 0
+
+    d100: int = int(dice.roll("1d100"))
+    if challenge < 5:
+        # challenge 0-4 table
+        if d100 <= 30:
+            cp += int(dice.roll("5d6"))
+        elif d100 <= 60:
+            sp += int(dice.roll("4d6"))
+        elif d100 <= 70:
+            ep += int(dice.roll("3d6"))
+        elif d100 <= 95:
+            gp += int(dice.roll("3d6"))
+        else:
+            pp += int(dice.roll("1d6"))
+    elif challenge < 11:
+        # challenge 5-10 table
+        if d100 <= 30:
+            cp += int(dice.roll("4d6")) * 100
+            ep += int(dice.roll("1d6")) * 10
+        elif d100 <= 60:
+            sp += int(dice.roll("6d6")) * 10
+            gp += int(dice.roll("2d6")) * 10
+        elif d100 <= 70:
+            ep += int(dice.roll("3d6")) * 10
+            gp += int(dice.roll("4d6")) * 10
+        elif d100 <= 95:
+            gp += int(dice.roll("5d6")) * 10
+        else:
+            gp += int(dice.roll("2d6")) * 10
+            pp += int(dice.roll("3d6"))
+    elif challenge < 17:
+        if d100 <= 20:
+            sp += int(dice.roll("4d6")) * 100
+            gp += int(dice.roll("1d6")) * 100
+        elif d100 <= 35:
+            ep += int(dice.roll("1d6")) * 100
+            gp += int(dice.roll("1d6")) * 100
+        elif d100 <= 75:
+            gp += int(dice.roll("2d6")) * 100
+            pp += int(dice.roll("1d6")) * 10
+        else:
+            gp += int(dice.roll("2d6")) * 100
+            pp += int(dice.roll("2d6")) * 10
+    else:
+        if d100 <= 15:
+            ep += int(dice.roll("2d6")) * 1000
+            gp += int(dice.roll("8d6")) * 100
+        elif d100 <= 55:
+            gp += int(dice.roll("1d6")) * 1000
+            pp += int(dice.roll("1d6")) * 100
+        else:
+            gp += int(dice.roll("1d6")) * 100
+            pp += int(dice.roll("2d6")) * 100
+
+    if cp:
+        result.append(Money("CP", cp))
+    if sp:
+        result.append(Money("SP", sp))
+    if ep:
+        result.append(Money("EP", ep))
+    if gp:
+        result.append(Money("GP", gp))
+    if pp:
+        result.append(Money("PP", pp))
+
+    return result
 
 
 def debug(thing: any) -> str:
@@ -53,7 +130,7 @@ take it to a place of my choosing for a reward beyond just your life."
 
 
 def intervention(check: int | None = None) -> str:
-    check = roll("1d6+1d6+1d6") if check is None else check
+    check = int(roll("3d6")) if check is None else check
     "3,4, 5,6, 7,8, 9,10, 11,12, 13,14, 15,16, 17,18"
     if check <= 4:
         return f"""
@@ -61,8 +138,7 @@ def intervention(check: int | None = None) -> str:
 {dark_power_intervention_text()}
 """
     if check <= 6:
-        effect: str = random.choice(["Roof collapse (3d8 dmg).",  #
-                                     "Hidden floor pit full of spikes triggers. (3d6 dmg).",
+        effect: str = random.choice(["Hidden floor pit full of spikes triggers. (3d6 dmg).",
                                      "Spontaneous Combustion. (2d8 dmg).",
                                      "Hidden darts trap from wall triggers. (3d4 dmg).",
                                      "Hidden spikes trap from ceiling triggers. (3d8 dmg)"])

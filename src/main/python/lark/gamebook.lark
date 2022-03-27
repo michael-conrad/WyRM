@@ -50,6 +50,9 @@ once_else: "else"
     | start_over
     | macro_define
     | macro_invoke
+    | clear_options
+
+clear_options: "clear" "options" _eos
 
 macro_define: "macro" macro_id compound_statement
 macro_invoke: "macro" macro_id _eos

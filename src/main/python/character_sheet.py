@@ -27,8 +27,18 @@ def copy_of(o) -> any:
     return jsonpickle.decode(jsonpickle.encode(o))
 
 
+_id: int = 0
+
+
+def next_id():
+    global _id
+    _id += 1
+    return _id
+
+
 @dataclass(slots=True)
 class CharacterSheet(gamebook_core.AbstractCharacter):
+    _id: int = 0
     xp: int = 0
     _name: str = ""
     location: str = ""
@@ -69,6 +79,33 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
     _massive_attack: bool = False
 
     _saved_inv: list[str] = field(default_factory=list)
+
+    _tracked: dict[str, any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        self._id = next_id()
+
+    @property
+    def name_with_id(self) -> str:
+        return f"{self._name} (#{self._id:,})"
+
+    @property
+    def stats_changed(self) -> bool:
+        tracked_attributes: list[str] = ["hp", "mana", "fate"]
+        for attr in tracked_attributes:
+            if attr not in self._tracked:
+                self._tracked[attr] = getattr(self, attr)
+            if self._tracked[attr] != getattr(self, attr):
+                return True
+        return False
+
+    @property
+    def stats_brief(self) -> str:
+        tracked_attributes: list[str] = ["hp", "mana", "fate"]
+        for attr in tracked_attributes:
+            self._tracked[attr] = getattr(self, attr)
+        _ = f"**Updated Stats**\n\nHP: {self.hp}, Mana: {self.mana}, Fate: {self.fate}"
+        return _
 
     @property
     def darkvision(self) -> bool:
@@ -253,7 +290,7 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
             damage = f"{damage}{self.warrior:+}"
             self.massive_attack = False
         if self.hit_points < self.hit_points_max // 2:
-            m = dice.roll_max(damage)
+            m = int(dice.roll_max(damage.replace("x", "")))
             m = max(min(m-1, 3), 0)
             damage = f"({damage})-{m}"
         return damage
@@ -472,7 +509,7 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
             if spell.name.lower().startswith(spell_name):
                 if self.mana < spell.mana_cost:
                     return [f"; Not enough mana ({self.mana}) for {spell.name} ({spell.mana_cost})"]
-                check: int = dice.roll(f"1d6 + {self.mage}")
+                check: int = int(dice.roll(f"1d6 + {self.mage}"))
                 if check < spell.difficulty.value:
                     return [f"; Cast failed. {check} < {spell.difficulty.name} {spell.difficulty.value}"]
                 result: list[str] = list()
@@ -507,7 +544,7 @@ class CharacterSheet(gamebook_core.AbstractCharacter):
     def attack_opponent(self, opponent, bonus_roll: str = "") -> bool:
         bonus: int = 0
         if bonus_roll:
-            bonus = dice.roll(f"{bonus_roll}")
+            bonus = int(dice.roll(f"{bonus_roll}"))
         attack_attribute, defense = self.attack + bonus, opponent.defense
         check: int = roll(f"1d6x+{attack_attribute}")
         return True if check >= defense else False

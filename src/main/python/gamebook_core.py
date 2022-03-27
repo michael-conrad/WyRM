@@ -206,15 +206,13 @@ class Items:
         result = ""
         for name in names:
             if name:
-                if result:
-                    result += ", "
-                result += name
+                result += "- " + name + "\n"
 
         x = len(self._inv)
         if x == 1:
-            result = "\n\nItem: " + result
+            result = "\n\n**Item**\n" + result
         else:
-            result = "\n\nItems:" + result
+            result = "\n\n**Items**\n" + result
 
         return result + "\n\n"
 

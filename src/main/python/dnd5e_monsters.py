@@ -1,6 +1,8 @@
 import dataclasses
 import math
 
+import dice
+
 import character_sheet
 from equipment import Armor
 from equipment import Weapon
@@ -16,7 +18,7 @@ class CharacterSheet5:
     wis: int = 0
     cha: int = 0
     armor_class: int = 0
-    _hp: int = 0
+    _hp: str = ""
     xp: int = 0
     vulnerability: str = ""
     resist: str = ""
@@ -31,7 +33,7 @@ class CharacterSheet5:
     def __str__(self) -> str:
         _ = ""
         _ += f"Warrior: {self.warrior}, Rogue: {self.rogue}, Mage: {self.mage}"
-        _ += f", HP: {self.hp}, Base Defense: {self.base_defense}, Armor: {self.armor}"
+        _ += f", HP: {self.hp}, Base Defense: {self.base_defense}, Armor: {self.armor_class}"
         _ += f"\n"
         _ += f"Attack: {self.weapon} ({self.attack_bns:+})"
         _ += f", Damage: {self.damage}"
@@ -61,7 +63,7 @@ class CharacterSheet5:
     @property
     def hp(self) -> int:
         if self._hp:
-            return self._hp
+            return max(int(dice.roll(self._hp)), 1)
         return self.warrior + 6
 
     @hp.setter

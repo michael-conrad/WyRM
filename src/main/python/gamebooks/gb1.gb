@@ -16,6 +16,9 @@ Library: pcs
 Library: room_descriptions
 Library: mob_combat
 
+postexec: postexec
+preexec: preexec
+
 [Start]
 
 """
@@ -36,8 +39,6 @@ direction "About this book" "About" facing "w";
 direction "Show your support" "Show Your Support" facing "w";
 direction "Start reading" "Start the Game" facing "w";
 
-world facing; //built in
-
 world darkvision;
 darkvision = 0;
 
@@ -53,31 +54,107 @@ player = PCs.player_forsaken_alley();
 world know_of_tunnel;
 know_of_tunnel = false;
 
+world is_outside;
+is_outside = true;
+
+world is_complete_5;
+world is_complete_5a;
+world is_complete_4;
+world is_complete_4a;
+world is_complete_2;
+world is_complete_3;
+world is_complete;
+
+macro stats {
+    if (player.stats_changed) {
+        player.stats_brief;
+    }
+}
+
 macro torch {
     is_dark = !is_outside && darkvision-turn() < 0 && torch-turn() < 0;
     if (is_dark && player.has_item("torch")) {
-        "You light a torch."
+        if (torch) {
+            "You torch sputters and dies. You quickly light another torch."
+        } else {
+            "You light a torch."
+        }
         is_dark = false;
         player.discard("torch");
         torch = turn() + 60;
-    } else if (torch-turn()==0) {
-        "Your torch sputters."
+        torch_count = player.item_count("torch");
+        if (torch_count==0) {
+            "You have no more torches remaining."
+        } else if (torch_count==1) {
+            "You have 1 torch remaining."
+        } else {
+            "You have {torch_count} torches remaining."
+        }
+    }
+}
+
+macro fight_and_loot {
+    if (items.mobs) {
+        mob_unit = MobUnit();
+        mob_unit.add_units(items.mobs);
+        mob_unit.combat(player);
+        if (player.is_alive) {
+            if (mob_unit.is_alive) {
+                "Intervention of Fate"
+            }
+            if (!mob_unit.is_alive) {
+               mob_loot = mob_unit.loot;
+               if (mob_loot) {
+                    "You loot the corpses."
+                    for (item: mob_loot) {
+                        "* {item.name}";
+                        player.add_item(item);
+                    }
+                }
+            }
+        }
     }
 }
 
 macro wander {
-    wander_pct = int(turn()/5) * 5 + 10;
-    wander_cnt = int(turn()/20) + 1;
-    m = MobUnit();
-    if (wander(wander_pct)) {
-        wander_monsters(wander_cnt);
-    }
-    if (items.mobs) {
-        m.add_units(items.mobs);
-        m.combat(player);
-        if (!player.is_alive) {
-            goto "dead" facing "n";
+    if (!is_outside) {
+        if (!items.mobs) {
+            wander_cnt = int(turn()/100) + 1;
+            if (1@6==1) {
+                wander_monsters(wander_cnt);
+            }
         }
+    }
+}
+
+macro is_complete {
+    is_complete = is_complete_5 && is_complete_4 && is_complete_2 && is_complete_3;
+}
+
+macro preexec {
+    macro is_complete;
+    macro torch;
+    macro wander;
+}
+
+macro postexec {
+    macro fight_and_loot;
+    if (is_dark) {
+        "Your torch sputters and dies. Everything goes dark."
+        torch = 0;
+        cnt = 1;
+        while (player.is_alive) {
+            repeat cnt NPC.shadow();
+            m.add_units(items.mobs);
+            m.combat(player);
+            cnt += 1;
+        }
+    }
+    macro stats;
+    if (!player.is_alive) {
+        clear options;
+        "You have perished."
+        start over;
     }
 }
 
@@ -96,6 +173,8 @@ You are playing the one page dungeon quest:
 The original one page dungeon is from "One Page Dungeon Compendium", 2010 Edition.
 
 """
+
+_ = player.stats_changed; // to prevent stats have changed display in postexec macro
 
 direction "Show your support" "Show Your Support" facing "w";
 direction "Start the game" "Start the Game" facing "w";
@@ -116,7 +195,6 @@ direction "Start the game" "Start the Game" facing "w";
 [Start the Game]
 
 world is_dark;
-world is_outside;
 is_dark = false;
 is_outside = true;
 
@@ -201,49 +279,16 @@ with future adventures.
 
 player.save_inv_list();
 
+_ = player.stats_changed; // to prevent stats have changed display in postexec macro
+
 goto "town" facing "w";
 
 [5]
 
 is_outside = false;
-macro torch;
-macro wander;
 
 room looted;
 room alcove;
-local m;
-local t_count;
-m = None;
-t_count = None;
-
-if (darkvision==0 && torch>0 && torch-turn()<0) {
-    "You torch sputters and dies. Everything goes dark."
-    torch = 0;
-    if (player.has_item("torch")) {
-        "You quickly light another torch."
-        player.discard("torch");
-        t_count = player.item_count("torch");
-        if (t_count==0) {
-            "You have no more torches remaining."
-        } else if (t_count==1) {
-            "You have 1 torch remaining."
-        } else {
-            "You have {t_count} torches remaining."
-        }
-        torch = turn() + 10;
-    } else {
-        "You feel a cold chill as you hear something moving in the dark."
-        wander_monsters();
-        m = MobUnit();
-        m.add_units(items.mobs());
-        m.combat(player);
-        if (player.hp < 1) {
-            goto "dead" facing "n";
-        }
-    }
-}
-
-is_dark = (darkvision==0 && torch==0);
 
 once {
     looted = false;
@@ -266,6 +311,8 @@ if (!alcove) {
         "You discover a cleverly disguised door."
         facing.face("e");
     }
+} else if (is_complete_5a) {
+    "Nothing else of interest remains in the room with the cross and empty chest."
 } else {
     direction "Go through door in alcove to your {facing.e}." "5a" facing "e";
 }
@@ -273,35 +320,78 @@ if (!alcove) {
 if (!looted) {
     option "Loot alcoves" {
         looted = true;
-        "You go crazy looting"
+        """
+        You reach into the first alcove to see what treasures you might find.
+        Suddenly you hear moaning and clacking from all around. You are under attack!
+        """
+        NPC.spawn(NPC.skeleton_warrior2, 1@4);
+        NPC.spawn(NPC.zombie2, 1@3);
         facing.face("e");
     }
 }
 
-if (facing.behind != "s") direction "Exit the crypt using the portcullis to your {facing.s}." "4way" facing "s";
-
-[5a]
-is_outside = false;
-macro torch;
-macro wander;
-
-once {
-    rooms("5a").desc1;
-} else {
-    rooms("5a").desc2;
+if (facing.behind != "s" || is_complete_5a) {
+    direction "Exit the crypt using the portcullis to your {facing.s}." "4way" facing "s";
 }
 
-direction "Exit room" "5" facing "w";
+if (is_complete_5a && looted) {
+    is_complete_5 = true;
+}
+
+[5a]
+
+is_outside = false;
+room examined_chest;
+room examined_monk;
+
+once {
+    """
+    You step into in a 40ft x 30ft room.
+    All the walls are covered with depictions of evil and bloody looking acts. On the far
+    wall you see a mummified corpse that is tied with barbed wire to a wooden X.
+    A small open chest is to your {facing.e}. In the far corner of the room.
+    """
+
+} else {
+    """
+    You are in a 30ft x 40ft room with a long dead monk on an X cross. The entrance is to your {facing.w}.
+    """
+}
+
+if (!examined_chest) {
+    option "Examine chest" {
+        examined_chest = true;
+        "You walk over and peer into the chest."
+        "You discover:"
+        in_chest = get_loot();
+        for (l: in_chest) {
+            player.add_item(l);
+            "* {l.name}"
+        }
+        "You quickly stash all the coins."
+        facing.face("w");
+    }
+}
+
+if (!examined_monk) {
+    option "Examine monk" {
+        examined_monk = true;
+        "You walk over and search the corpse, but find nothing of interest."
+        facing.face("w");
+    }
+}
+
+is_complete_5a = examined_chest && examined_monk;
+
+if (is_complete_5a) direction "{facing.dw}" "5" facing "w";
 
 [4way]
 is_outside = false;
-macro torch;
-macro wander;
 
-if (turn()>100) {
-    "too many turns"
-    goto "dead" facing "n";
-}
+"is_complete_5 {is_complete_5}"
+"is_complete_4 {is_complete_4}"
+"is_complete_3 {is_complete_3}"
+"is_complete_2 {is_complete_2}"
 
 once {
     """
@@ -313,15 +403,35 @@ once {
     "You are at a four way intersection. The passage to your {facing.e} leads to the ruins above."
 }
 
-if (facing.behind !="n") direction "{facing.dn}" "5" facing "n";
-if (facing.behind !="w") direction "{facing.dw}" "4" facing "w";
-if (facing.behind !="e") direction "{facing.de}" "1" facing "e";
-if (facing.behind !="s") direction "{facing.ds}" "3 Way" facing "s";
+if (is_complete_5) {
+    "The crypt to your {facing.n} contains nothing else of interest."
+} else {
+    direction "{facing.dn}" "5" facing "n";
+}
+
+if (is_complete_4) {
+    "The cave with pond to your {facing.w} contains nothing else of interest."
+} else {
+    direction "{facing.dw}" "4" facing "w";
+}
+
+if (is_complete_3 && is_complete_2) {
+    "Nothing else of interest lies to your {facing.s}."
+} else {
+    direction "{facing.ds}" "3 Way" facing "s";
+}
+
+if (!facing.is_behind("e")) {
+    direction "Head back to the surface using the passage to your {facing.e}." "1" facing "e";
+}
+
+if (is_complete) {
+    "Nothing else of interest remains in the complex."
+    direction "Continue." "1" facing "e";
+}
 
 [1]
 is_outside = false;
-macro torch;
-macro wander;
 
 """
 A flight of stairs leads up to the {facing.n}. A long passageway is to your {facing.w}.
@@ -336,6 +446,11 @@ if (facing.behind != "n") option "Climb up stairs" {
 }
 
 if (facing.behind != "w") direction "Follow passageway" "4way" facing "w";
+
+if (is_complete) {
+    clear options;
+    direction "Climb up stairs" "ruins" facing "w";
+}
 
 [ruins]
 is_outside = true;
@@ -358,7 +473,6 @@ Rubble and collapsed buildings are all about. You see a flight of stairs heading
 """
 
 if (facing.behind != "n") direction "Return to town" "town" facing "n";
-
 if (player.has_item("torch")) {
     option "Climb down stairs" {
         is_outside = false;
@@ -375,6 +489,13 @@ if (player.has_item("torch")) {
     }
 }
 
+if (is_complete) {
+    clear options;
+    direction "Return to town" "town" facing "n";
+}
+
+
+
 [town]
 is_outside = true;
 
@@ -387,6 +508,8 @@ The inn where you have a room is to the the {facing.e}.
 To the {facing.s} is the road leading out of town which goes by the ruins of the abbey.
 Behind is {facing.behind}.
 """
+
+// direction "Retire to the inn [end the game]" "end-game" facing "e";
 
 if (facing.behind != "n" && player.money.gp>=25) option "Visit alchemy shop" {
     "You walk into the local alchemy shop."
@@ -403,9 +526,18 @@ if (facing.behind != "w" && !player.has_item("torch")) option "Go to the supplie
     goto "armory-shop" facing "w";
 }
 
-direction "Retire to the inn [end the game]" "end-game" facing "e";
-
 if (facing.behind != "s") direction "Head down road and go to the abbey" "ruins-fork" facing "e";
+
+if (is_complete) {
+    """
+    You have searched through all the ruins of the abbey and gained all the loot that was findable.
+
+    You decide to retire to the inn and take stock of what all you have gained.
+    """
+    clear options;
+    direction "Continue" "end-game" facing "e";
+}
+
 
 [ruins-fork]
 is_outside = true;
@@ -655,13 +787,17 @@ player.found_items;
 player.list_weapons;
 player.list_armor;
 
+if (player.money.cp) {
+    "### Your available funds:"
+    player.list_money;
+}
+
 start over;
 
 [2]
 
 is_outside = false;
-macro torch;
-macro wander;
+is_complete_2 = true;
 
 once {
     """
@@ -684,8 +820,6 @@ direction "{facing.dw}" "3 Way" facing "w";
 [3 Way]
 
 is_outside = false;
-macro torch;
-macro wander;
 
 once {
     """
@@ -702,20 +836,14 @@ once {
     """
 }
 
-s = wander();
-if (s!="") {
-    s;
-}
-
 if (facing.behind != "n") direction "{facing.dn}" "4way" facing "n";
-if (facing.behind != "e") direction "{facing.de}" "2" facing "e";
-if (facing.behind != "s") direction "{facing.ds}" "3" facing "s";
+if (!is_complete_2 && facing.behind != "e") direction "{facing.de}" "2" facing "e";
+if (!is_complete_3 && facing.behind != "s") direction "{facing.ds}" "3" facing "s";
 
 [3]
 
 is_outside = false;
-macro torch;
-macro wander;
+is_complete_3 = true;
 
 once {
     """
@@ -730,17 +858,19 @@ direction "Climb up the stairs" "3 Way" facing "n";
 
 [4]
 
+room examine_pond;
+
 is_outside = false;
-macro torch;
-macro wander;
+
+if (is_complete_4a && examine_pond) {
+    is_complete_4 = true;
+}
 
 if (facing.facing == "w") {
     "You go down a 60ft passageway and step out into a large cave. The cave is about 100 ft x 70 ft."
 }
 
 once {
-    room examine_pond;
-    examine_pond = false;
     """
     Water oozes down the walls of this natural cave and forms a 30ft diameter pond
     in the middle of it. You notice water dripping from the cave roof about 30ft
@@ -761,15 +891,18 @@ if (!examine_pond) option "Examine pond" {
     examine_pond = true;
 }
 
-direction "Examine crack" "4a" facing "s";
-if (!facing.is_behind("e")) {
-    direction "Exit back through the entrance to your {facing.e}" "4way" facing "e";
+if (!is_complete_4a) {
+    direction "Examine crack" "4a" facing "s";
 }
+
+if (is_complete_4a && is_complete_4) {
+    clear options;
+}
+direction "Head back to the 4 way to your {facing.e}" "4way" facing "e";
 
 [4a]
 is_outside = false;
-macro torch;
-macro wander;
+is_complete_4a = true;
 
 if (facing.facing=="s") {
     "You are in an upward sloping tunnel."
@@ -795,13 +928,9 @@ once {
     """
 }
 
-direction "Go back into the tunnel" "4a" facing "n";
-direction "Climb hill back to ruins" "ruins" facing "e";
-direction "Visit town" "town" facing "n";
+if (!is_complete) {
+    direction "Go back into the tunnel" "4a" facing "n";
+    direction "Climb hill back up to the ruins" "ruins" facing "e";
+}
+direction "Return to town" "town" facing "n";
 
-[dead]
-is_outside = true;
-
-"You have perished."
-
-start over;

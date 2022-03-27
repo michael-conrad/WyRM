@@ -1,6 +1,4 @@
 import random
-import re
-import textwrap
 from dataclasses import dataclass
 from dataclasses import field
 from enum import Enum
@@ -8,11 +6,14 @@ from enum import auto
 
 import dice
 
+import gamebook_core
 from character_sheet import CharacterSheet
 from equipment import Armor
 from equipment import Item
+from equipment import Money
 from equipment import Shield
 from equipment import Weapon
+from gb_utils import get_loot
 from gb_utils import intervention
 from npcs import NPC
 
@@ -20,7 +21,7 @@ _mob_counter: int = 0
 
 
 @dataclass
-class MobUnit:
+class MobUnit(gamebook_core.AbstractItem):
     """
     This class is to simplify mob vs mob combat with WyRM style character classes.
 
@@ -41,9 +42,9 @@ class MobUnit:
         combat_log: list[str] = list()
         starting_hp: dict[str, int] = dict()
         for unit in self._units:
-            starting_hp[unit.base_name] = unit.hp
+            starting_hp[unit.name_with_id] = unit.hp
         for unit in opponent_mob._units:
-            starting_hp[unit.base_name] = unit.hp
+            starting_hp[unit.name_with_id] = unit.hp
 
         if have_initiative is None:
             have_initiative = self.initiative_check(opponent_mob)
@@ -65,46 +66,26 @@ class MobUnit:
         if not attacking_mob.is_alive or not defending_mob.is_alive:
             return None
 
-        hit: bool = dice.roll(f"1d6x+{attacking_mob.attack}") >= defending_mob.defense
+        hit: bool = int(dice.roll(f"1d6x")) + attacking_mob.attack >= defending_mob.defense
         combat_result: str = ""
         if hit:
             damage_die: str = attacking_mob.damage_die
             damage_result: str = defending_mob._take_damage(damage_die)
             if damage_result:
-                extra: str = ""
-                if defending_mob.hp == 0:
-                    extra = " - Wiped out."
-                elif defending_mob.hp < defending_hp // 4:
-                    extra = " - Decimated."
-                elif defending_mob.hp < defending_hp // 2:
-                    extra = " - Heavy casualties."
-                elif defending_mob.hp < defending_hp * 3 // 5:
-                    extra = " - Moderate casualties."
-                elif defending_mob.hp < defending_hp:
-                    extra = " - Moderate casualties."
-                combat_result = f"; {damage_result}{extra}"
+                combat_result = damage_result  # f"; {damage_result}{extra}"
             all_units: list[CharacterSheet] = list()
             all_units.extend(self.units)
             all_units.extend(opponent_mob.units)
-            dmg_list: str = ""
             for unit in all_units:
-                name = unit.base_name
-                if starting_hp[name] != unit.hp:
-                    hp_lost: int = unit.hp - starting_hp[name]
-                    dmg_list += f"{hp_lost:+} HP, "
+                if starting_hp[unit.name_with_id] != unit.hp:
+                    hp_lost: int = unit.hp - starting_hp[unit.name_with_id]
                     died_text: str = "" if unit.is_alive else ", DIED."
-                    if "player" in name.lower():
-                        combat_log.append(f"!player.hp={unit.hp} # {hp_lost:+,} HP{died_text}")
-                    else:
-                        combat_log.append(f"!room.npc(\"{name}\").hp={unit.hp} # {hp_lost:+,} HP{died_text}")
-            if dmg_list:
-                dmg_list = dmg_list[:-2] + "."  # combat_log.append("; "+dmg_list)
+                    combat_log.append(f"- {unit.name_with_id}: {hp_lost:+,} HP{died_text}")
             if combat_result:
                 combat_log.append(combat_result)
         return combat_log
 
     def combat(self, opponent_mob: "MobUnit", have_initiative: bool | None = None) -> list[str] | None:
-
         if isinstance(opponent_mob, CharacterSheet):
             _ = opponent_mob
             opponent_mob = MobUnit()
@@ -114,35 +95,29 @@ class MobUnit:
             return None
 
         combat_log: list[str] = list()
-        combat_log.append("!room.npc_list")
+        combat_log.append(f"#### Combat: {self.name} vs {opponent_mob.name}")
         if have_initiative is None:
             have_initiative = self.initiative_check(opponent_mob)
 
         if have_initiative:
-            combat_log.append(f"; {self.name} has initiative")
+            combat_log.append(f"- {self.name} has initiative.")
         else:
-            combat_log.append(f"; {opponent_mob.name} has initiative")
+            combat_log.append(f"- {opponent_mob.name} has initiative.")
 
         while self.is_alive and opponent_mob.is_alive:
             result: list[str] = self.combat_round(opponent_mob, have_initiative=have_initiative)
             if result:
                 combat_log.extend(result)
             have_initiative = not have_initiative
-
-        _ = opponent_mob if self.is_alive else self
-        if _.fate:
-            starting_fate: dict[str, int] = dict()
-            for unit in _.units:
-                starting_fate[unit.base_name] = unit.fate
-            combat_log.append(_.fate_dec(1))
-            for unit in _.units:
-                name = unit.base_name
-                if starting_fate[name] != unit.fate:
-                    if "player" in name.lower():
-                        combat_log.append(f"!player.fate={unit.fate}")
-                    else:
-                        combat_log.append(f"!room.npc(\"{name}\").fate={unit.fate}")
-        combat_log.append("!room.npc_list")
+            if not opponent_mob.is_alive or not self.is_alive:
+                _ = opponent_mob if self.is_alive else self
+                if _.fate:
+                    starting_fate: dict[str, int] = dict()
+                    for unit in _.units:
+                        starting_fate[unit.name_with_id] = unit.fate
+                    combat_log.append(_.fate_dec(1))
+                    for unit in _.units:
+                        unit.hp = unit.hit_points_max
         return combat_log
 
     def initiative_check(self, opponent_mob: "MobUnit", have_initiative: bool | None = None) -> bool:
@@ -155,8 +130,8 @@ class MobUnit:
             mob = MobUnit()
             mob.add_unit(opponent_mob)
             opponent_mob = mob
-        roll1: int = dice.roll(f"1d6+{self.rogue}")
-        roll2: int = dice.roll(f"1d6+{opponent_mob.rogue}")
+        roll1: int = int(dice.roll(f"1d6x+{self.rogue}"))
+        roll2: int = int(dice.roll(f"1d6x+{opponent_mob.rogue}"))
         if roll1 > roll2:
             return True
         if roll1 < roll2:
@@ -198,58 +173,11 @@ class MobUnit:
         return _
 
     @property
-    def player_loot(self) -> list[Item | Weapon | Armor | Shield | str]:
-        loot = self.loot
-        for _, item in enumerate(loot):
-            if isinstance(item, str):
-                loot[_] = item.replace("!room.", "!player.")
-        return loot
-
-    @property
-    def loot(self) -> list[Item | Weapon | Armor | Shield | str]:
-        if len(self._loot):
+    def loot(self) -> list[Item | Weapon | Armor | Shield | Money | str]:
+        if self._loot:
             return self._loot
-        result: list[Item | Weapon | Armor | Shield | str] = list()
         challenge: int = self.xp() // 100
-        cp: int = 0
-        sp: int = 0
-        ep: int = 0
-        gp: int = 0
-        pp: int = 0
-        for unit in self.units:
-            d100: int = int(dice.roll("1d100"))
-            if d100 <= 30:
-                cp += int(dice.roll("5d6"))
-            elif d100 <= 60:
-                sp += int(dice.roll("4d6"))
-            elif d100 <= 70:
-                ep += int(dice.roll("3d6"))
-            elif d100 <= 95:
-                gp += int(dice.roll("3d6"))
-            else:
-                pp += int(dice.roll("1d6"))
-        if cp:
-            result.append(f"!room.add_item('CP: {cp:,}')")
-        if sp:
-            result.append(f"!room.add_item('SP: {sp:,}')")
-        if ep:
-            result.append(f"!room.add_item('EP: {ep:,}')")
-        if gp:
-            result.append(f"!room.add_item('GP: {gp:,}')")
-        if pp:
-            result.append(f"!room.add_item('PP: {pp:,}')")
-        result.append("")
-        if cp:
-            result.append(f" * CP: {cp:,}")
-        if sp:
-            result.append(f" * SP: {sp:,}")
-        if ep:
-            result.append(f" * EP: {ep:,}")
-        if gp:
-            result.append(f" * GP: {gp:,}")
-        if pp:
-            result.append(f" * PP: {pp:,}")
-        result.append("")
+        result = get_loot(challenge)
         self._loot = result
         return result
 
@@ -294,7 +222,7 @@ class MobUnit:
     @units.setter
     def units(self, units: list["CharacterSheet"]) -> None:
         if not self.units:
-            self._name = "Mob"
+            self._name = "Vapors"
         if units:
             for unit in units:
                 if unit.is_alive:
@@ -304,18 +232,14 @@ class MobUnit:
 
     @property
     def name(self) -> str:
-        global _mob_counter
-        if self._name is None:
-            _mob_counter += 1
-            self._counter = _mob_counter
-            self._name = self._units[0].base_name if self._units else "Mob"
-        return f"{self._name} MobUnit#{self._counter:,}"
+        if self.unit_count == 1:
+            return f"The {self._name}"
+        if self.unit_count == 2:
+            return f"The pair led by the {self._name}"
+        return f"The group led by the {self._name}"
 
     @name.setter
     def name(self, name: str) -> None:
-        global _mob_counter
-        _mob_counter += 1
-        self._counter = _mob_counter
         self._name = name
 
     def _take_damage(self, die: str) -> str:
@@ -347,33 +271,27 @@ class MobUnit:
         result: list[str] = list()
         starting_hp: dict[str, int] = dict()
         for unit in self._units:
-            starting_hp[unit.base_name] = unit.hp
-        result.append(f"; {self._take_damage(die)}")
+            starting_hp[unit.name_with_id] = unit.hp
+        self._take_damage(die)
         for unit in self.units:
-            name = unit.base_name
-            if starting_hp[name] != unit.hp:
-                hp_lost: int = unit.hp - starting_hp[name]
-                if "player" in name.lower():
-                    result.append(f"!player.hp={unit.hp} # {hp_lost:+,} HP")
-                else:
-                    result.append(f"!room.npc(\"{name}\").hp={unit.hp} # {hp_lost:+,} HP")
+            if starting_hp[unit.name_with_id] != unit.hp:
+                hp_lost: int = unit.hp - starting_hp[unit.name_with_id]
+                died_text: str = "" if unit.is_alive else ", DIED."
+                result.append(f"- {unit.name_with_id}: {hp_lost:+,} HP{died_text}")
         return result
 
     def take_damage_each(self, die: str) -> list[str]:
         result: list[str] = list()
         starting_hp: dict[str, int] = dict()
         for unit in self._units:
-            starting_hp[unit.base_name] = unit.hp
+            starting_hp[unit.name_with_id] = unit.hp
         for unit in self.units:
             unit.hp = unit.hp - int(dice.roll(die))
         for unit in self.units:
-            name = unit.base_name
-            if starting_hp[name] != unit.hp:
-                hp_lost: int = unit.hp - starting_hp[name]
-                if "player" in name.lower():
-                    result.append(f"!player.hp={unit.hp} # {hp_lost:+,} HP")
-                else:
-                    result.append(f"!room.npc(\"{name}\").hp={unit.hp} # {hp_lost:+,} HP")
+            if starting_hp[unit.name_with_id] != unit.hp:
+                hp_lost: int = unit.hp - starting_hp[unit.name_with_id]
+                died_text: str = "" if unit.is_alive else ", DIED."
+                result.append(f"- {unit.name_with_id}: {hp_lost:+,} HP{died_text}")
         return result
 
     @property
@@ -418,25 +336,34 @@ class MobUnit:
 
     @property
     def damage_max(self) -> int:
-        return dice.roll_max(f"{self.damage_die}")
+        dmg = self.damage_die.replace("x", "")
+        return dice.roll_max(dmg)
 
     @property
     def damage_min(self) -> int:
-        return dice.roll_min(f"{self.damage_die}")
+        dmg = self.damage_die.replace("x", "")
+        return dice.roll_min(dmg)
 
     @property
     def damage_die(self) -> str:
-        d = "1"
-        m: int = 0
+        die_max = "1d2"
+        val_max: int = 0
         for unit in self._units:
             if unit.is_alive:
-                if int(dice.roll_max(f"{unit.damage}")) > m:
-                    m = int(dice.roll_max(unit.damage))
-                    d = f"{unit.damage} + " * self.unit_count
+                unit_damage = unit.damage.replace("x", "")
+                if unit_damage:
+                    try:
+                        test_val_max: int = int(dice.roll_max(unit_damage))
+                    except RecursionError as e:
+                        print(f"Max Dice Fail: {unit_damage} | {unit.damage}")
+                        test_val_max = 0
+                    if test_val_max > val_max:
+                        val_max = test_val_max
+                        die_max = f"{unit.damage} + " * self.unit_count
         if self.massive_attack and not self._massive_attack_used:
-            d = f"{d} {self.warrior} + "
+            die_max = f"{die_max} {self.warrior} + "
             self._massive_attack_used = True
-        return f"{d}0"
+        return f"{die_max}0"
 
     @property
     def warrior(self) -> int:

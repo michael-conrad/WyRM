@@ -29,15 +29,11 @@ class NPC:
     _counter_: dict[str, int] = dict()
 
     @classmethod
-    def spawn(cls, creature: types.FunctionType, count: str | int = 1, location: str | None = None) -> list[str]:
-        result: list[str] = list()
-        if isinstance(count,str):
-            count = int(roll(count))
+    def spawn(cls, creature: types.FunctionType, count: int = 1) -> list[CharacterSheet]:
+        count = max(0, count)
+        result: list[CharacterSheet] = list()
         for _ in range(count):
-            if location:
-                result.append(f"!rooms(\"{location}\").add_item(NPC.{creature.__name__}())")
-            else:
-                result.append(f"!room.add_item(NPC.{creature.__name__}())")
+            result.append(creature())
         return result
 
     @classmethod
@@ -53,13 +49,14 @@ class NPC:
 
     @classmethod
     def _counter(cls, name: str) -> str:
-        global _npc_section_tag
-        if _npc_section_tag and _npc_section_tag.lower() not in name.lower():
-            name += f" {_npc_section_tag}"
-        if name not in cls._counter_:
-            cls._counter_[name] = 0
-        cls._counter_[name] = cls._counter_[name] + 1
-        return f"{name} (#{cls._counter_[name]})"
+        # global _npc_section_tag
+        # if _npc_section_tag and _npc_section_tag.lower() not in name.lower():
+        #     name += f" {_npc_section_tag}"
+        # if name not in cls._counter_:
+        #     cls._counter_[name] = 0
+        # cls._counter_[name] = cls._counter_[name] + 1
+        # return f"{name} (#{cls._counter_[name]})"
+        return f"{name}"
 
     @classmethod
     def giant_beetle(cls, extra_name: str | None = None) -> CharacterSheet:
@@ -77,8 +74,8 @@ class NPC:
         sheet.weapons.append(bite)
         sheet.reset_pools()
         sheet.base_defense = 8 - sheet.armor_class
-        sheet.hit_points_max = 14
-        sheet.hp = 14
+        sheet.hit_points_max = dice.roll("2d6+2")
+        sheet.hp = int(dice.roll("2d6+2"))
         sheet.fate = 0
         return sheet
 
@@ -100,7 +97,7 @@ class NPC:
         sheet.reset_pools()
         sheet.base_defense = 7 - sheet.armor_class
         sheet.hit_points_max = 9
-        sheet.hp = 9
+        sheet.hp = int(dice.roll("2d8+4"))
         sheet.equip_armor(Armor("Rusted chain mail", 1, 0, 0))
         sheet.fate = 0
         return sheet
@@ -124,7 +121,7 @@ class NPC:
         sheet.reset_pools()
         sheet.base_defense = 7 - sheet.armor_class
         sheet.hit_points_max = 9
-        sheet.hp = 9
+        sheet.hp = int(dice.roll("2d8+4"))
         sheet.fate = 0
         return sheet
 
@@ -145,7 +142,7 @@ class NPC:
         sheet.reset_pools()
         sheet.base_defense = 7
         sheet.hit_points_max = 12
-        sheet.hp = 12
+        sheet.hp = int(dice.roll("3d8+9"))
         sheet.fate = 0
         return sheet
 
@@ -167,7 +164,7 @@ class NPC:
         sheet.reset_pools()
         sheet.base_defense = 7
         sheet.hit_points_max = 12
-        sheet.hp = 12
+        sheet.hp = int(dice.roll("2d6"))
         sheet.fate = 0
         return sheet
 
@@ -193,7 +190,7 @@ class NPC:
         sheet.reset_pools()
         sheet.base_defense = 8
         sheet.hit_points_max = 24
-        sheet.hp = 24
+        sheet.hp = int(dice.roll("4d10+4"))
         sheet.fate = 0
         return sheet
 
@@ -227,7 +224,7 @@ class NPC:
         branches.attack_bonus = 1
         branches.damage_bonus = -1
         dnd.weapon = branches
-
+        dnd.hp = "3d6"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -257,7 +254,7 @@ class NPC:
         bite.attack_bonus = 1
         bite.damage_bonus = -1
         dnd.weapon = bite
-
+        dnd.hp = "1d6+1"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -287,7 +284,7 @@ class NPC:
         bite.attack_bonus = 3
         bite.damage_bonus = 1
         dnd.weapon = bite
-
+        dnd.hp = "4d8+4"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -314,6 +311,7 @@ class NPC:
         bite.attack_bonus = 4
         bite.damage_bonus = 2
         dnd.weapon = bite
+        dnd.hp = "3d10+3"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -338,6 +336,7 @@ class NPC:
         bite.attack_bonus = 4
         bite.damage_bonus = 2
         dnd.weapon = bite
+        dnd.hp = "2d6"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -361,6 +360,7 @@ class NPC:
         bite.attack_bonus = 5
         bite.damage_bonus = 3
         dnd.weapon = bite
+        dnd.hp = "2d8"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -385,6 +385,7 @@ class NPC:
         wpn.attack_bonus = 4
         wpn.damage_bonus = 2
         dnd.weapon = wpn
+        dnd.hp = "5d8"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -409,6 +410,7 @@ class NPC:
         wpn.attack_bonus = 3
         wpn.damage_bonus = 1
         dnd.weapon = wpn
+        dnd.hp = "5d8"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -434,6 +436,7 @@ class NPC:
         wpn.attack_bonus = 4
         wpn.damage_bonus = 2
         dnd.weapon = wpn
+        dnd.hp = "2d6"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -459,6 +462,7 @@ class NPC:
         wpn.attack_bonus = 4
         wpn.damage_bonus = 2
         dnd.weapon = wpn
+        dnd.hp = "2d6"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -484,6 +488,7 @@ class NPC:
         wpn.attack_bonus = 3
         wpn.damage_bonus = 1
         dnd.weapon = wpn
+        dnd.hp = "2d8+2"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -509,6 +514,7 @@ class NPC:
         wpn.attack_bonus = 3
         wpn.damage_bonus = 1
         dnd.weapon = wpn
+        dnd.hp = "2d8+2"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -533,6 +539,7 @@ class NPC:
         wpn.attack_bonus = 4
         wpn.damage_bonus = 2
         dnd.weapon = wpn
+        dnd.hp = "2d6-2"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -557,6 +564,7 @@ class NPC:
         wpn.attack_bonus = 4
         wpn.damage_bonus = 2
         dnd.weapon = wpn
+        dnd.hp = "2d8+4"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -581,6 +589,7 @@ class NPC:
         wpn.attack_bonus = 4
         wpn.damage_bonus = 2
         dnd.weapon = wpn
+        dnd.hp = "2d8+4"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -606,6 +615,7 @@ class NPC:
         wpn.attack_bonus = 5
         wpn.damage_bonus = 3
         dnd.weapon = wpn
+        dnd.hp = "4d10+4"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -631,6 +641,7 @@ class NPC:
         wpn.attack_bonus = 3
         wpn.damage_bonus = 1
         dnd.weapon = wpn
+        dnd.hp = "3d8+9"
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -658,6 +669,33 @@ class NPC:
         wpn.attack_bonus = 8
         wpn.damage_bonus = 5
         dnd.weapon = wpn
+        dnd.hp = "12d10+60"
+        sheet = from_dnd5e(dnd)
+        return sheet
+
+    @classmethod
+    def shadow(cls, extra_name: str | None = None) -> CharacterSheet:
+        if extra_name is None:
+            extra_name = ""
+        else:
+            extra_name = f" {extra_name.strip()}"
+        dnd = CharacterSheet5()
+        dnd.name = NPC._counter(f"Shadow{extra_name}")
+        dnd.armor_class = 12
+        dnd.hp = int(dice.roll("3d8+3"))
+        dnd.str = 6
+        dnd.dex = 14
+        dnd.con = 13
+        dnd.int = 6
+        dnd.wis = 10
+        dnd.cha = 8
+        dnd.xp = 100
+        dnd.desc = "Shadows are undead that resemble dark exaggerations of humanoid shadows."
+        wpn: Weapon = Weapon("Life Drain", base_damage="2d6+2")
+        wpn.attack_bonus = 4
+        wpn.damage_bonus = 0
+        dnd.weapon = wpn
+        dnd.hp = "3d8+3"
         sheet = from_dnd5e(dnd)
         return sheet
 

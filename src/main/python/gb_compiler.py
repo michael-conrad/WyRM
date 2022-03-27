@@ -60,31 +60,6 @@ def out(text: str = ""):
     compiled_program += ("    " * _indent) + text + "\n"
 
 
-def end_room() -> None:
-    indent_dec()
-    out("recurse_depth -= 1")
-    out("out += state[room_name]['vars']['items'].inv")
-    out("out += \"\\n\\n\"")
-    out("option_list.sort(key=lambda x: x[0])")
-    out("saved_state = save_state()")
-    out("for _ in option_list:")
-    indent_inc()
-    out("destination_node = _[1]()")
-    out("restore_state(saved_state)")
-    out(f"_option_text: str = str(_[0])")
-    out(f"_option_text = html.escape(_option_text)")
-    out(f"_md_link: str = \"[\" + _option_text + \"](\" + destination_node + \".md)\"")
-    out("out += \"* \" + _md_link")
-    out("out += \"\\n\"")
-    indent_dec()
-    out("restore_turn()")
-    out("_output[node_id] = out")
-    out("return node_id")
-    indent_dec()
-    out()
-    out()
-
-
 class GamebookCompiler(lark.visitors.Interpreter):
     q1 = "\""
     q3 = "\"\"\""
@@ -112,6 +87,9 @@ class GamebookCompiler(lark.visitors.Interpreter):
     defined_macros: dict[str, Tree] = dict()
 
     next_option_ctrs: dict[str, int] = dict()
+
+    macro_preexec: str = ""
+    macro_postexec: str = ""
 
     @property
     def func_ctr(self) -> int:
@@ -149,8 +127,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
 
     def start(self, tree: Tree) -> str:
         _ = ""
-        out("# START")
-
         # system required imports
         out("from contextlib import contextmanager")
         out("import re")
@@ -183,7 +159,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
         self.visit_children(tree)
 
     def metadata_entries(self, tree: Tree):
-        out("# Metadata entries")
         info_block: list[tuple[str, str]] = list()
         info_tags: set[str] = set()
         self.visit_children(tree)
@@ -198,10 +173,13 @@ class GamebookCompiler(lark.visitors.Interpreter):
                 info_block.append((tag.strip(), value))
 
         if info_block:
-            out("# Game Book Metadata")
             out("gamebook_metadata: dict[str, str] = dict()")
         for tag, value in info_block:
             out(f"gamebook_metadata[\"{tag}\"] = \"{value}\"")
+            if tag == "preexec":
+                self.macro_preexec = value.strip()
+            if tag == "postexec":
+                self.macro_postexec = value.strip()
         out()
 
     def metadata_entry(self, tree: Tree | Token) -> tuple[str, str]:
@@ -216,7 +194,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
             self.import_block.append("gamebook_core")
         if self.import_block:
             self.import_block.sort()
-        out(f"# Imports from library metadata [{len(self.import_block)}]")
         for import_lib in self.import_block:
             out(f"import {import_lib}")
         out()
@@ -226,13 +203,13 @@ class GamebookCompiler(lark.visitors.Interpreter):
 
         self.room_pad_length = len(str(len([s for s in tree.find_data("room")])))
 
-        out("# Populate world vars with imported globals")
         imports = dict()
         for _ in self.import_block:
             exec(f'import {_}', imports)
             exec(f'from {_} import *', imports)
         for attr in [*imports]:
             self.scope_world.add(attr)
+
 
         # enable proper use of "goto" to terminate all remaining code in a room
         # see: https://stackoverflow.com/a/3171971/12407701
@@ -262,7 +239,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out()
 
         # add the predefined dict, world, pointing to package locals
-        out("# Rooms")
         out("state: dict[str, any] = dict()")
         out("state['world'] = dict()")
         out("recurse_depth: int = 0")
@@ -278,7 +254,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
         indent_inc()
         out(f"state['world'][attr] = imports[attr]")
         indent_dec()
-        out("# build up list of keys not to pickle or checksum")
         out("ignore_pickle_keys: set[str] = set()")
         out(f"for attr in [*imports]:")
         indent_inc()
@@ -286,9 +261,9 @@ class GamebookCompiler(lark.visitors.Interpreter):
         indent_dec()
         out(f"ignore_pickle_keys.add('__builtins__')")
         out()
+        self.scope_world.add("facing")
         out("state['world']['facing'] = state['world']['Facing']().with_facing('n')")
         out()
-        out("# Intentionally not tracked in state")
         out("_node_id: dict[str, int] = dict()")
         out()
         out()
@@ -358,7 +333,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
             out(_)
 
         # make sure last room function has closing code
-        end_room()
+        self.end_room()
         out("room_function_lookup: dict[str, Callable] = dict()")
         for _key in self.room_lookup.keys():
             _function = self.room_lookup[_key]
@@ -416,9 +391,11 @@ md_options["wrap"] = 80
 
 shutil.rmtree("md", ignore_errors=True)
 os.makedirs("md", exist_ok=True)
+
 for append_to in _output_post_append:
     append_from: str = _output_post_append[append_to]
     _output[append_to] += '\\n\\n' + _output[append_from]
+    
 for key in _output:
     out = mdformat.text(_output[key], options=md_options)
     with open("md/" + key + ".md", "w") as w:
@@ -426,25 +403,27 @@ for key in _output:
         w.write(out)
         w.write("\\n")
         
+with open("md/index.md", "w") as w:
+    out = mdformat.text(_output[index_node], options=md_options)
+    w.write("\\n")
+    w.write(out)
+    w.write("\\n")
+    
 with open("index.md", "w") as w:
     out = mdformat.text(_output[index_node], options=md_options)
     out = re.sub("\((.*?md)\)", "(md/\\\\1)", out)
     w.write("\\n")
     w.write(out)
     w.write("\\n")
-    
-with open("md/index.md", "w") as w:
-    out = mdformat.text(_output[index_node], options=md_options)
-    out = re.sub("\((.*?md)\)", "(md/\\\\1)", out)
-    w.write("\\n")
-    w.write(out)
-    w.write("\\n")
+
 """)
 
     def room(self, tree: Tree):
 
         # always clear non-world scopes at start of processing a new room
         self.scope_room.clear()
+        self.scope_room.add("items")
+
         self.scope_local.clear()
 
         _ = ""
@@ -459,7 +438,7 @@ with open("md/index.md", "w") as w:
                     room_no: int = self.room_ctr_lookup[name]
                     # always make sure previous room has correct return code
                     if room_no > 1:
-                        end_room()
+                        self.end_room()
                     self.scope_room.add("items")
                     self.room_lookup[name] = room_name
                     self.state_track_set.add(room_name)
@@ -484,7 +463,6 @@ with open("md/index.md", "w") as w:
                     out(f"_once: set[int] = _state['once']")
                     out(f"room: str = {self.q1}{value}{self.q1}")
                     out(f"room_name: str = {self.q1}{room_name}{self.q1}")
-                    out("# see if this is a repeating state, if yes, just use original node id")
                     out("global node_id_by_hash")
                     out("node_hash: str = room_name + state_checksum()")
                     out("if node_hash in node_id_by_hash:")
@@ -496,7 +474,7 @@ with open("md/index.md", "w") as w:
                     out()
                     out("next_turn()")
                     out()
-                    out("if turn() % 100 == 0:")
+                    out("if turn() % 50 == 0:")
                     indent_inc()
                     out("print(f'Turn: {turn()}')")
                     indent_dec()
@@ -508,10 +486,13 @@ with open("md/index.md", "w") as w:
                     indent_inc()
                     out("raise RecursionError()")
                     indent_dec()
-                    out(f"random.setstate(state['{room_name}']['random_state'])")
+                    out(f"random.setstate(_state['random_state'])")
                     out("option_list: list[tuple[str, Callable]] = list()")
                     out("with nested_break() as abort_processing:")
                     indent_inc()
+                    if self.macro_preexec:
+                        if self.macro_preexec in self.defined_macros:
+                            self.visit(self.defined_macros[self.macro_preexec])
                     continue
                 if child.type == "NEWLINE":
                     continue
@@ -522,8 +503,6 @@ with open("md/index.md", "w") as w:
 
     def statement(self, tree: Tree) -> None:
         _ = ""
-        out("# statement")
-        _ = ""
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
@@ -531,8 +510,6 @@ with open("md/index.md", "w") as w:
             out(_)
 
     def labeled_statement(self, tree: Tree):
-        _ = ""
-        out("# labeled statement")
         _ = ""
         for visit in self.visit_children(tree):
             if visit:
@@ -542,7 +519,6 @@ with open("md/index.md", "w") as w:
 
     def compound_statement(self, tree: Tree):
         label: str = self.next_abort
-        out("# compound statement")
         _ = ""
         for visit in self.visit_children(tree):
             if visit:
@@ -559,8 +535,6 @@ with open("md/index.md", "w") as w:
             out(_)
 
     def block_item(self, tree: Tree):
-        _ = ""
-        out("# block_item")
         _ = ""
         for visit in self.visit_children(tree):
             if visit:
@@ -603,8 +577,6 @@ with open("md/index.md", "w") as w:
 
     def selection_statement(self, tree: Tree):
         _ = ""
-        out("# selection")
-        _ = ""
         for visit in self.visit_children(tree):
             if visit:
                 _ += visit
@@ -645,8 +617,6 @@ with open("md/index.md", "w") as w:
         indent_dec()
 
     def if_statement(self, tree: Tree):
-        out(f"# if: {len(tree.children)}")
-        out(f"# {self.__top_level_children(tree.children)}")
         _, expression, true_block = tree.children
 
         _ = "if "
@@ -659,8 +629,6 @@ with open("md/index.md", "w") as w:
         indent_dec()
 
     def iteration_statement(self, tree: Tree):
-        _ = ""
-        out("# iteration")
         _ = ""
         for visit in self.visit_children(tree):
             if visit:
@@ -693,7 +661,6 @@ with open("md/index.md", "w") as w:
 
     # for_statement: FOR "(" assignment_statement expression_statement expression ")" statement
     def for_statement(self, tree: Tree):
-        out("# for statement")
         _, assignment_expression, expression_statement, assignment_express, compound_statement = tree.children
         out(self.visit(assignment_expression))
         es = self.visit(expression_statement)
@@ -714,7 +681,6 @@ with open("md/index.md", "w") as w:
 
     # for_each_statement: FOR "(" IDENTIFIER ":" expression")" statement
     def for_each_statement(self, tree: Tree):
-        out("# for each")
         postfix: Tree
         expression: Tree
         compound_statement: Tree
@@ -728,11 +694,7 @@ with open("md/index.md", "w") as w:
             var = lvalue[len("state['world']['"):-2]
             if var not in self.scope_world and var not in self.scope_room:
                 self.scope_local.add(var)
-                out(f"# foreach local var: {var}")
-            else:
-                out(f"# foreach global or room var: {var}")
 
-        out(f"# local vars: {self.scope_local}")
         out(f"for {self.visit(postfix)} in {self.visit(expression)}:")
         indent_inc()
         self.visit(compound_statement)
@@ -740,7 +702,6 @@ with open("md/index.md", "w") as w:
         self.scope_local.intersection_update(saved_locals)
 
     def repeat_statement(self, tree: Tree):
-        out(f"# repeat statement {self.__top_level_children(tree)}")
         _, expression, statement = tree.children
 
         e = self.visit(expression)
@@ -750,7 +711,6 @@ with open("md/index.md", "w") as w:
         indent_dec()
 
     def jump_statement(self, tree: Tree):
-        out("# jump")
         _ = ""
         for visit in self.visit_children(tree):
             if visit:
@@ -758,10 +718,13 @@ with open("md/index.md", "w") as w:
         if _.strip():
             out(_)
 
+    def clear_options(self, tree: Tree):
+        self.visit_children(tree)
+        out("option_list.clear()")
+
     def goto_statement(self, tree: Tree):
         _, new_room, direction_facing, *_ = tree.children
         func = self.next_goto
-        out()
         out()
         out(f"def {func}():")
         indent_inc()
@@ -805,7 +768,6 @@ with open("md/index.md", "w") as w:
         return None
 
     def comment(self, tree: Tree):
-        out("# comment")
         _ = ""
         for visit in self.visit_children(tree):
             if visit:
@@ -881,12 +843,22 @@ with open("md/index.md", "w") as w:
         saved_locals = self.scope_local.copy()
         closures: str = ""
         if self.scope_local:
+            out()
+            stash_locals: str = ""
+            for var in self.scope_local:
+                out(f"if '_local_{var}' not in locals():")
+                indent_inc()
+                out(f"_local_{var} = None")
+                indent_dec()
+
+            # out()
+            for var in self.scope_local:
+                out(f"_o_{var} = _local_{var}")
+            out()
             for var in self.scope_local:
                 if closures:
                     closures += ", "
-                closures += f"_local_{var}=_local_{var}"
-        # out("_sub_func_counter += 1")
-        out()
+                closures += f"_local_{var}=_o_{var}"
         out(f"def {func}({closures}) -> str:")
         indent_inc()
         out(f"\"\"\"{basic_escape(option_description)}\"\"\"")
@@ -922,10 +894,8 @@ with open("md/index.md", "w") as w:
         indent_dec()
         out(f"option_list.append(({option_description}, {func}))")
         self.scope_local.intersection_update(saved_locals)
-        out(f"# restored locals: {self.scope_local} was {saved_locals}")
 
     def once_statement(self, tree: Tree):
-        # out(f"# once: {self.__top_level_children(tree.children)}")
         self.once_counter += 1
         out(f"if {self.once_counter} not in _once:")
         indent_inc()
@@ -939,7 +909,6 @@ with open("md/index.md", "w") as w:
         indent_inc()
 
     def macro_define(self, tree: Tree) -> None:
-        out("# macro_define macro_id compound_statement")
         macro_id_tree, compound_statement = tree.children
         macro_id: str = ""
         for _ in self.visit(macro_id_tree):
@@ -949,7 +918,6 @@ with open("md/index.md", "w") as w:
         self.defined_macros[macro_id] = compound_statement
 
     def macro_invoke(self, tree: Tree) -> None:
-        out("# macro_invoke: macro macro_id eos")
         macro_id_tree, _ = tree.children
         macro_id: str = ""
         for _ in self.visit(macro_id_tree):
@@ -963,7 +931,6 @@ with open("md/index.md", "w") as w:
 
 
     def python_list(self, tree: Tree):
-        out(f"# python list {self.__top_level_children(tree)}")
         _ = "list("
         for visit in self.visit_children(tree):
             if visit:
@@ -972,7 +939,6 @@ with open("md/index.md", "w") as w:
         return _
 
     def python_tuple(self, tree: Tree):
-        out(f"# python tuple {self.__top_level_children(tree)}")
         _ = ""
         for visit in self.visit_children(tree):
             if visit:
@@ -1409,21 +1375,27 @@ with open("md/index.md", "w") as w:
 
     def scope_statement(self, tree: Tree):
         scope, var, _ = tree.children
-        out(f"# {scope} {var}")
         if scope == "world":
             self.scope_world.add(var)
+            out(f"if '{var}' not in state['world']:")
+            indent_inc()
+            out(f"state['world']['{var}'] = None")
+            indent_dec()
         if scope == "room":
             self.scope_room.add(var)
+            out(f"if '{var}' not in state['world']:")
+            indent_inc()
+            out(f"state[room_name]['vars']['{var}'] = None")
+            indent_dec()
         if scope == "local":
             self.scope_local.add(var)
             out(f"_local_{var}: any = None")
 
     def start_over(self, tree: Tree):
-        # out(f"index_node: str = {self.room_lookup[self.main_room]}()")
         out("out += \"\\n\"")
-        # out("out += f\"* [Start Over]({index_node}.md)\"")
         out("out += f\"* [Start Over](index.md)\"")
         out("out += \"\\n\"")
+        out("raise abort_processing # end processing after restart statement")
 
     def __default__(self, tree: Tree | Token):
         out(f"# __default__: {tree.data}")
@@ -1433,3 +1405,31 @@ with open("md/index.md", "w") as w:
                 _ += visit
         if _.strip():
             out(_)
+
+    def end_room(self) -> None:
+        if self.macro_postexec:
+            if self.macro_postexec in self.defined_macros:
+                self.visit(self.defined_macros[self.macro_postexec])
+        out("out += state[room_name]['vars']['items'].inv")
+        out("out += \"\\n\\n\"")
+        indent_dec()
+        out(f"_state['random_state'] = random.getstate()")
+        out("recurse_depth -= 1")
+        out("option_list.sort(key=lambda x: x[0])")
+        out("saved_state = save_state()")
+        out("for _ in option_list:")
+        indent_inc()
+        out("destination_node = _[1]()")
+        out("restore_state(saved_state)")
+        out(f"_option_text: str = str(_[0])")
+        out(f"_option_text = html.escape(_option_text)")
+        out(f"_md_link: str = \"[\" + _option_text + \"](\" + destination_node + \".md)\"")
+        out("out += \"* \" + _md_link")
+        out("out += \"\\n\"")
+        indent_dec()
+        out("restore_turn()")
+        out("_output[node_id] = out")
+        out("return node_id")
+        indent_dec()
+        out()
+        out()

@@ -4,8 +4,6 @@ from dataclasses import field
 from enum import Enum
 from enum import auto
 
-import dice
-
 import gamebook_core
 from character_sheet import CharacterSheet
 from equipment import Armor
@@ -66,7 +64,7 @@ class MobUnit(gamebook_core.AbstractItem):
         if not attacking_mob.is_alive or not defending_mob.is_alive:
             return None
 
-        hit: bool = int(dice.roll(f"1d6x")) + attacking_mob.attack >= defending_mob.defense
+        hit: bool = gamebook_core.dice_roll(1, 6) + attacking_mob.attack >= defending_mob.defense
         combat_result: str = ""
         if hit:
             damage_die: str = attacking_mob.damage_die
@@ -130,8 +128,8 @@ class MobUnit(gamebook_core.AbstractItem):
             mob = MobUnit()
             mob.add_unit(opponent_mob)
             opponent_mob = mob
-        roll1: int = int(dice.roll(f"1d6x+{self.rogue}"))
-        roll2: int = int(dice.roll(f"1d6x+{opponent_mob.rogue}"))
+        roll1: int = gamebook_core.dice_roll(1, 6, True) + self.rogue
+        roll2: int = gamebook_core.dice_roll(1, 6, True) + opponent_mob.rogue
         if roll1 > roll2:
             return True
         if roll1 < roll2:
@@ -166,6 +164,7 @@ class MobUnit(gamebook_core.AbstractItem):
             return f"\nFATE {-fate:+}. FATE POINTS REMAINING: {self.fate}.\n\n; {intervention()}"
         return f"\nFATE {-fate:+}. NO FATE POINTS REMAINING.\n\n; {intervention()}"
 
+    @property
     def xp(self) -> int:
         _ = 0
         for unit in self.units:
@@ -176,7 +175,7 @@ class MobUnit(gamebook_core.AbstractItem):
     def loot(self) -> list[Item | Weapon | Armor | Shield | Money | str]:
         if self._loot:
             return self._loot
-        challenge: int = self.xp() // 100
+        challenge: int = self.xp // 100
         result = get_loot(challenge)
         self._loot = result
         return result
@@ -243,7 +242,7 @@ class MobUnit(gamebook_core.AbstractItem):
         self._name = name
 
     def _take_damage(self, die: str) -> str:
-        dmg: int = max(int(dice.roll(f"{die}")), 1)
+        dmg: int = max(int(gamebook_core.dice_roll2(f"{die}")), 1)
         r_units: list[CharacterSheet] = self._units.copy()
         random.shuffle(r_units)
         unit_count = self.unit_count
@@ -286,7 +285,7 @@ class MobUnit(gamebook_core.AbstractItem):
         for unit in self._units:
             starting_hp[unit.name_with_id] = unit.hp
         for unit in self.units:
-            unit.hp = unit.hp - int(dice.roll(die))
+            unit.hp = unit.hp - int(gamebook_core.dice_roll2(die))
         for unit in self.units:
             if starting_hp[unit.name_with_id] != unit.hp:
                 hp_lost: int = unit.hp - starting_hp[unit.name_with_id]
@@ -332,17 +331,17 @@ class MobUnit(gamebook_core.AbstractItem):
 
     @property
     def damage(self) -> int:
-        return dice.roll(f"{self.damage_die}")
+        return gamebook_core.dice_roll2(f"{self.damage_die}")
 
     @property
     def damage_max(self) -> int:
         dmg = self.damage_die.replace("x", "")
-        return dice.roll_max(dmg)
+        return gamebook_core.dice_roll2_max(dmg)
 
     @property
     def damage_min(self) -> int:
         dmg = self.damage_die.replace("x", "")
-        return dice.roll_min(dmg)
+        return gamebook_core.dice_roll2_min(dmg)
 
     @property
     def damage_die(self) -> str:
@@ -353,7 +352,7 @@ class MobUnit(gamebook_core.AbstractItem):
                 unit_damage = unit.damage.replace("x", "")
                 if unit_damage:
                     try:
-                        test_val_max: int = int(dice.roll_max(unit_damage))
+                        test_val_max: int = int(gamebook_core.dice_roll2_max(unit_damage))
                     except RecursionError as e:
                         print(f"Max Dice Fail: {unit_damage} | {unit.damage}")
                         test_val_max = 0

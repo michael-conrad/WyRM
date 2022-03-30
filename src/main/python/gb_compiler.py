@@ -129,6 +129,7 @@ class GamebookCompiler(lark.visitors.Interpreter):
         _ = ""
         # system required imports
         out("from contextlib import contextmanager")
+        out("from datetime import datetime")
         out("import re")
         out("import shutil")
         out("import os")
@@ -244,9 +245,6 @@ class GamebookCompiler(lark.visitors.Interpreter):
         out("recurse_depth: int = 0")
         out("imports = dict()")
         out()
-        # for _ in self.import_block:
-        #     out(f"exec('import {_}', imports)")
-        # out()
         for _ in self.import_block:
             out(f"exec('from {_} import *', imports)")
         out()
@@ -474,9 +472,11 @@ with open("index.md", "w") as w:
                     out()
                     out("next_turn()")
                     out()
-                    out("if turn() % 50 == 0:")
+                    out("if turn() % 10 == 0:")
                     indent_inc()
-                    out("print(f'Turn: {turn()}')")
+                    out("_ = str(datetime.now().time())[:8]")
+                    out("")
+                    out("print(f'Turn: {turn()} [{_}] {room}')")
                     indent_dec()
                     out()
                     out("out = ''")
@@ -691,7 +691,8 @@ with open("index.md", "w") as w:
             raise SyntaxError(f"Can not set world to a value. Only world members may be set.")
         saved_locals = self.scope_local.copy()
         if lvalue.startswith("state['world']['"):
-            var = lvalue[len("state['world']['"):-2]
+            var = lvalue[len("state['world']['"):]
+            var = var[:var.index("'")]
             if var not in self.scope_world and var not in self.scope_room:
                 self.scope_local.add(var)
 
@@ -844,12 +845,9 @@ with open("index.md", "w") as w:
         closures: str = ""
         if self.scope_local:
             out()
-            stash_locals: str = ""
+            out(f"# Closure vars: {self.scope_local}")
             for var in self.scope_local:
-                out(f"if '_local_{var}' not in locals():")
-                indent_inc()
-                out(f"_local_{var} = None")
-                indent_dec()
+                out(f"_local_{var} = _local_{var} if '_local_{var}' in locals() else False")
 
             # out()
             for var in self.scope_local:
@@ -1084,7 +1082,8 @@ with open("index.md", "w") as w:
         if lvalue == "state['world']":
             raise SyntaxError(f"Can not set world to a value. Only world members may be set.")
         if lvalue.startswith("state['world']['"):
-            var = lvalue[len("state['world']['"):-2]
+            var = lvalue[len("state['world']['"):]
+            var = var[:var.index("'")]
             if var not in self.scope_world:
                 self.scope_local.add(var)
                 lvalue: str = self.visit(postfix)
@@ -1278,37 +1277,27 @@ with open("index.md", "w") as w:
 
     def dice_roll(self, tree: Tree) -> str:
         tree_count, tree_die, tree_explode = tree.children
-        _ = "int(dice.roll("
-        _ += f"str({self.visit(tree_count)})"
-        _ += " + \"d\" + "
-        _ += f"str({self.visit(tree_die)})"
+        _ = "dice_roll("
+        _ += f"int({self.visit(tree_count)})"
+        _ += ", "
+        _ += f"int({self.visit(tree_die)})"
         if self.visit(tree_explode):
-            _ += " + \"x\""
-        _ += "))"
+            _ += ", explode=True"
+        _ += ")"
         return _
 
     # max_dice_roll: "max" unary_expression "@" unary_expression dice_explode
     def max_dice_roll(self, tree: Tree) -> str:
         tree_count, tree_die, tree_explode = tree.children
-        _ = "int(dice.roll_max("
-        _ += f"str({self.visit(tree_count)})"
-        _ += " + \"d\" + "
-        _ += f"str({self.visit(tree_die)})"
-        # if self.visit(tree_explode):
-        #     _ += " + \"x\""
-        _ += "))"
+        _ = f"int({self.visit(tree_count)})"
+        _ += " * "
+        _ += f"int({self.visit(tree_die)})"
         return _
 
     # min_dice_roll: "min" unary_expression "@" unary_expression dice_explode
     def min_dice_roll(self, tree: Tree) -> str:
         tree_count, tree_die, tree_explode = tree.children
-        _ = "int(dice.roll_min("
-        _ += f"str({self.visit(tree_count)})"
-        _ += " + \"d\" + "
-        _ += f"str({self.visit(tree_die)})"
-        # if self.visit(tree_explode):
-        #     _ += " + \"x\""
-        _ += "))"
+        _ = f"int({self.visit(tree_count)})"
         return _
 
     def dice_explode(self, tree: Tree) -> bool:
@@ -1379,22 +1368,25 @@ with open("index.md", "w") as w:
             self.scope_world.add(var)
             out(f"if '{var}' not in state['world']:")
             indent_inc()
-            out(f"state['world']['{var}'] = None")
+            out(f"state['world']['{var}'] = False")
             indent_dec()
         if scope == "room":
             self.scope_room.add(var)
-            out(f"if '{var}' not in state['world']:")
+            out(f"if '{var}' not in state[room_name]['vars']:")
             indent_inc()
-            out(f"state[room_name]['vars']['{var}'] = None")
+            out(f"state[room_name]['vars']['{var}'] = False")
             indent_dec()
         if scope == "local":
             self.scope_local.add(var)
-            out(f"_local_{var}: any = None")
+            out(f"_local_{var}: any = False")
 
     def start_over(self, tree: Tree):
-        out("out += \"\\n\"")
-        out("out += f\"* [Start Over](index.md)\"")
-        out("out += \"\\n\"")
+        out(f"def start_over():")
+        indent_inc()
+        out("return 'index'")
+        indent_dec()
+
+        out(f"option_list.append((\"Start Over\", start_over))");
         out("raise abort_processing # end processing after restart statement")
 
     def __default__(self, tree: Tree | Token):
@@ -1417,6 +1409,7 @@ with open("index.md", "w") as w:
         out("recurse_depth -= 1")
         out("option_list.sort(key=lambda x: x[0])")
         out("saved_state = save_state()")
+        out("out += \"_____\\n\"")
         out("for _ in option_list:")
         indent_inc()
         out("destination_node = _[1]()")
@@ -1427,6 +1420,7 @@ with open("index.md", "w") as w:
         out("out += \"* \" + _md_link")
         out("out += \"\\n\"")
         indent_dec()
+        out("out += \"_____\\n\"")
         out("restore_turn()")
         out("_output[node_id] = out")
         out("return node_id")

@@ -2,21 +2,16 @@ import copy
 import random
 import types
 
-import dice
-
 from character_sheet import CharacterSheet
 from dnd5e_monsters import CharacterSheet5
 from dnd5e_monsters import from_dnd5e
 from equipment import Armor
 from equipment import Weapon
+from gamebook_core import dice_roll
 from skills import CharacterSkillsList
 from skills import SkillAttribute
 
 _npc_section_tag: str | None = ""
-
-
-def roll(d: str) -> int:
-    return int(dice.roll(d))
 
 
 def npc_section_tag(tag: str) -> str:
@@ -74,8 +69,8 @@ class NPC:
         sheet.weapons.append(bite)
         sheet.reset_pools()
         sheet.base_defense = 8 - sheet.armor_class
-        sheet.hit_points_max = dice.roll("2d6+2")
-        sheet.hp = int(dice.roll("2d6+2"))
+        sheet.hit_points_max = 2*6+2
+        sheet.hp = dice_roll(2, 6)+2
         sheet.fate = 0
         return sheet
 
@@ -96,8 +91,8 @@ class NPC:
         sheet.weapons.append(sword)
         sheet.reset_pools()
         sheet.base_defense = 7 - sheet.armor_class
-        sheet.hit_points_max = 9
-        sheet.hp = int(dice.roll("2d8+4"))
+        sheet.hit_points_max =2*8+4
+        sheet.hp = dice_roll(2,8) + 4
         sheet.equip_armor(Armor("Rusted chain mail", 1, 0, 0))
         sheet.fate = 0
         return sheet
@@ -120,8 +115,8 @@ class NPC:
         sheet.weapons.append(wpn)
         sheet.reset_pools()
         sheet.base_defense = 7 - sheet.armor_class
-        sheet.hit_points_max = 9
-        sheet.hp = int(dice.roll("2d8+4"))
+        sheet.hit_points_max = 2*8+4
+        sheet.hp = dice_roll(2, 8) + 4
         sheet.fate = 0
         return sheet
 
@@ -141,8 +136,8 @@ class NPC:
         sheet.weapons.append(wpn)
         sheet.reset_pools()
         sheet.base_defense = 7
-        sheet.hit_points_max = 12
-        sheet.hp = int(dice.roll("3d8+9"))
+        sheet.hit_points_max = 3*8 + 9
+        sheet.hp = dice_roll(3, 8) +9
         sheet.fate = 0
         return sheet
 
@@ -163,8 +158,8 @@ class NPC:
         sheet.weapons.append(wpn)
         sheet.reset_pools()
         sheet.base_defense = 7
-        sheet.hit_points_max = 12
-        sheet.hp = int(dice.roll("2d6"))
+        sheet.hit_points_max = 2*6
+        sheet.hp = dice_roll(2, 6)
         sheet.fate = 0
         return sheet
 
@@ -189,8 +184,8 @@ class NPC:
         sheet.weapons.append(wpn)
         sheet.reset_pools()
         sheet.base_defense = 8
-        sheet.hit_points_max = 24
-        sheet.hp = int(dice.roll("4d10+4"))
+        sheet.hit_points_max = 4*10+4
+        sheet.hp = dice_roll(4,10)+4
         sheet.fate = 0
         return sheet
 
@@ -224,7 +219,7 @@ class NPC:
         branches.attack_bonus = 1
         branches.damage_bonus = -1
         dnd.weapon = branches
-        dnd.hp = "3d6"
+        dnd.hp = (3, 6, 0)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -254,7 +249,7 @@ class NPC:
         bite.attack_bonus = 1
         bite.damage_bonus = -1
         dnd.weapon = bite
-        dnd.hp = "1d6+1"
+        dnd.hp = (1, 6, 1)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -284,7 +279,7 @@ class NPC:
         bite.attack_bonus = 3
         bite.damage_bonus = 1
         dnd.weapon = bite
-        dnd.hp = "4d8+4"
+        dnd.hp = (4, 8, 4)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -311,7 +306,7 @@ class NPC:
         bite.attack_bonus = 4
         bite.damage_bonus = 2
         dnd.weapon = bite
-        dnd.hp = "3d10+3"
+        dnd.hp = (3, 10, 3)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -336,7 +331,7 @@ class NPC:
         bite.attack_bonus = 4
         bite.damage_bonus = 2
         dnd.weapon = bite
-        dnd.hp = "2d6"
+        dnd.hp = (2, 6, 0)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -360,7 +355,7 @@ class NPC:
         bite.attack_bonus = 5
         bite.damage_bonus = 3
         dnd.weapon = bite
-        dnd.hp = "2d8"
+        dnd.hp = (2, 8, 0)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -385,7 +380,7 @@ class NPC:
         wpn.attack_bonus = 4
         wpn.damage_bonus = 2
         dnd.weapon = wpn
-        dnd.hp = "5d8"
+        dnd.hp = (5, 8, 0)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -410,7 +405,7 @@ class NPC:
         wpn.attack_bonus = 3
         wpn.damage_bonus = 1
         dnd.weapon = wpn
-        dnd.hp = "5d8"
+        dnd.hp = (5, 8, 0)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -436,7 +431,7 @@ class NPC:
         wpn.attack_bonus = 4
         wpn.damage_bonus = 2
         dnd.weapon = wpn
-        dnd.hp = "2d6"
+        dnd.hp = (2, 6, 0)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -462,7 +457,7 @@ class NPC:
         wpn.attack_bonus = 4
         wpn.damage_bonus = 2
         dnd.weapon = wpn
-        dnd.hp = "2d6"
+        dnd.hp = (2, 6, )
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -488,7 +483,7 @@ class NPC:
         wpn.attack_bonus = 3
         wpn.damage_bonus = 1
         dnd.weapon = wpn
-        dnd.hp = "2d8+2"
+        dnd.hp = (2, 8, 2)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -514,7 +509,7 @@ class NPC:
         wpn.attack_bonus = 3
         wpn.damage_bonus = 1
         dnd.weapon = wpn
-        dnd.hp = "2d8+2"
+        dnd.hp = (2, 8, 2)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -539,7 +534,7 @@ class NPC:
         wpn.attack_bonus = 4
         wpn.damage_bonus = 2
         dnd.weapon = wpn
-        dnd.hp = "2d6-2"
+        dnd.hp = (2, 6, -2)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -564,7 +559,7 @@ class NPC:
         wpn.attack_bonus = 4
         wpn.damage_bonus = 2
         dnd.weapon = wpn
-        dnd.hp = "2d8+4"
+        dnd.hp = (2, 8, 4)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -589,7 +584,7 @@ class NPC:
         wpn.attack_bonus = 4
         wpn.damage_bonus = 2
         dnd.weapon = wpn
-        dnd.hp = "2d8+4"
+        dnd.hp = (2, 8, 4)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -615,7 +610,7 @@ class NPC:
         wpn.attack_bonus = 5
         wpn.damage_bonus = 3
         dnd.weapon = wpn
-        dnd.hp = "4d10+4"
+        dnd.hp = (4, 10, 4)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -641,7 +636,7 @@ class NPC:
         wpn.attack_bonus = 3
         wpn.damage_bonus = 1
         dnd.weapon = wpn
-        dnd.hp = "3d8+9"
+        dnd.hp = (3, 8, 9)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -654,7 +649,6 @@ class NPC:
         dnd = CharacterSheet5()
         dnd.name = NPC._counter(f"Earth Elemental{extra_name}")
         dnd.armor_class = 17
-        dnd.hp = 126
         dnd.str = 20
         dnd.dex = 8
         dnd.con = 20
@@ -669,7 +663,7 @@ class NPC:
         wpn.attack_bonus = 8
         wpn.damage_bonus = 5
         dnd.weapon = wpn
-        dnd.hp = "12d10+60"
+        dnd.hp = (12, 10, 60)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -682,7 +676,6 @@ class NPC:
         dnd = CharacterSheet5()
         dnd.name = NPC._counter(f"Shadow{extra_name}")
         dnd.armor_class = 12
-        dnd.hp = int(dice.roll("3d8+3"))
         dnd.str = 6
         dnd.dex = 14
         dnd.con = 13
@@ -695,7 +688,7 @@ class NPC:
         wpn.attack_bonus = 4
         wpn.damage_bonus = 0
         dnd.weapon = wpn
-        dnd.hp = "3d8+3"
+        dnd.hp = (3, 8, 3)
         sheet = from_dnd5e(dnd)
         return sheet
 
@@ -707,14 +700,13 @@ def wander(pct: int = 10) -> bool:
 
 
 def wander_monsters(die_count: int = 1) -> list[CharacterSheet]:
-
     choices: list[list[CharacterSheet]] = list()
-    d2: int = roll(f"{die_count}d2-{die_count-1}")
-    d3: int = roll(f"{die_count}d3-{die_count-1}")
-    d4: int = roll(f"{die_count}d4-{die_count-1}")
-    d6: int = roll(f"{die_count}d6-{die_count-1}")
-    d8: int = roll(f"{die_count}d8-{die_count-1}")
-    d10: int = roll(f"{die_count}d10-{die_count-1}")
+    d2: int = dice_roll(die_count, 2) - (die_count-1)
+    d3: int = dice_roll(die_count, 3) - (die_count-1)
+    d4: int = dice_roll(die_count, 4) - (die_count-1)
+    d6: int = dice_roll(die_count, 6) - (die_count-1)
+    d8: int = dice_roll(die_count, 8) - (die_count-1)
+    d10: int = dice_roll(die_count, 10) - (die_count-1)
 
     i: list[CharacterSheet]
 

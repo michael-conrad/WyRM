@@ -422,14 +422,14 @@ class Weapon(gamebook_core.AbstractItem):
     @property
     def damage_max(self) -> int:
         if self._damage_alt:
-            return int(dice.roll_max(self._damage_alt.replace("x", "")))
-        return int(dice.roll_max(self._damage.replace("x", "")))
+            return int(gamebook_core.dice_roll2_max(self._damage_alt.replace("x", "")))
+        return int(gamebook_core.dice_roll2_max(self._damage.replace("x", "")))
 
     @property
     def damage_min(self) -> int:
         if self._damage_alt:
-            return int(dice.roll_min(self._damage_alt.replace("x", "")))
-        return int(dice.roll_min(self._damage.replace("x", "")))
+            return int(gamebook_core.dice_roll2_min(self._damage_alt.replace("x", "")))
+        return int(gamebook_core.dice_roll2_min(self._damage.replace("x", "")))
 
     @property
     def is_cursed(self) -> bool:

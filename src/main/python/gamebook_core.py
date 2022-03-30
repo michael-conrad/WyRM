@@ -1,6 +1,9 @@
 import abc
 import dataclasses
+import random
 from abc import ABC
+
+import dice
 
 
 @dataclasses.dataclass(slots=True)
@@ -234,3 +237,45 @@ def restore_turn() -> None:
     global _turn
     if len(_turn) > 1:
         _turn.pop(-1)
+
+
+def dice_roll(count: int, die: int, explode: bool = False) -> int:
+    result = 0
+    for _ in range(count):
+        while True:
+            roll_value = random.randint(1, die)
+            result += roll_value
+            if not explode:
+                break
+            if roll_value != die:
+                break
+    return result
+
+
+def dice_roll2(die_roll: str) -> int:
+    try:
+        if "-" in die_roll:
+            die_roll = die_roll[:die_roll.index("-")]
+        return int(dice.roll(die_roll))
+    except RecursionError as e:
+        return 1
+
+
+def dice_roll2_max(die_roll: str) -> int:
+    try:
+        if "-" in die_roll:
+            die_roll = die_roll[:die_roll.index("-")]
+        return int(dice.roll_max(die_roll.replace("x", "")))
+    except RecursionError as e:
+        return 1
+
+
+def dice_roll2_min(die_roll: str) -> int:
+    try:
+        if "-" in die_roll:
+            die_roll = die_roll[:die_roll.index("-")]
+        return int(dice.roll_min(die_roll.replace("x", "")))
+    except RecursionError as e:
+        return 1
+
+

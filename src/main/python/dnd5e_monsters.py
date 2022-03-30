@@ -1,11 +1,9 @@
 import dataclasses
 import math
-
-import dice
-
 import character_sheet
 from equipment import Armor
 from equipment import Weapon
+from gamebook_core import dice_roll
 
 
 @dataclasses.dataclass
@@ -63,7 +61,7 @@ class CharacterSheet5:
     @property
     def hp(self) -> int:
         if self._hp:
-            return max(int(dice.roll(self._hp)), 1)
+            return max(1, dice_roll(self._hp[0], self._hp[1]) + self._hp[2])
         return self.warrior + 6
 
     @hp.setter

@@ -107,10 +107,13 @@ macro fight_and_loot {
                if (mob_loot) {
                     "You loot the corpses."
                     for (item: mob_loot) {
-                        "* {item.name}";
+                        "* {item.name}"
                         player.add_item(item);
                     }
                 }
+                gained_xp = mob_unit.xp;
+                player.xp += mob_unit.xp;
+                "XP gained: {gained_xp:+,}. Total XP: {player.xp:+,}."
             }
         }
     }
@@ -269,9 +272,8 @@ player.list_armor + player.list_weapons;
 
 """
 Near this town there is a hill where stand the ruins of what was once an abbey.
-Legend has it that
-long ago the studious monks became corrupted by some evil and were destroyed by
-a band of wizards.
+Legend has it that long ago the studious monks became corrupted by some evil and
+were destroyed by a band of wizards.
 
 As a new adventurer you have come seeking loot. Hopefully stuff that will help
 with future adventures.
@@ -284,7 +286,6 @@ _ = player.stats_changed; // to prevent stats have changed display in postexec m
 goto "town" facing "w";
 
 [5]
-
 is_outside = false;
 
 room looted;
@@ -322,7 +323,7 @@ if (!looted) {
         looted = true;
         """
         You reach into the first alcove to see what treasures you might find.
-        Suddenly you hear moaning and clacking from all around. You are under attack!
+        Suddenly you hear moaning and clacking from other alcoves. You are under attack!
         """
         NPC.spawn(NPC.skeleton_warrior2, 1@4);
         NPC.spawn(NPC.zombie2, 1@3);
@@ -363,7 +364,7 @@ if (!examined_chest) {
         examined_chest = true;
         "You walk over and peer into the chest."
         "You discover:"
-        in_chest = get_loot();
+        in_chest = get_loot(1);
         for (l: in_chest) {
             player.add_item(l);
             "* {l.name}"
@@ -392,6 +393,11 @@ is_outside = false;
 "is_complete_4 {is_complete_4}"
 "is_complete_3 {is_complete_3}"
 "is_complete_2 {is_complete_2}"
+"is_complete {is_complete}"
+
+is_complete_2 = true;
+is_complete_3 = true;
+is_complete_4 = true;
 
 once {
     """
@@ -427,6 +433,7 @@ if (!facing.is_behind("e")) {
 
 if (is_complete) {
     "Nothing else of interest remains in the complex."
+    clear options;
     direction "Continue." "1" facing "e";
 }
 
@@ -511,20 +518,20 @@ Behind is {facing.behind}.
 
 // direction "Retire to the inn [end the game]" "end-game" facing "e";
 
-if (facing.behind != "n" && player.money.gp>=25) option "Visit alchemy shop" {
+/*if (facing.behind != "n" && player.money.gp>=25) option "Visit alchemy shop" {
     "You walk into the local alchemy shop."
     goto "potion-shop" facing "n";
-}
+}*/
 
-if (facing.behind != "w") option "Go weapon and armor shopping" {
+/*if (facing.behind != "w") option "Go weapon and armor shopping" {
     "You walk into the local armory."
     goto "armory-shop" facing "w";
-}
+}*/
 
-if (facing.behind != "w" && !player.has_item("torch")) option "Go to the supplies store" {
+/*if (facing.behind != "w" && !player.has_item("torch")) option "Go to the supplies store" {
     "You walk into the supplies store."
     goto "armory-shop" facing "w";
-}
+}*/
 
 if (facing.behind != "s") direction "Head down road and go to the abbey" "ruins-fork" facing "e";
 
@@ -536,6 +543,8 @@ if (is_complete) {
     """
     clear options;
     direction "Continue" "end-game" facing "e";
+} else {
+    direction "Quit and retire to the inn." "end-game" facing "e";
 }
 
 
@@ -862,15 +871,12 @@ room examine_pond;
 
 is_outside = false;
 
-if (is_complete_4a && examine_pond) {
-    is_complete_4 = true;
-}
-
 if (facing.facing == "w") {
     "You go down a 60ft passageway and step out into a large cave. The cave is about 100 ft x 70 ft."
 }
 
 once {
+    examine_pond = false;
     """
     Water oozes down the walls of this natural cave and forms a 30ft diameter pond
     in the middle of it. You notice water dripping from the cave roof about 30ft
@@ -895,9 +901,11 @@ if (!is_complete_4a) {
     direction "Examine crack" "4a" facing "s";
 }
 
-if (is_complete_4a && is_complete_4) {
+if (is_complete_4a && examine_pond) {
+    is_complete_4 = true;
     clear options;
 }
+
 direction "Head back to the 4 way to your {facing.e}" "4way" facing "e";
 
 [4a]

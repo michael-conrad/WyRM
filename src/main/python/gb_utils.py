@@ -1,14 +1,15 @@
-import dataclasses
 import random
 
 import dice
 import jsonpickle
 
+import character_sheet
 from equipment import Armor
 from equipment import Item
 from equipment import Money
 from equipment import Shield
 from equipment import Weapon
+from gamebook_core import dice_roll
 from skills import Difficulty
 
 
@@ -21,58 +22,58 @@ def get_loot(challenge: int) -> list[Item | Weapon | Armor | Shield | Money | st
     gp: int = 0
     pp: int = 0
 
-    d100: int = int(dice.roll("1d100"))
+    d100: int = dice_roll(1, 100)
     if challenge < 5:
         # challenge 0-4 table
         if d100 <= 30:
-            cp += int(dice.roll("5d6"))
+            cp += dice_roll(5, 6)
         elif d100 <= 60:
-            sp += int(dice.roll("4d6"))
+            sp += dice_roll(4, 6)
         elif d100 <= 70:
-            ep += int(dice.roll("3d6"))
+            ep += dice_roll(3, 6)
         elif d100 <= 95:
-            gp += int(dice.roll("3d6"))
+            gp += dice_roll(3, 6)
         else:
-            pp += int(dice.roll("1d6"))
+            pp += dice_roll(1, 6)
     elif challenge < 11:
         # challenge 5-10 table
         if d100 <= 30:
-            cp += int(dice.roll("4d6")) * 100
-            ep += int(dice.roll("1d6")) * 10
+            cp += dice_roll(4, 6) * 100
+            ep += dice_roll(1, 6) * 10
         elif d100 <= 60:
-            sp += int(dice.roll("6d6")) * 10
-            gp += int(dice.roll("2d6")) * 10
+            sp += dice_roll(6, 6) * 10
+            gp += dice_roll(2, 6) * 10
         elif d100 <= 70:
-            ep += int(dice.roll("3d6")) * 10
-            gp += int(dice.roll("4d6")) * 10
+            ep += dice_roll(3, 6) * 10
+            gp += dice_roll(4, 6) * 10
         elif d100 <= 95:
-            gp += int(dice.roll("5d6")) * 10
+            gp += dice_roll(5, 6) * 10
         else:
-            gp += int(dice.roll("2d6")) * 10
-            pp += int(dice.roll("3d6"))
+            gp += dice_roll(2, 6) * 10
+            pp += dice_roll(3, 6)
     elif challenge < 17:
         if d100 <= 20:
-            sp += int(dice.roll("4d6")) * 100
-            gp += int(dice.roll("1d6")) * 100
+            sp += dice_roll(4, 6) * 100
+            gp += dice_roll(1, 6) * 100
         elif d100 <= 35:
-            ep += int(dice.roll("1d6")) * 100
-            gp += int(dice.roll("1d6")) * 100
+            ep += dice_roll(1, 6) * 100
+            gp += dice_roll(1, 6) * 100
         elif d100 <= 75:
-            gp += int(dice.roll("2d6")) * 100
-            pp += int(dice.roll("1d6")) * 10
+            gp += dice_roll(2, 6) * 100
+            pp += dice_roll(1, 6) * 10
         else:
-            gp += int(dice.roll("2d6")) * 100
-            pp += int(dice.roll("2d6")) * 10
+            gp += dice_roll(2, 6) * 100
+            pp += dice_roll(2, 6) * 10
     else:
         if d100 <= 15:
-            ep += int(dice.roll("2d6")) * 1000
-            gp += int(dice.roll("8d6")) * 100
+            ep += dice_roll(2, 6) * 1000
+            gp += dice_roll(8, 6) * 100
         elif d100 <= 55:
-            gp += int(dice.roll("1d6")) * 1000
-            pp += int(dice.roll("1d6")) * 100
+            gp += dice_roll(1, 6) * 1000
+            pp += dice_roll(1, 6) * 100
         else:
-            gp += int(dice.roll("1d6")) * 100
-            pp += int(dice.roll("2d6")) * 100
+            gp += dice_roll(1, 6) * 100
+            pp += dice_roll(2, 6) * 100
 
     if cp:
         result.append(Money("CP", cp))
@@ -130,7 +131,7 @@ take it to a place of my choosing for a reward beyond just your life."
 
 
 def intervention(check: int | None = None) -> str:
-    check = int(roll("3d6")) if check is None else check
+    check = dice_roll(3, 6) if check is None else check
     "3,4, 5,6, 7,8, 9,10, 11,12, 13,14, 15,16, 17,18"
     if check <= 4:
         return f"""
@@ -138,10 +139,10 @@ def intervention(check: int | None = None) -> str:
 {dark_power_intervention_text()}
 """
     if check <= 6:
-        effect: str = random.choice(["Hidden floor pit full of spikes triggers. (3d6 dmg).",
-                                     "Spontaneous Combustion. (2d8 dmg).",
-                                     "Hidden darts trap from wall triggers. (3d4 dmg).",
-                                     "Hidden spikes trap from ceiling triggers. (3d8 dmg)"])
+        effect: str = random.choice(
+                ["Hidden floor pit full of spikes triggers. (3d6 dmg).", "Spontaneous Combustion. (2d8 dmg).",
+                 "Hidden darts trap from wall triggers. (3d4 dmg).",
+                 "Hidden spikes trap from ceiling triggers. (3d8 dmg)"])
         return f"{effect} ({check})."
     if check <= 8:
         creatures: str = random.choice(
@@ -249,7 +250,8 @@ def dl_check(difficulty_name: str, attribute_value: int) -> str:
         if difficulty.name.lower() == difficulty_name.lower():
             die_value: int = roll("1d6x")
             check: int = die_value + attribute_value
-            return f"PASS {check} >= {difficulty.value}" if check >= difficulty.value else f"FAIL {check} < {difficulty.value}"
+            return f"PASS {check} >= {difficulty.value}" if check >= difficulty.value \
+                else f"FAIL {check} < {difficulty.value}"
         _ += f"{difficulty.name} ({difficulty.value}); "
     return f"{difficulty_name} unknown. {_}"
 
@@ -390,7 +392,7 @@ def loot(r: random.Random | None = None) -> str:
         items.append(f"Keoghtom's Ointment, doses: {bns}, heals 2d8+2")
         items.append("Potion of Flying")
         items.append("Potion of Invisibility")
-        points = r.randint(1,8)+r.randint(1,8)+r.randint(1,8)
+        points = r.randint(1, 8) + r.randint(1, 8) + r.randint(1, 8)
         items.append(f"Potion of Vitality ({points:+})")
         items.append(f"Potion of Mana Restoration ({points:+})")
         bns = r.randint(1, 3)
@@ -564,7 +566,7 @@ def loot_armor_weapon(r: random.Random | None = None) -> str:
         bns = r.randint(1, 3)
         items.append(f"Ring of Evasion, Rogue: {bns:+}")
         bns = r.randint(1, 3)
-        items.append("Ring of Protection, Defense {bns:+}")
+        items.append(f"Ring of Protection, Defense {bns:+}")
         d100 = r.randint(1, 100)
         bns = 1 if d100 < 75 else 2 if d100 < 96 else 3
         d6 = r.randint(1, 6)
@@ -673,18 +675,3 @@ def loot_armor_weapon(r: random.Random | None = None) -> str:
             else:
                 items.append(f"Two-handed axe {bns:+}")
     return r.choice(items)
-
-
-class Macro:
-    @classmethod
-    def heal(cls) -> list[str]:
-        result = list()
-        result.append("")
-        result.append("@cast: 'succeeded' in str(player.cast('Healing Hand')).lower()")
-        result.append("@player.mana: player.mana")
-        result.append("@hp: roll('1d6') if cast else 0")
-        result.append("@player.hp: player.hp + hp")
-        return result
-
-
-

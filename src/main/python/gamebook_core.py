@@ -181,6 +181,12 @@ class Items:
             if item.name.startswith(item_name):
                 return item
 
+    def pop(self, item_name: str) -> AbstractItem:
+        for item in self._inv:
+            if item.name.startswith(item_name):
+                self._inv.remove(item)
+                return item
+
     def clear(self) -> None:
         self._inv.clear()
 

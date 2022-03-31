@@ -472,7 +472,7 @@ with open("index.md", "w") as w:
                     out()
                     out("next_turn()")
                     out()
-                    out("if turn() % 10 == 0:")
+                    out("if turn() % 10 == 0 or True:")
                     indent_inc()
                     out("_ = str(datetime.now().time())[:8]")
                     out("")
@@ -1386,7 +1386,7 @@ with open("index.md", "w") as w:
         out("return 'index'")
         indent_dec()
 
-        out(f"option_list.append((\"Start Over\", start_over))");
+        out(f"option_list.append((\"Start Over\", start_over))")
         out("raise abort_processing # end processing after restart statement")
 
     def __default__(self, tree: Tree | Token):
@@ -1409,7 +1409,10 @@ with open("index.md", "w") as w:
         out("recurse_depth -= 1")
         out("option_list.sort(key=lambda x: x[0])")
         out("saved_state = save_state()")
-        out("out += \"_____\\n\"")
+
+        out("if option_list:")
+        indent_inc()
+        out("out += \"\\n_____\\n\"")
         out("for _ in option_list:")
         indent_inc()
         out("destination_node = _[1]()")
@@ -1421,6 +1424,8 @@ with open("index.md", "w") as w:
         out("out += \"\\n\"")
         indent_dec()
         out("out += \"_____\\n\"")
+        indent_dec()
+
         out("restore_turn()")
         out("_output[node_id] = out")
         out("return node_id")

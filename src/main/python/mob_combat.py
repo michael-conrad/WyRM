@@ -93,7 +93,21 @@ class MobUnit(gamebook_core.AbstractItem):
             return None
 
         combat_log: list[str] = list()
-        combat_log.append(f"#### Combat: {self.name} vs {opponent_mob.name}")
+        combat_log.append(f"#### Combat")
+        combat_log.append("")
+        combat_log.append(f"**{self.name}**")
+        combat_log.append("")
+        for unit in self.units:
+            combat_log.append(f"* {unit.name}")
+        combat_log.append("")
+        combat_log.append("**vs**")
+        combat_log.append("")
+        combat_log.append(f"**{opponent_mob.name}**")
+        combat_log.append("")
+        for unit in opponent_mob.units:
+            combat_log.append(f"* {unit.name}")
+
+        combat_log.append("")
         if have_initiative is None:
             have_initiative = self.initiative_check(opponent_mob)
 
@@ -114,8 +128,8 @@ class MobUnit(gamebook_core.AbstractItem):
                     for unit in _.units:
                         starting_fate[unit.name_with_id] = unit.fate
                     combat_log.append(_.fate_dec(1))
-                    for unit in _.units:
-                        unit.hp = unit.hit_points_max
+                    # for unit in _.units:
+                    #     unit.hp = unit.hit_points_max
         return combat_log
 
     def initiative_check(self, opponent_mob: "MobUnit", have_initiative: bool | None = None) -> bool:
@@ -231,6 +245,8 @@ class MobUnit(gamebook_core.AbstractItem):
 
     @property
     def name(self) -> str:
+        if self.unit_count and not self._name:
+            self._name = self.units[0].name
         if self.unit_count == 1:
             return f"The {self._name}"
         if self.unit_count == 2:

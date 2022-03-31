@@ -286,10 +286,12 @@ _ = player.stats_changed; // to prevent stats have changed display in postexec m
 goto "town" facing "w";
 
 [5]
-is_outside = false;
 
 room looted;
 room alcove;
+
+is_outside = false;
+is_complete_5 = true;
 
 once {
     looted = false;
@@ -327,6 +329,7 @@ if (!looted) {
         """
         NPC.spawn(NPC.skeleton_warrior2, 1@4);
         NPC.spawn(NPC.zombie2, 1@3);
+
         facing.face("e");
     }
 }
@@ -335,15 +338,12 @@ if (facing.behind != "s" || is_complete_5a) {
     direction "Exit the crypt using the portcullis to your {facing.s}." "4way" facing "s";
 }
 
-if (is_complete_5a && looted) {
-    is_complete_5 = true;
-}
-
 [5a]
-
-is_outside = false;
 room examined_chest;
 room examined_monk;
+
+is_outside = false;
+is_complete_5a = true;
 
 once {
     """
@@ -378,26 +378,13 @@ if (!examined_monk) {
     option "Examine monk" {
         examined_monk = true;
         "You walk over and search the corpse, but find nothing of interest."
-        facing.face("w");
     }
 }
 
-is_complete_5a = examined_chest && examined_monk;
-
-if (is_complete_5a) direction "{facing.dw}" "5" facing "w";
+direction "{facing.dw}" "5" facing "w";
 
 [4way]
 is_outside = false;
-
-"is_complete_5 {is_complete_5}"
-"is_complete_4 {is_complete_4}"
-"is_complete_3 {is_complete_3}"
-"is_complete_2 {is_complete_2}"
-"is_complete {is_complete}"
-
-is_complete_2 = true;
-is_complete_3 = true;
-is_complete_4 = true;
 
 once {
     """
@@ -427,14 +414,10 @@ if (is_complete_3 && is_complete_2) {
     direction "{facing.ds}" "3 Way" facing "s";
 }
 
-if (!facing.is_behind("e")) {
-    direction "Head back to the surface using the passage to your {facing.e}." "1" facing "e";
-}
-
 if (is_complete) {
     "Nothing else of interest remains in the complex."
     clear options;
-    direction "Continue." "1" facing "e";
+    direction "Head back to the surface using the passage to your {facing.e}." "1" facing "e";
 }
 
 [1]
@@ -533,7 +516,8 @@ Behind is {facing.behind}.
     goto "armory-shop" facing "w";
 }*/
 
-if (facing.behind != "s") direction "Head down road and go to the abbey" "ruins-fork" facing "e";
+// if (facing.behind != "s")
+direction "Head down road and go to the abbey" "ruins-fork" facing "e";
 
 if (is_complete) {
     """
@@ -822,6 +806,12 @@ once {
     repeat 1@4 NPC.zombie();
 } else {
     "You are in a tiled floor cave with a stone plinth."
+    option "Equip axe" {
+        "You pickup the finely crafted weapon and exchange it with your existing axe."
+        "As you look about you realize it grants darkvision! No more torch needed!"
+        darkvision=true;
+        player.equip_weapon(items.get("Dark"));
+    }
 }
 
 direction "{facing.dw}" "3 Way" facing "w";
@@ -845,9 +835,9 @@ once {
     """
 }
 
-if (facing.behind != "n") direction "{facing.dn}" "4way" facing "n";
-if (!is_complete_2 && facing.behind != "e") direction "{facing.de}" "2" facing "e";
-if (!is_complete_3 && facing.behind != "s") direction "{facing.ds}" "3" facing "s";
+if (!is_complete_2) direction "{facing.de}" "2" facing "e";
+if (!is_complete_3) direction "{facing.ds}" "3" facing "s";
+direction "{facing.dn}" "4way" facing "n";
 
 [3]
 
@@ -858,10 +848,17 @@ once {
     """
     You enter a 90ft x 40ft room full of wine and ale casks. Many are open. You don't see any other doors or
     passages leading from the room.
+
+    As you poke around looking to see if anything of value might be here, several of the empty casks shift nearby
+    and you find yourself under attack!
     """
+    if (!items.mobs) {
+        NPC.spawn(NPC.giant_rat, 1@3);
+    }
 } else {
     "You enter the room full of empty and broken casks. There are stairs leading up to your {facing.n}."
 }
+
 
 direction "Climb up the stairs" "3 Way" facing "n";
 
@@ -870,6 +867,8 @@ direction "Climb up the stairs" "3 Way" facing "n";
 room examine_pond;
 
 is_outside = false;
+is_complete_4 = true;
+
 
 if (facing.facing == "w") {
     "You go down a 60ft passageway and step out into a large cave. The cave is about 100 ft x 70 ft."
@@ -893,17 +892,13 @@ once {
 }
 
 if (!examine_pond) option "Examine pond" {
-    "You examine the pond and are suddenly turned around in a different direction!"
+    "You examine the pond and are suddenly attacked!"
     examine_pond = true;
+    if (!items.mobs) NPC.spawn(NPC.giant_spider, 1@2);
 }
 
 if (!is_complete_4a) {
     direction "Examine crack" "4a" facing "s";
-}
-
-if (is_complete_4a && examine_pond) {
-    is_complete_4 = true;
-    clear options;
 }
 
 direction "Head back to the 4 way to your {facing.e}" "4way" facing "e";
@@ -911,6 +906,10 @@ direction "Head back to the 4 way to your {facing.e}" "4way" facing "e";
 [4a]
 is_outside = false;
 is_complete_4a = true;
+
+once {
+    if (!items.mobs) NPC.spawn(NPC.giant_spider, 1@2);
+}
 
 if (facing.facing=="s") {
     "You are in an upward sloping tunnel."
@@ -938,7 +937,7 @@ once {
 
 if (!is_complete) {
     direction "Go back into the tunnel" "4a" facing "n";
-    direction "Climb hill back up to the ruins" "ruins" facing "e";
+    // direction "Climb hill back up to the ruins" "ruins" facing "e";
 }
 direction "Return to town" "town" facing "n";
 

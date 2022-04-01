@@ -802,8 +802,8 @@ once {
     "As you look beyond the dead monk you see figures moving into the torchlight."
 
     Weapon.by_name("Axe (Dark Enchanted)");
-    repeat 1@3 NPC.skeleton_warrior();
-    repeat 1@4 NPC.zombie();
+    repeat 1@3 NPC.skeleton_warrior2();
+    repeat 1@4 NPC.zombie2();
 } else {
     "You are in a tiled floor cave with a stone plinth."
     option "Equip axe" {

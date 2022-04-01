@@ -78,7 +78,7 @@ class MobUnit(gamebook_core.AbstractItem):
                 if starting_hp[unit.name_with_id] != unit.hp:
                     hp_lost: int = unit.hp - starting_hp[unit.name_with_id]
                     died_text: str = "" if unit.is_alive else ", DIED."
-                    combat_log.append(f"- {unit.name_with_id}: {hp_lost:+,} HP{died_text}")
+                    combat_log.append(f"- {unit.name}: {hp_lost:+,} HP{died_text}")
             if combat_result:
                 combat_log.append(combat_result)
         return combat_log
@@ -94,18 +94,24 @@ class MobUnit(gamebook_core.AbstractItem):
 
         combat_log: list[str] = list()
         combat_log.append(f"#### Combat")
-        combat_log.append("")
-        combat_log.append(f"**{self.name}**")
-        combat_log.append("")
-        for unit in self.units:
-            combat_log.append(f"* {unit.name}")
-        combat_log.append("")
-        combat_log.append("**vs**")
-        combat_log.append("")
-        combat_log.append(f"**{opponent_mob.name}**")
-        combat_log.append("")
-        for unit in opponent_mob.units:
-            combat_log.append(f"* {unit.name}")
+
+        if "Player" not in self.name:
+            combat_log.append("")
+            # combat_log.append(f"**{self.name}**")
+            # combat_log.append("")
+            for unit in self.units:
+                combat_log.append(f"* {unit.name}")
+            combat_log.append("")
+
+        if "Player" not in self.name and "Player" not in opponent_mob.name:
+            combat_log.append("*vs*")
+
+        if "Player" not in opponent_mob.name:
+            combat_log.append("")
+            # combat_log.append(f"**{opponent_mob.name}**")
+            # combat_log.append("")
+            for unit in opponent_mob.units:
+                combat_log.append(f"* {unit.name}")
 
         combat_log.append("")
         if have_initiative is None:
@@ -248,7 +254,7 @@ class MobUnit(gamebook_core.AbstractItem):
         if self.unit_count and not self._name:
             self._name = self.units[0].name
         if self.unit_count == 1:
-            return f"The {self._name}"
+            return f"{self._name}"
         if self.unit_count == 2:
             return f"The pair led by the {self._name}"
         return f"The group led by the {self._name}"
@@ -292,7 +298,7 @@ class MobUnit(gamebook_core.AbstractItem):
             if starting_hp[unit.name_with_id] != unit.hp:
                 hp_lost: int = unit.hp - starting_hp[unit.name_with_id]
                 died_text: str = "" if unit.is_alive else ", DIED."
-                result.append(f"- {unit.name_with_id}: {hp_lost:+,} HP{died_text}")
+                result.append(f"- {unit.name}: {hp_lost:+,} HP{died_text}")
         return result
 
     def take_damage_each(self, die: str) -> list[str]:
@@ -306,7 +312,7 @@ class MobUnit(gamebook_core.AbstractItem):
             if starting_hp[unit.name_with_id] != unit.hp:
                 hp_lost: int = unit.hp - starting_hp[unit.name_with_id]
                 died_text: str = "" if unit.is_alive else ", DIED."
-                result.append(f"- {unit.name_with_id}: {hp_lost:+,} HP{died_text}")
+                result.append(f"- {unit.name}: {hp_lost:+,} HP{died_text}")
         return result
 
     @property
